@@ -27,12 +27,15 @@ export class OrderService {
   ) {}
 
   async insertOrder(body: InsertOrderDto) {
-    const parts=body.history.split('/');
-    const year=parts[0];
-    const month=parseInt(parts[1],10);
-    const day=parseInt(parts[2],10);
-    const fullDate=`${year}/${month}/${day}`
-    const insertOrder = await this.orderRepository.create<Order>({ ...body , history:fullDate});
+    const parts = body.history.split('/');
+    const year = parts[0];
+    const month = parseInt(parts[1], 10);
+    const day = parseInt(parts[2], 10);
+    const fullDate = `${year}/${month}/${day}`;
+    const insertOrder = await this.orderRepository.create<Order>({
+      ...body,
+      history: fullDate,
+    });
     const findOrderByUser = await this.orderRepository.findAll({
       where: {},
     });
@@ -104,21 +107,21 @@ export class OrderService {
             [Op.between]: [body.beforeHistory, body.afterHistory],
           },
         },
-        order:[['historyOfDriver','DESC']]
+        order: [['historyOfDriver', 'DESC']],
       });
-    }else{
-    findOrder = await this.orderRepository.findAll({
-      where: {
-        driver: body.userId,
-        shopId: body.shopId,
-        deletedAt: null,
-        isRegisteredByDriver: {
-          [Op.ne]: null,
+    } else {
+      findOrder = await this.orderRepository.findAll({
+        where: {
+          driver: body.userId,
+          shopId: body.shopId,
+          deletedAt: null,
+          isRegisteredByDriver: {
+            [Op.ne]: null,
+          },
         },
-      },
-      order:[['historyOfDriver','DESC']]
-    });
-  }
+        order: [['historyOfDriver', 'DESC']],
+      });
+    }
     const findOrderDriverById = await this.orderDriverrRepository.findAll({
       where: { driverId: body.userId },
     });
@@ -349,7 +352,7 @@ export class OrderService {
             },
           },
         },
-        order:[['history','DESC']]
+        order: [['history', 'DESC']],
       });
     } else {
       findAllDeletedOrderByShopId = await this.orderRepository.findAll({
@@ -362,7 +365,7 @@ export class OrderService {
             },
           },
         },
-        order:[['history','DESC']]
+        order: [['history', 'DESC']],
       });
     }
 
@@ -399,7 +402,7 @@ export class OrderService {
             [Op.between]: [body.beforeHistory, body.afterHistory],
           },
         },
-        order:[['history','DESC']]
+        order: [['history', 'DESC']],
       });
     } else {
       findDeletedOrderByDriver = await this.orderRepository.findAll({
@@ -409,7 +412,7 @@ export class OrderService {
             [Op.ne]: null,
           },
         },
-        order:[['history','DESC']]
+        order: [['history', 'DESC']],
       });
     }
     for (let i = 0; i < findDeletedOrderByDriver.length; i++) {
@@ -443,7 +446,7 @@ export class OrderService {
             },
           },
         },
-        order:[['history','DESC']]
+        order: [['history', 'DESC']],
       });
     } else {
       findAllDeletedOrderByShopId = await this.orderRepository.findAll({
@@ -455,7 +458,7 @@ export class OrderService {
             },
           },
         },
-        order:[['history','DESC']]
+        order: [['history', 'DESC']],
       });
     }
     return findAllDeletedOrderByShopId;
@@ -520,20 +523,20 @@ export class OrderService {
             [Op.between]: [body.beforeHistory, body.afterHistory],
           },
         },
-        order:[['historyOfStock','DESC']]
+        order: [['historyOfStock', 'DESC']],
       });
-    }else{
-    findAllOrdersRegisteredByStock = await this.orderRepository.findAll({
-      where: {
-        stockId: stockId,
-        isRegisteredByStock: {
-          [Op.ne]: null,
+    } else {
+      findAllOrdersRegisteredByStock = await this.orderRepository.findAll({
+        where: {
+          stockId: stockId,
+          isRegisteredByStock: {
+            [Op.ne]: null,
+          },
+          deletedAt: null,
         },
-        deletedAt: null,
-      },
-      order:[['historyOfStock','DESC']]
-    });
-  }
+        order: [['historyOfStock', 'DESC']],
+      });
+    }
     return {
       status: 200,
       message: findAllOrdersRegisteredByStock,
@@ -546,7 +549,7 @@ export class OrderService {
         where: {
           driver: stockId,
           isRegisteredByDriver: {
-            [Op.ne]:null
+            [Op.ne]: null,
           },
         },
       });
@@ -635,74 +638,75 @@ export class OrderService {
 
   async outPutNotDeletedOrderExcel(req) {
     let data = [];
-    let findAllOrder=[];
-    if(req.shopId){
-      if(req.beforeHistory&&req.afterHistory){
+    let findAllOrder = [];
+    if (req.shopId) {
+      if (req.beforeHistory && req.afterHistory) {
         console.log('shop id before and after history');
-        
+
         findAllOrder = await this.orderRepository.findAll({
           where: {
             deletedAt: {
               [Op.ne]: null,
             },
-            history:{
-              [Op.between]:[req.beforeHistory,req.afterHistory]
-            }
+            history: {
+              [Op.between]: [req.beforeHistory, req.afterHistory],
+            },
           },
         });
-      }else{
-      console.log('shop id');
-      
-      findAllOrder = await this.orderRepository.findAll({
-        where: {
-          deletedAt: {
-            [Op.ne]: null,
+      } else {
+        console.log('shop id');
+
+        findAllOrder = await this.orderRepository.findAll({
+          where: {
+            deletedAt: {
+              [Op.ne]: null,
+            },
+            shopId: req.shopId,
           },
-          shopId:req.shopId
-        },
-      });
-    }}else if(req.beforeHistory&&req.afterHistory){
+        });
+      }
+    } else if (req.beforeHistory && req.afterHistory) {
       console.log('history');
-      
+
       findAllOrder = await this.orderRepository.findAll({
         where: {
           deletedAt: {
             [Op.ne]: null,
           },
-          history:{
-            [Op.between]:[req.beforeHistory,req.afterHistory]
+          history: {
+            [Op.between]: [req.beforeHistory, req.afterHistory],
           },
         },
       });
-    }else{
-     findAllOrder = await this.orderRepository.findAll({
-      where: {
-        deletedAt: {
-          [Op.ne]: null,
+    } else {
+      findAllOrder = await this.orderRepository.findAll({
+        where: {
+          deletedAt: {
+            [Op.ne]: null,
+          },
         },
-      },
-    });
-  }
+      });
+    }
     for (let i = 0; i < findAllOrder.length; i++) {
       data.push({
         shopId: findAllOrder[i].shopId,
-        numberOfOrder:findAllOrder[i].numberOfOrder,
+        numberOfOrder: findAllOrder[i].numberOfOrder,
         woodPallet: findAllOrder[i].woodPallet,
-        woodPalletCode:findAllOrder[i].woodPalletCode,
+        woodPalletCode: findAllOrder[i].woodPalletCode,
         plasticPallet: findAllOrder[i].plasticPallet,
-        plasticPalletCode:findAllOrder[i].plasticPalletCode,
+        plasticPalletCode: findAllOrder[i].plasticPalletCode,
         basketOfPegahYogurt: findAllOrder[i].basketOfPegahYogurt,
-        basketOfPegahYogurtCode:findAllOrder[i].basketOfPegahYogurtCode,
+        basketOfPegahYogurtCode: findAllOrder[i].basketOfPegahYogurtCode,
         basketOfPegahِDough: findAllOrder[i].basketOfPegahِDough,
-        basketOfPegahِDoughCode:findAllOrder[i].basketOfPegahِDoughCode,
+        basketOfPegahِDoughCode: findAllOrder[i].basketOfPegahِDoughCode,
         dominoBasket: findAllOrder[i].dominoBasket,
-        dominoBasketCode:findAllOrder[i].dominoBasketCode,
+        dominoBasketCode: findAllOrder[i].dominoBasketCode,
         harazBasket: findAllOrder[i].harazBasket,
-        harazBasketCode:findAllOrder[i].harazBasketCode,
+        harazBasketCode: findAllOrder[i].harazBasketCode,
         kallehBasket: findAllOrder[i].kallehBasket,
-        kallehBasketCode:findAllOrder[i].kallehBasketCode,
-        basketOfpaakDough:findAllOrder[i].basketOfpaakDough,
-        basketOfpaakDoughCode:findAllOrder[i].basketOfpaakDoughCode,
+        kallehBasketCode: findAllOrder[i].kallehBasketCode,
+        basketOfpaakDough: findAllOrder[i].basketOfpaakDough,
+        basketOfpaakDoughCode: findAllOrder[i].basketOfpaakDoughCode,
         boxBasket: findAllOrder[i].boxBasket,
         shopUser: findAllOrder[i].shopUser,
         history: findAllOrder[i].history,
@@ -722,21 +726,21 @@ export class OrderService {
       { key: 'کد فروشگاه', header: 'کد فروشگاه', width: 20 },
       { key: 'شماره سفارش', header: 'شماره سفارش', width: 20 },
       { key: 'پالت چوبی', header: 'پالت چوبی', width: 20 },
-      {key:'کد پالت چوبی',header:'کد پالت چوبی',width:20},
+      { key: 'کد پالت چوبی', header: 'کد پالت چوبی', width: 20 },
       { key: 'پالت پلاستیکی', header: 'پالت پلاستیکی', width: 20 },
-      {key:'کد پالت پلاستیکی',header:'کد پالت پلاستیکی',width:20},
+      { key: 'کد پالت پلاستیکی', header: 'کد پالت پلاستیکی', width: 20 },
       { key: 'سبد ماست پگاه', header: 'سبد ماست پگاه', width: 20 },
-      {key:'کد سبد ماست پگاه',header:'کد سبد ماست پگاه',width:20},
+      { key: 'کد سبد ماست پگاه', header: 'کد سبد ماست پگاه', width: 20 },
       { key: 'سبد دوغ پگاه', header: 'سبد دوغ پگاه', width: 20 },
-      {key:'کد سبد دوغ پگاه',header:'کد سبد دوع پگاه',width:20},
+      { key: 'کد سبد دوغ پگاه', header: 'کد سبد دوع پگاه', width: 20 },
       { key: 'سبد دومینو', header: 'سبد دومینو', width: 20 },
-      {key:'کد سبد دومینو',header:'کد سبد دومینو',width:20},
+      { key: 'کد سبد دومینو', header: 'کد سبد دومینو', width: 20 },
       { key: 'سبد هراز', header: 'سبد هراز', width: 20 },
-      {key:'کد سبد هراز',header:'کد سبد هراز',width:20},
+      { key: 'کد سبد هراز', header: 'کد سبد هراز', width: 20 },
       { key: 'سبد کاله', header: 'سبد کاله', width: 20 },
-      {key:'کد سبد کاله',header:'کد سبد کاله',width:20},
-      {key:'سبد پاک',header:'سبد پاک',width:20},
-      {key:'کد سبد پاک',header:'کد سبد پاک',width:20},
+      { key: 'کد سبد کاله', header: 'کد سبد کاله', width: 20 },
+      { key: 'سبد پاک', header: 'سبد پاک', width: 20 },
+      { key: 'کد سبد پاک', header: 'کد سبد پاک', width: 20 },
       { key: ' سبد کارتن', header: 'سبد کارتن', width: 20 },
       { key: 'کاربر فروشگاه', header: 'کاربر فروشگاه', width: 20 },
       { key: 'تاریخ ثبت فروشگاه', header: 'تاریخ ثبت فروشگاه', width: 20 },
@@ -756,74 +760,75 @@ export class OrderService {
     return buffer;
   }
 
-  async deletedExcelOfOrder(req:any) {
+  async deletedExcelOfOrder(req: any) {
     let data = [];
-    let findAllOrder=[];
-    if(req.shopId){
-      if(req.beforeHistory&&req.afterHistory){
+    let findAllOrder = [];
+    if (req.shopId) {
+      if (req.beforeHistory && req.afterHistory) {
         console.log('shop id before and after history');
-        
+
         findAllOrder = await this.orderRepository.findAll({
           where: {
             deletedAt: {
               [Op.ne]: null,
             },
-            history:{
-              [Op.between]:[req.beforeHistory,req.afterHistory]
-            }
+            history: {
+              [Op.between]: [req.beforeHistory, req.afterHistory],
+            },
           },
         });
-      }else{
-      console.log('shop id');
-      
-      findAllOrder = await this.orderRepository.findAll({
-        where: {
-          deletedAt: {
-            [Op.ne]: null,
+      } else {
+        console.log('shop id');
+
+        findAllOrder = await this.orderRepository.findAll({
+          where: {
+            deletedAt: {
+              [Op.ne]: null,
+            },
+            shopId: req.shopId,
           },
-          shopId:req.shopId
-        },
-      });
-    }}else if(req.beforeHistory&&req.afterHistory){
+        });
+      }
+    } else if (req.beforeHistory && req.afterHistory) {
       console.log('history');
-      
+
       findAllOrder = await this.orderRepository.findAll({
         where: {
           deletedAt: {
             [Op.ne]: null,
           },
-          history:{
-            [Op.between]:[req.beforeHistory,req.afterHistory]
+          history: {
+            [Op.between]: [req.beforeHistory, req.afterHistory],
           },
         },
       });
-    }else{
-     findAllOrder = await this.orderRepository.findAll({
-      where: {
-        deletedAt: {
-          [Op.ne]: null,
+    } else {
+      findAllOrder = await this.orderRepository.findAll({
+        where: {
+          deletedAt: {
+            [Op.ne]: null,
+          },
         },
-      },
-    });
-  }
+      });
+    }
     for (let i = 0; i < findAllOrder.length; i++) {
       data.push({
         shopId: findAllOrder[i].shopId,
-        numberOfOrder:findAllOrder[i].numberOfOrder,
+        numberOfOrder: findAllOrder[i].numberOfOrder,
         woodPallet: findAllOrder[i].woodPallet,
-        woodPalletCode:findAllOrder[i].woodPalletCode,
+        woodPalletCode: findAllOrder[i].woodPalletCode,
         plasticPallet: findAllOrder[i].plasticPallet,
-        plasticPalletCode:findAllOrder[i].plasticPalletCode,
+        plasticPalletCode: findAllOrder[i].plasticPalletCode,
         basketOfPegahYogurt: findAllOrder[i].basketOfPegahYogurt,
-        basketOfPegahYogurtCode:findAllOrder[i].basketOfPegahYogurtCode,
+        basketOfPegahYogurtCode: findAllOrder[i].basketOfPegahYogurtCode,
         basketOfPegahِDough: findAllOrder[i].basketOfPegahِDough,
-        basketOfPegahِDoughCode:findAllOrder[i].basketOfPegahِDoughCode,
+        basketOfPegahِDoughCode: findAllOrder[i].basketOfPegahِDoughCode,
         dominoBasket: findAllOrder[i].dominoBasket,
-        dominoBasketCode:findAllOrder[i].dominoBasketCode,
+        dominoBasketCode: findAllOrder[i].dominoBasketCode,
         harazBasket: findAllOrder[i].harazBasket,
-        harazBasketCode:findAllOrder[i].harazBasketCode,
+        harazBasketCode: findAllOrder[i].harazBasketCode,
         kallehBasket: findAllOrder[i].kallehBasket,
-        kallehBasketCode:findAllOrder[i].kallehBasketCode,
+        kallehBasketCode: findAllOrder[i].kallehBasketCode,
         boxBasket: findAllOrder[i].boxBasket,
         shopUser: findAllOrder[i].shopUser,
         history: findAllOrder[i].history,
@@ -838,19 +843,19 @@ export class OrderService {
       { key: 'کد فروشگاه', header: 'کد فروشگاه', width: 20 },
       { key: 'شماره سفارش', header: 'شماره سفارش', width: 20 },
       { key: 'پالت چوبی', header: 'پالت چوبی', width: 20 },
-      {key:'کد پالت چوبی',header:'کد پالت چوبی'},
+      { key: 'کد پالت چوبی', header: 'کد پالت چوبی' },
       { key: 'پالت پلاستیکی', header: 'پالت پلاستیکی', width: 20 },
-      {key:'کد پالت پلاستیکی',header:'کد پالت پلاستیکی'},
+      { key: 'کد پالت پلاستیکی', header: 'کد پالت پلاستیکی' },
       { key: 'سبد ماست پگاه', header: 'سبد ماست پگاه', width: 20 },
-      {key:'کد سبد ماست پگاه',header:'کد سبد ماست پگاه'},
+      { key: 'کد سبد ماست پگاه', header: 'کد سبد ماست پگاه' },
       { key: 'سبد دوغ پگاه', header: 'سبد دوغ پگاه', width: 20 },
-      {key:'کد سبد دوغ پگاه',header:'کد سبد دوغ پگاه'},
+      { key: 'کد سبد دوغ پگاه', header: 'کد سبد دوغ پگاه' },
       { key: 'سبد دومینو', header: 'سبد دومینو', width: 20 },
-      {key:'کد سبد دومینو',header:'کد سبد دومینو'},
+      { key: 'کد سبد دومینو', header: 'کد سبد دومینو' },
       { key: 'سبد هراز', header: 'سبد هراز', width: 20 },
-      {key:'کد سبد هراز',header:'کد سبد هراز'},
+      { key: 'کد سبد هراز', header: 'کد سبد هراز' },
       { key: 'سبد کاله', header: 'سبد کاله', width: 20 },
-      {key:'کد سبد کاله',header:'کد سبد کاله'},
+      { key: 'کد سبد کاله', header: 'کد سبد کاله' },
       { key: ' سبد کارتن', header: 'سبد کارتن', width: 20 },
       { key: 'کاربر فروشگاه', header: 'کاربر فروشگاه', width: 20 },
       { key: 'تاریخ ثبت فروشگاه', header: 'تاریخ ثبت فروشگاه', width: 20 },
@@ -864,46 +869,47 @@ export class OrderService {
     return buffer;
   }
 
-  async isGeneratedPasswordByDriver(id:number){
-   const findOneOrder=await this.orderRepository.findByPk(id);
-   findOneOrder.isGeneratedPasswordByDriver=true;
-   findOneOrder.save();
-   return{
-    status:200,
-    message:findOneOrder
-   }
+  async isGeneratedPasswordByDriver(id: number) {
+    const findOneOrder = await this.orderRepository.findByPk(id);
+    findOneOrder.isGeneratedPasswordByDriver = true;
+    findOneOrder.save();
+    return {
+      status: 200,
+      message: findOneOrder,
+    };
   }
 
-  async listOfExcelOrderByShopCode(shopCode:string,beforeHistory:string,afterHistory:string){
+  //shopCode:string,beforeHistory:string,afterHistory:string
+  async listOfExcelOrderByShopCode(shopCode: string) {
     let data = [];
     const findAllOrder = await this.orderRepository.findAll({
-      where: { 
-        shopId:shopCode,
-        history:{
-          [Op.between]:[beforeHistory,afterHistory]
-        }
-       },
+      where: {
+        shopId: shopCode,
+        // history:{
+        //   [Op.between]:[beforeHistory,afterHistory]
+        // }
+      },
     });
     for (let i = 0; i < findAllOrder.length; i++) {
       data.push({
         shopId: findAllOrder[i].shopId,
-        numberOfOrder:findAllOrder[i].numberOfOrder,
+        numberOfOrder: findAllOrder[i].numberOfOrder,
         woodPallet: findAllOrder[i].woodPallet,
-        woodPalletCode:findAllOrder[i].woodPalletCode,
+        woodPalletCode: findAllOrder[i].woodPalletCode,
         plasticPallet: findAllOrder[i].plasticPallet,
-        plasticPalletCode:findAllOrder[i].plasticPalletCode,
+        plasticPalletCode: findAllOrder[i].plasticPalletCode,
         basketOfPegahYogurt: findAllOrder[i].basketOfPegahYogurt,
-        basketOfPegahYogurtCode:findAllOrder[i].basketOfPegahYogurtCode,
+        basketOfPegahYogurtCode: findAllOrder[i].basketOfPegahYogurtCode,
         basketOfPegahِDough: findAllOrder[i].basketOfPegahِDough,
-        basketOfPegahِDoughCode:findAllOrder[i].basketOfPegahِDoughCode,
+        basketOfPegahِDoughCode: findAllOrder[i].basketOfPegahِDoughCode,
         dominoBasket: findAllOrder[i].dominoBasket,
-        dominoBasketCode:findAllOrder[i].dominoBasketCode,
+        dominoBasketCode: findAllOrder[i].dominoBasketCode,
         harazBasket: findAllOrder[i].harazBasket,
-        harazBasketCode:findAllOrder[i].harazBasketCode,
+        harazBasketCode: findAllOrder[i].harazBasketCode,
         kallehBasket: findAllOrder[i].kallehBasket,
-        kallehBasketCode:findAllOrder[i].kallehBasketCode,
-        basketOfpaakDough:findAllOrder[i].basketOfpaakDough,
-        basketOfpaakDoughCode:findAllOrder[i].basketOfpaakDoughCode,
+        kallehBasketCode: findAllOrder[i].kallehBasketCode,
+        basketOfpaakDough: findAllOrder[i].basketOfpaakDough,
+        basketOfpaakDoughCode: findAllOrder[i].basketOfpaakDoughCode,
         boxBasket: findAllOrder[i].boxBasket,
         shopUser: findAllOrder[i].shopUser,
         history: findAllOrder[i].history,
@@ -921,23 +927,23 @@ export class OrderService {
     const workSheet = book.addWorksheet('stock');
     workSheet.columns = [
       { key: 'کد فروشگاه', header: 'کد فروشگاه', width: 20 },
-      {key:'شماره سفارش',header:'شماره سفارش'},
+      { key: 'شماره سفارش', header: 'شماره سفارش' },
       { key: 'پالت چوبی', header: 'پالت چوبی', width: 20 },
-      {key:'کد پالت چوبی',header:'کد پالت چوبی',width:20},
+      { key: 'کد پالت چوبی', header: 'کد پالت چوبی', width: 20 },
       { key: 'پالت پلاستیکی', header: 'پالت پلاستیکی', width: 20 },
-      {key:'کد پالت پلاستیکی',header:'کد پالت پلاستیکی',width:20},
+      { key: 'کد پالت پلاستیکی', header: 'کد پالت پلاستیکی', width: 20 },
       { key: 'سبد ماست پگاه', header: 'سبد ماست پگاه', width: 20 },
-      {key:'کد سبد ماست پگاه',header:'کد سبد ماست پگاه',width:20},
+      { key: 'کد سبد ماست پگاه', header: 'کد سبد ماست پگاه', width: 20 },
       { key: 'سبد دوغ پگاه', header: 'سبد دوغ پگاه', width: 20 },
-      {key:'کد سبد دوغ پگاه',header:'کد سبد دوع پگاه',width:20},
+      { key: 'کد سبد دوغ پگاه', header: 'کد سبد دوع پگاه', width: 20 },
       { key: 'سبد دومینو', header: 'سبد دومینو', width: 20 },
-      {key:'کد سبد دومینو',header:'کد سبد دومینو',width:20},
+      { key: 'کد سبد دومینو', header: 'کد سبد دومینو', width: 20 },
       { key: 'سبد هراز', header: 'سبد هراز', width: 20 },
-      {key:'کد سبد هراز',header:'کد سبد هراز',width:20},
+      { key: 'کد سبد هراز', header: 'کد سبد هراز', width: 20 },
       { key: 'سبد کاله', header: 'سبد کاله', width: 20 },
-      {key:'کد سبد کاله',header:'کد سبد کاله',width:20},
-      {key:'سبد پاک',header:'سبد پاک',width:20},
-      {key:'کد سبد پاک',header:'کد سبد پاک',width:20},
+      { key: 'کد سبد کاله', header: 'کد سبد کاله', width: 20 },
+      { key: 'سبد پاک', header: 'سبد پاک', width: 20 },
+      { key: 'کد سبد پاک', header: 'کد سبد پاک', width: 20 },
       { key: ' سبد کارتن', header: 'سبد کارتن', width: 20 },
       { key: 'کاربر فروشگاه', header: 'کاربر فروشگاه', width: 20 },
       { key: 'تاریخ ثبت فروشگاه', header: 'تاریخ ثبت فروشگاه', width: 20 },
@@ -957,90 +963,83 @@ export class OrderService {
     return buffer;
   }
 
-  async findAllByShopCode(shopCode:string,body:FindOrderDto){
-   const findMin=await this.orderRepository.findAll({
-    
-   })
-   console.log(findMin);
-   
-   const todayHistory=this.getTime().message.result;
-   if(body.afterHistory&&body.beforeHistory){
-    const findAllByShopCode=await this.orderRepository.findAll({
-      where:{
-        shopId:shopCode,
-
-        history:{
-         [Op.in]:[body.beforeHistory,body.afterHistory]
-        },
-    }
-     });
-     return{
-      status:200,
-      message:findAllByShopCode
-     }
-   }
-   const findAllByShopCode=await this.orderRepository.findAll({
-    where:{
-      shopId:shopCode,
-      history:{
-        [Op.in]:[todayHistory,todayHistory]
-      },
-
-    
-    }
-   })
-   return{
-    status:200,
-    message:findAllByShopCode
-   }
-  } 
-
-  async findAllOrdersByFilter(body:FindOrderDto){
-    const findMin=await this.orderRepository.min('history');
+  async findAllByShopCode(shopCode: string, body: FindOrderDto) {
+    const findMin = await this.orderRepository.findAll({});
     console.log(findMin);
-    const todayHistory=this.getTime().message.result;
-   if(body.afterHistory&&body.beforeHistory){
-    const findAllByShopCode=await this.orderRepository.findAll({
-      where:{
-        history:{
-          [Op.in]:[body.beforeHistory,body.afterHistory]
-        },
-      
-      }
-     });
-     return{
-      status:200,
-      message:findAllByShopCode
-     }
-   }
-   const findAllByShopCode=await this.orderRepository.findAll({
-    where:{
-      history:{
-        [Op.in]:[todayHistory,todayHistory]
-      },
 
-    
+    const todayHistory = this.getTime().message.result;
+    if (body.afterHistory && body.beforeHistory) {
+      const findAllByShopCode = await this.orderRepository.findAll({
+        where: {
+          shopId: shopCode,
+
+          history: {
+            [Op.in]: [body.beforeHistory, body.afterHistory],
+          },
+        },
+      });
+      return {
+        status: 200,
+        message: findAllByShopCode,
+      };
     }
-   })
-   return{
-    status:200,
-    message:findAllByShopCode
-   }
+    const findAllByShopCode = await this.orderRepository.findAll({
+      where: {
+        shopId: shopCode,
+        history: {
+          [Op.in]: [todayHistory, todayHistory],
+        },
+      },
+    });
+    return {
+      status: 200,
+      message: findAllByShopCode,
+    };
   }
 
-  async findByOrderSub(orderSub:string){
-    const todayHistory=this.getTime().message.result;
-   const findByOrderSub=await this.orderRepository.findAll({
-    where:{
-      orderSub:orderSub,
-      history:{
-       [Op.between]:[todayHistory,todayHistory]
-      }
+  async findAllOrdersByFilter(body: FindOrderDto) {
+    const findMin = await this.orderRepository.min('history');
+    console.log(findMin);
+    const todayHistory = this.getTime().message.result;
+    if (body.afterHistory && body.beforeHistory) {
+      const findAllByShopCode = await this.orderRepository.findAll({
+        where: {
+          history: {
+            [Op.in]: [body.beforeHistory, body.afterHistory],
+          },
+        },
+      });
+      return {
+        status: 200,
+        message: findAllByShopCode,
+      };
     }
-   });
-   return{
-    status:200,
-    message:findByOrderSub
-   }
+    const findAllByShopCode = await this.orderRepository.findAll({
+      where: {
+        history: {
+          [Op.in]: [todayHistory, todayHistory],
+        },
+      },
+    });
+    return {
+      status: 200,
+      message: findAllByShopCode,
+    };
+  }
+
+  async findByOrderSub(orderSub: string) {
+    const todayHistory = this.getTime().message.result;
+    const findByOrderSub = await this.orderRepository.findAll({
+      where: {
+        orderSub: orderSub,
+        history: {
+          [Op.between]: [todayHistory, todayHistory],
+        },
+      },
+    });
+    return {
+      status: 200,
+      message: findByOrderSub,
+    };
   }
 }

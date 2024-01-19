@@ -361,7 +361,7 @@ export class OrderController {
     }
   }
   @Get('/api/notDeletedExcel')
-  async outPutNotDeletedOrderExcel(@Res() response: Response,@Req() req:any) {
+  async outPutNotDeletedOrderExcel(@Res() response: Response, @Req() req: any) {
     try {
       const excelPath = path.join(__dirname, '../../../uploads', 'import');
       const outPutNotDeletedOrderExcel =
@@ -383,7 +383,9 @@ export class OrderController {
   @Get('/api/deletedOrderExcel')
   async deletedOrderExcel(@Res() response: Response, @Req() req: any) {
     try {
-      const deletedOrderExcel = await this.orderService.deletedExcelOfOrder(req.query);
+      const deletedOrderExcel = await this.orderService.deletedExcelOfOrder(
+        req.query,
+      );
       response.setHeader(
         'Content-Disposition',
         'attachment; filename="exported-data.xlsx"',
@@ -416,17 +418,18 @@ export class OrderController {
     }
   }
 
-  @Get('/api/listOfExcelOrderByShopCode')
+  @Get('/api/listOfExcelOrderByShopCode/:shopId')
   async listOfExcelOrderByShopCode(
     @Req() request: any,
+    @Param('shopId') shopId: string,
     @Res() response: Response,
   ) {
     try {
       const listOfExcelOrderByShopCode =
         await this.orderService.listOfExcelOrderByShopCode(
-          request.query.shopId,
-          request.query.beforeHistory,
-          request.query.afterHistory,
+          shopId,
+          // request.query.beforeHistory,
+          // request.query.afterHistory,
         );
       response.setHeader(
         'Content-Disposition',
@@ -480,14 +483,16 @@ export class OrderController {
   }
 
   @Post('/api/findByOrderSub')
-  async findByOrderSub(@Body() orderSub:any,@Res() response:Response){
-    try{
-      const findByOrderSub=await this.orderService.findByOrderSub(orderSub.orderSub);
-      response.status(findByOrderSub.status).json(findByOrderSub.message)
-    }catch(err){
+  async findByOrderSub(@Body() orderSub: any, @Res() response: Response) {
+    try {
+      const findByOrderSub = await this.orderService.findByOrderSub(
+        orderSub.orderSub,
+      );
+      response.status(findByOrderSub.status).json(findByOrderSub.message);
+    } catch (err) {
       console.log(err);
-      
-      response.status(500).json('internal server error')
+
+      response.status(500).json('internal server error');
     }
   }
 }

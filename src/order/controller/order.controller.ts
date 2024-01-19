@@ -426,11 +426,7 @@ export class OrderController {
   ) {
     try {
       const listOfExcelOrderByShopCode =
-        await this.orderService.listOfExcelOrderByShopCode(
-          shopId,
-          // request.query.beforeHistory,
-          // request.query.afterHistory,
-        );
+        await this.orderService.listOfExcelOrderByShopCode(shopId);
       response.setHeader(
         'Content-Disposition',
         'attachment; filename="exported-data.xlsx"',

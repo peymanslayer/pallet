@@ -879,15 +879,11 @@ export class OrderService {
     };
   }
 
-  //shopCode:string,beforeHistory:string,afterHistory:string
   async listOfExcelOrderByShopCode(shopCode: string) {
     let data = [];
     const findAllOrder = await this.orderRepository.findAll({
       where: {
         shopId: shopCode,
-        // history:{
-        //   [Op.between]:[beforeHistory,afterHistory]
-        // }
       },
     });
     for (let i = 0; i < findAllOrder.length; i++) {

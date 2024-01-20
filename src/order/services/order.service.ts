@@ -658,9 +658,9 @@ export class OrderService {
 
         findAllOrder = await this.orderRepository.findAll({
           where: {
-            deletedAt: {
-              [Op.ne]: null,
-            },
+            // deletedAt: {  //#update by #jml
+            //   [Op.ne]: null,
+            // },
             shopId: req.shopId,
           },
         });

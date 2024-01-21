@@ -9,9 +9,20 @@ import { CommentService } from './comment/services/comment.service';
 import { CommentModule } from './comment/comment.module';
 import { DriverModule } from './driver/driver.module';
 import { OperatorModule } from './operator/operator.module';
+import { CheckListModule } from './check-list/check-list.module';
+import { CheckListCommentModule } from './check-list-comment/check-list-comment.module';
 
 @Module({
-  imports: [DatabaseModule,AuthModule,OrderModule,CommentModule,DriverModule,OperatorModule],
+  imports: [
+    DatabaseModule,
+    AuthModule,
+    OrderModule,
+    CommentModule,
+    DriverModule,
+    OperatorModule,
+    CheckListModule,
+    CheckListCommentModule,
+  ],
   controllers: [],
   providers: [],
 })

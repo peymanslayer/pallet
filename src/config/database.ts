@@ -7,6 +7,8 @@ import { OrderDriver } from 'src/order/orderDriver.entity';
 import { Stock } from 'src/ReceiveStock/stock.entity';
 import { Operator } from 'src/operator/operator.schema';
 import { OperatorShop } from 'src/operatorShop/operatorShop.schema';
+import { CheckList } from 'src/check-list/check-list.entity';
+import { CheckListComment } from 'src/check-list-comment/check-list-comment.entity';
 
 export const databaseProviders = [
   {
@@ -14,10 +16,13 @@ export const databaseProviders = [
     useFactory: async () => {
       const sequelize = new Sequelize({
         dialect: 'mysql',
-        host: 'himalayas.liara.cloud',
-        port: 32679,
+        // host: 'himalayas.liara.cloud',
+        host: 'everest.liara.cloud',
+        // port: 32679,
+        port: 30389,
         username: 'root',
-        password: 'XY9n0YoCwwTmjF7W6zZPYSSm',
+        // password: 'XY9n0YoCwwTmjF7W6zZPYSSm',
+        password: 'OarJYbxUV9bSSM9KMfQdV2XB',
         database: 'nifty_diffie',
         pool: {
           max: 15,
@@ -27,10 +32,19 @@ export const databaseProviders = [
           acquire: 30000,
         },
       });
-      sequelize.addModels([Auth]);
-      sequelize.addModels([Order, Driver, OrderDriver, Comment]);
-      sequelize.addModels([Stock]);
-      sequelize.addModels([Operator, OperatorShop, Auth]);
+      sequelize.addModels([
+        Auth,
+        Order,
+        Driver,
+        OrderDriver,
+        Comment,
+        Stock,
+        Operator,
+        OperatorShop,
+        CheckList,
+        CheckListComment,
+      ]);
+
       await sequelize.sync().then((e) => console.log(e));
       return sequelize;
     },

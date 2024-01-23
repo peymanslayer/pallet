@@ -1,4 +1,14 @@
-import { Controller, Post, Body, Res, Get, UseInterceptors, UploadedFile, Delete, Put } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Res,
+  Get,
+  UseInterceptors,
+  UploadedFile,
+  Delete,
+  Put,
+} from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { SignUpDto } from '../dtos/signUp.dto';
 import { Response } from 'express';
@@ -19,13 +29,13 @@ export class AuthController {
       const signUp = await this.authService.signUp(body);
       response.status(signUp.status).json(signUp.message);
     } catch (err) {
-      if(err instanceof UniqueConstraintError){
-        response.status(400).json('already in use')
-      }else{
-      console.log(err);
-      response.status(500).json('internal server Error');
+      if (err instanceof UniqueConstraintError) {
+        response.status(400).json('already in use');
+      } else {
+        console.log(err);
+        response.status(500).json('internal server Error');
+      }
     }
-  }
   }
 
   @Post('/api/login')
@@ -33,7 +43,7 @@ export class AuthController {
     try {
       const logIn = await this.authService.login(body);
       console.log(logIn.message);
-      
+
       response.status(logIn.status).json(logIn.message);
     } catch (err) {
       console.log(err);
@@ -42,138 +52,157 @@ export class AuthController {
   }
 
   @Post('/api/sendEmail')
-  async sendEmail(@Body() body: SignUpDto, @Res() response: Response){
-  try{
-   const sendEmail=await this.authService.sendEmail(body);
-   response.status(sendEmail.status).json(sendEmail.message)
-  }catch(err){
-    console.log(err);
-    response.status(500).json('is internal')
-    
-  }
+  async sendEmail(@Body() body: SignUpDto, @Res() response: Response) {
+    try {
+      const sendEmail = await this.authService.sendEmail(body);
+      response.status(sendEmail.status).json(sendEmail.message);
+    } catch (err) {
+      console.log(err);
+      response.status(500).json('is internal');
+    }
   }
 
   @Post('/api/resetPassword')
-  async resetPassword(@Body() body: SignUpDto, @Res() response: Response){
-    try{
-      const resetPassword=await this.authService.resetPassword(body);
-      response.status(resetPassword.status).json(resetPassword.message)
-    }catch(err){
-      response.status(500).json('inetrnal server error')
+  async resetPassword(@Body() body: any, @Res() response: Response) {
+    try {
+      const resetPassword = await this.authService.resetPassword(body);
+      response.status(resetPassword.status).json(resetPassword.message);
+    } catch (err) {
+      response.status(500).json('inetrnal server error');
     }
   }
 
   @Get('/api/sameUser')
-  async sameUsers(@Body() body: SignUpDto, @Res() response: Response){
-    try{
-      const sameUser=await this.authService.sameUsers(body);
-      response.status(sameUser.status).json(sameUser.message)
-    }catch(err){
+  async sameUsers(@Body() body: SignUpDto, @Res() response: Response) {
+    try {
+      const sameUser = await this.authService.sameUsers(body);
+      response.status(sameUser.status).json(sameUser.message);
+    } catch (err) {
       console.log(err);
-      
-      response.status(500).json('internal server error')
+
+      response.status(500).json('internal server error');
     }
   }
 
   @Post('/api/findByRole')
-  async findByRole(@Body() body: SignUpDto, @Res() response: Response){
-   try{
-    const findByRole=await this.authService.findByRole(body);
-    response.status(findByRole.status).json(findByRole.message)
-   }catch(err){
-    response.status(500).json('internal server error')
-   } 
+  async findByRole(@Body() body: SignUpDto, @Res() response: Response) {
+    try {
+      const findByRole = await this.authService.findByRole(body);
+      response.status(findByRole.status).json(findByRole.message);
+    } catch (err) {
+      response.status(500).json('internal server error');
+    }
   }
 
   @Post('/api/importExcel')
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: 'uploads/',
-      filename: (req, file, cb) => {
-        cb(null, file.originalname);
-      },
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: 'uploads/',
+        filename: (req, file, cb) => {
+          cb(null, file.originalname);
+        },
+      }),
     }),
-  }))
-  async importExcel(@UploadedFile() file:Express.Multer.File, @Res() response: Response){
-   try{
-   const importExcel=await this.authService.importDriversExcelToMysql(file);
-   response.status(200).json('uploaded')
-   }catch(err){
-    console.log(err);
-    
-    response.status(500).json('internal server error')
-   }
+  )
+  async importExcel(
+    @UploadedFile() file: Express.Multer.File,
+    @Res() response: Response,
+  ) {
+    try {
+      const importExcel =
+        await this.authService.importDriversExcelToMysql(file);
+      response.status(200).json('uploaded');
+    } catch (err) {
+      console.log(err);
+
+      response.status(500).json('internal server error');
+    }
   }
 
   @Delete('/api/deleteUser')
-  async deleteUser(@Body() body: DeleteUserDto, @Res() response: Response){
-    try{
-      const deleteUser=await this.authService.deleteUser(body.id);
-      response.status(deleteUser.status).json(deleteUser.message)
-    }catch(err){
+  async deleteUser(@Body() body: DeleteUserDto, @Res() response: Response) {
+    try {
+      const deleteUser = await this.authService.deleteUser(body.id);
+      response.status(deleteUser.status).json(deleteUser.message);
+    } catch (err) {
       console.log(err);
-      
-      response.status(500).json('internal server error')
+
+      response.status(500).json('internal server error');
     }
   }
 
   @Post('/api/getUserById')
-  async  getUserById(@Body() body: DeleteUserDto, @Res() response: Response){
-   try{
-    const getUserById=await this.authService.getUserById(body.id);
-    response.status(getUserById.status).json(getUserById.message)
-   }catch(err){
-    response.status(500).json('internal server error')
-   }
+  async getUserById(@Body() body: DeleteUserDto, @Res() response: Response) {
+    try {
+      const getUserById = await this.authService.getUserById(body.id);
+      response.status(getUserById.status).json(getUserById.message);
+    } catch (err) {
+      response.status(500).json('internal server error');
+    }
   }
 
   @Put('/api/updateStockUser')
-  async updateStockUser(@Body() body: UpdateDto, @Res() response: Response){
-    try{ 
-     const updateStockUser=await this.authService.updateStockUser(body);
-     response.status(updateStockUser.status).json(updateStockUser.message)
-    }catch(err){
-     response.status(500).json('internal server error')
-    } 
+  async updateStockUser(@Body() body: UpdateDto, @Res() response: Response) {
+    try {
+      const updateStockUser = await this.authService.updateStockUser(body);
+      response.status(updateStockUser.status).json(updateStockUser.message);
+    } catch (err) {
+      response.status(500).json('internal server error');
+    }
   }
 
   @Post('/api/findUserByName')
-  async findUserByName(@Body() body: FindUserDto, @Res() response: Response){
-   try{
-    const findUserByName=await this.authService.findUserByName(body.name);
-    response.status(findUserByName.status).json(findUserByName.message)
-   }catch(err){
-    response.status(500).json('internal server error')
-   }
+  async findUserByName(@Body() body: FindUserDto, @Res() response: Response) {
+    try {
+      const findUserByName = await this.authService.findUserByName(body.name);
+      response.status(findUserByName.status).json(findUserByName.message);
+    } catch (err) {
+      response.status(500).json('internal server error');
+    }
   }
 
   @Post('/api/getUsersByShopCode')
-  async getUsersByShopCode(@Body() body: FindUserDto, @Res() response: Response){
-    try{
-     const getUsersByShopCode=await this.authService.getUsersByShopCode(body.shopCode);
-     response.status(getUsersByShopCode.status).json(getUsersByShopCode.message)
-    }catch(err){
-     response.status(500).json('internal server error')
+  async getUsersByShopCode(
+    @Body() body: FindUserDto,
+    @Res() response: Response,
+  ) {
+    try {
+      const getUsersByShopCode = await this.authService.getUsersByShopCode(
+        body.shopCode,
+      );
+      response
+        .status(getUsersByShopCode.status)
+        .json(getUsersByShopCode.message);
+    } catch (err) {
+      response.status(500).json('internal server error');
     }
   }
 
   @Post('/api/findAllBySubscriber')
-  async findAllBySubscriber(@Body() body: SignUpDto, @Res() response: Response){
-   try{
-    const findAllBySubscriber=await this.authService.findUsersBySubscriber(body.subscriber);
-    response.status(findAllBySubscriber.status).json(findAllBySubscriber.message)
-   }catch(err){
-    response.status(500).json('internal server error')
-   }
+  async findAllBySubscriber(
+    @Body() body: SignUpDto,
+    @Res() response: Response,
+  ) {
+    try {
+      const findAllBySubscriber = await this.authService.findUsersBySubscriber(
+        body.subscriber,
+      );
+      response
+        .status(findAllBySubscriber.status)
+        .json(findAllBySubscriber.message);
+    } catch (err) {
+      response.status(500).json('internal server error');
+    }
   }
 
   @Delete('/api/deleteOperator')
-  async deleteOperator(@Body() body: DeleteUserDto, @Res() response: Response){
-    try{
-      const deleteOperator=await this.authService.deleteOperator(body.id);
-      response.status(deleteOperator.status).json(deleteOperator.message)
-    }catch(err){
-      response.status(500).json('internal server error')
+  async deleteOperator(@Body() body: DeleteUserDto, @Res() response: Response) {
+    try {
+      const deleteOperator = await this.authService.deleteOperator(body.id);
+      response.status(deleteOperator.status).json(deleteOperator.message);
+    } catch (err) {
+      response.status(500).json('internal server error');
     }
   }
 }

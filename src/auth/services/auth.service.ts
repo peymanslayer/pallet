@@ -206,17 +206,28 @@ export class AuthService {
     if (user && user.originalPassword === body.currentPassword) {
       // console.log(Object.entries(user));
       const hashPassword = await bcrypt.hash(body.newPassword, 10);
-      user.password = hashPassword;
-      user.originalPassword = body.newPassword;
-      const res = user.save();
+      // user.password = hashPassword;
+      // user.originalPassword = body.newPassword;
+      const res = await this.authRepository.update(
+        {
+          originalPassword: body.newPassword,
+          password: hashPassword,
+        },
+        {
+          where: {
+            id: user.id,
+          },
+        },
+      );
       if (res) {
-        this.mailService.sendMail({
-          from: 'Oshanak.palet@gmail.com',
-          to: body.email,
-          subject: 'is email',
-          text: user.originalPassword,
-          html: `<div>${user.name} کاربر محترم <br>${user.personelCode} کد پرسنلی  </br><br>${user.originalPassword} رمز عبور </br> </div>`,
-        });
+        // not used send email in system
+        // this.mailService.sendMail({
+        //   from: 'Oshanak.palet@gmail.com',
+        //   to: body.email,
+        //   subject: 'is email',
+        //   text: user.originalPassword,
+        //   html: `<div>${user.name} کاربر محترم <br>${user.personelCode} کد پرسنلی  </br><br>${user.originalPassword} رمز عبور </br> </div>`,
+        // });
         return {
           status: 200,
           message: 'change password successfully',

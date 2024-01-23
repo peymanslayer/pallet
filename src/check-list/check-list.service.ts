@@ -13,7 +13,7 @@ export class CheckListService {
   async insertCheckList(body: Object) {
     const checkList = {};
     const checkListComment = {};
-    console.log(`body: ${Object.entries(body)}`);
+    // console.log(`body: ${Object.entries(body)}`);
     const answers: [] = body['answers'];
 
     checkList['userId'] = body['id'];

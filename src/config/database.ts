@@ -9,6 +9,8 @@ import { Operator } from 'src/operator/operator.schema';
 import { OperatorShop } from 'src/operatorShop/operatorShop.schema';
 import { CheckList } from 'src/check-list/check-list.entity';
 import { CheckListComment } from 'src/check-list-comment/check-list-comment.entity';
+import { TruckBreakDown } from 'src/truck-break-down/truck-break-down.entity';
+import { TruckBreakDownItems } from 'src/truck-break-down-items/truck-break-down-items.entity';
 
 export const databaseProviders = [
   {
@@ -43,6 +45,8 @@ export const databaseProviders = [
         OperatorShop,
         CheckList,
         CheckListComment,
+        TruckBreakDown,
+        TruckBreakDownItems,
       ]);
 
       await sequelize.sync().then((e) => console.log(e));

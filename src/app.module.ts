@@ -11,6 +11,8 @@ import { DriverModule } from './driver/driver.module';
 import { OperatorModule } from './operator/operator.module';
 import { CheckListModule } from './check-list/check-list.module';
 import { CheckListCommentModule } from './check-list-comment/check-list-comment.module';
+import { TruckBreakDownModule } from './truck-break-down/truck-break-down.module';
+import { TruckBreakDownItemsModule } from './truck-break-down-items/truck-break-down-items.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { CheckListCommentModule } from './check-list-comment/check-list-comment.
     OperatorModule,
     CheckListModule,
     CheckListCommentModule,
+    TruckBreakDownModule,
+    TruckBreakDownItemsModule,
   ],
   controllers: [],
   providers: [],

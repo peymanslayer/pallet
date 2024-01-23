@@ -193,17 +193,41 @@ export class AuthService {
     };
   }
 
-  async resetPassword(body: SignUpDto) {
-    const findUserByEmail = await this.authRepository.findOne({
-      where: { email: body.email },
+  async resetPassword(body: any) {
+    const user = await this.authRepository.findOne({
+      where: { personelCode: body.personelCode },
     });
-    const hashPassword = await bcrypt.hash(body.password, 10);
-    findUserByEmail.password = hashPassword;
-    findUserByEmail.save();
-    return {
-      status: 200,
-      message: findUserByEmail,
-    };
+    if (!user) {
+      return {
+        status: 400,
+        message: 'user not exist',
+      };
+    }
+    if (user && user.originalPassword === body.currentPassword) {
+      // console.log(Object.entries(user));
+      const hashPassword = await bcrypt.hash(body.newPassword, 10);
+      user.password = hashPassword;
+      user.originalPassword = body.newPassword;
+      const res = user.save();
+      if (res) {
+        this.mailService.sendMail({
+          from: 'Oshanak.palet@gmail.com',
+          to: body.email,
+          subject: 'is email',
+          text: user.originalPassword,
+          html: `<div>${user.name} کاربر محترم <br>${user.personelCode} کد پرسنلی  </br><br>${user.originalPassword} رمز عبور </br> </div>`,
+        });
+        return {
+          status: 200,
+          message: 'change password successfully',
+        };
+      }
+    } else {
+      return {
+        status: 420,
+        message: ' wrong current password',
+      };
+    }
   }
 
   async sameUsers(body: SignUpDto) {

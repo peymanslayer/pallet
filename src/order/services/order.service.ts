@@ -181,6 +181,7 @@ export class OrderService {
           isRegisteredByDriver: null,
         },
       },
+      order: [['id', 'DESC']],
     });
     return {
       status: 200,
@@ -458,7 +459,10 @@ export class OrderService {
             },
           },
         },
-        order: [['history', 'DESC'],['hours','DESC']],
+        order: [
+          ['history', 'DESC'],
+          ['hours', 'DESC'],
+        ],
       });
     }
     return findAllDeletedOrderByShopId;

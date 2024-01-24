@@ -1050,6 +1050,10 @@ export class OrderService {
           [Op.between]: [todayHistory, todayHistory],
         },
       },
+      order: [
+        ['history', 'DESC'],
+        ['hours', 'DESC'],
+      ],
     });
     return {
       status: 200,

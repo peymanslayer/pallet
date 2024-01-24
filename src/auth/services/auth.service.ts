@@ -515,6 +515,10 @@ export class AuthService {
     const findAllShopCodes = await this.authRepository.findAll({
       where: { subscriber: subscriber },
       attributes: ['shopCode'],
+      order: [
+        ['history', 'DESC'],
+        ['hours', 'DESC'],
+      ],
     });
     for (let i = 0; i < findAllShopCodes.length; i++) {
       console.log(array.includes(findAllShopCodes[i]));

@@ -7,12 +7,16 @@ export class GenerateCode {
   generateCode() {
     const maxNumberOfPassword = 99999;
     const minNumberOfPassword = 10000;
-    const password= Math.floor(
-        Math.random() * (maxNumberOfPassword - minNumberOfPassword) + 1,
-      );
-    return{
-        status:200,
-        message:password
+    let password = Math.floor(
+      Math.random() * (maxNumberOfPassword - minNumberOfPassword) + 1,
+    );
+    if (password.toString().length < 4) {
+      password = password * 10;
     }
+
+    return {
+      status: 200,
+      message: password,
+    };
   }
 }

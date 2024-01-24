@@ -151,7 +151,7 @@ export class AuthController {
       response.status(500).json('internal server error');
     }
   }
-
+  //#hint search user
   @Post('/api/findUserByName')
   async findUserByName(@Body() body: FindUserDto, @Res() response: Response) {
     try {

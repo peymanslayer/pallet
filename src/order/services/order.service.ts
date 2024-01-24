@@ -458,7 +458,7 @@ export class OrderService {
             },
           },
         },
-        order: [['history', 'DESC']],
+        order: [['history', 'DESC'],['hours','DESC']],
       });
     }
     return findAllDeletedOrderByShopId;

@@ -135,7 +135,7 @@ export class OrderController {
       response.status(500).json('internal server error');
     }
   }
-
+  // #hint: front url: store-order/details
   @Post('/api/getOrdersByUser')
   async getOrdersByUser(@Body() body: FindOrderDto, @Res() response: Response) {
     try {
@@ -229,7 +229,7 @@ export class OrderController {
       response.status(500).json('internal server error');
     }
   }
-
+  // #hint: front url : list-orders
   @Post('/api/orderList')
   async OrderList(@Body() body: FindOrderDto, @Res() response: Response) {
     try {

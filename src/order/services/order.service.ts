@@ -172,6 +172,9 @@ export class OrderService {
   }
 
   async findOrderByUserId(userId: number) {
+    const today = new Date().getTime();
+    const yesterday = today - 1 * 24 * 60 * 60 * 1000;
+
     const findOrderByUserId = await this.orderRepository.findAndCountAll({
       where: {
         [Op.and]: {
@@ -183,6 +186,11 @@ export class OrderService {
       },
       order: [['id', 'DESC']],
     });
+
+    findOrderByUserId.rows = findOrderByUserId.rows.filter(
+      (item) => yesterday < new Date(item.updatedAt).getTime(),
+    );
+    findOrderByUserId.count = findOrderByUserId.rows.length;
     return {
       status: 200,
       message: findOrderByUserId,
@@ -403,7 +411,10 @@ export class OrderService {
             [Op.between]: [body.beforeHistory, body.afterHistory],
           },
         },
-        order: [['history', 'DESC']],
+        order: [
+          ['history', 'DESC'],
+          ['hours', 'DESC'],
+        ],
       });
     } else {
       findDeletedOrderByDriver = await this.orderRepository.findAll({
@@ -413,7 +424,10 @@ export class OrderService {
             [Op.ne]: null,
           },
         },
-        order: [['history', 'DESC']],
+        order: [
+          ['history', 'DESC'],
+          ['hours', 'DESC'],
+        ],
       });
     }
     for (let i = 0; i < findDeletedOrderByDriver.length; i++) {

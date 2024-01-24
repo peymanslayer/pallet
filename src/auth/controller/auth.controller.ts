@@ -8,6 +8,7 @@ import {
   UploadedFile,
   Delete,
   Put,
+  Query,
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { SignUpDto } from '../dtos/signUp.dto';
@@ -152,10 +153,17 @@ export class AuthController {
     }
   }
   //#hint search user
-  @Post('/api/findUserByName')
-  async findUserByName(@Body() body: FindUserDto, @Res() response: Response) {
+  @Get('/api/findUserByName')
+  async findUserByName(
+    @Query('name') name: any,
+    @Query('shopId') shopId: any,
+    @Res() response: Response,
+  ) {
     try {
-      const findUserByName = await this.authService.findUserByName(body.name);
+      const findUserByName = await this.authService.findUserByName(
+        name,
+        shopId,
+      );
       response.status(findUserByName.status).json(findUserByName.message);
     } catch (err) {
       response.status(500).json('internal server error');

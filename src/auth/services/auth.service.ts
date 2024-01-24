@@ -486,9 +486,20 @@ export class AuthService {
     }
   }
 
-  async findUserByName(name: string) {
+  async findUserByName(name: any, shopId: any) {
+    let where = {};
+    if (name) {
+      where['name'] = name;
+    } else if (shopId) {
+      where['shopCode'] = shopId;
+    } else {
+      return {
+        status: 400,
+        message: 'most declare "name" or "shopId" in  query',
+      };
+    }
     const findAllUsers = await this.authRepository.findAll({
-      where: { name: name },
+      where: where,
     });
     return {
       status: 200,

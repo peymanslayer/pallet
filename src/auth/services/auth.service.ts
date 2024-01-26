@@ -12,6 +12,7 @@ import { Workbook } from 'exceljs';
 import * as path from 'path';
 import { UpdateDto } from '../dtos/update.dto';
 import { OperatorService } from 'src/operator/services/operator.service';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class AuthService {
@@ -486,21 +487,42 @@ export class AuthService {
     }
   }
 
-  async findUserByName(name: any, shopId: any) {
+  async findUserByName(name: any, shopId: any, subscriber: any) {
     let where = {};
-    if (name) {
-      where['name'] = name;
+    let findAllUsers: Auth[];
+    if (subscriber) {
+      where['subscriber'] = subscriber;
+      if (name) {
+        where['name'] = name;
+      } else if (shopId) {
+        where['shopCode'] = shopId;
+      } else {
+        return {
+          status: 400,
+          message: 'most declare "name" or "shopId" in  query',
+        };
+      }
+
+      findAllUsers = await this.authRepository.findAll({
+        where: { [Op.and]: where },
+      });
+    } else if (name) {
+      // where['name'] = name;
+      findAllUsers = await this.authRepository.findAll({
+        where: { name: name },
+      });
     } else if (shopId) {
-      where['shopCode'] = shopId;
+      // where['shopCode'] = shopId;
+      findAllUsers = await this.authRepository.findAll({
+        where: { shopCode: shopId },
+      });
     } else {
       return {
         status: 400,
         message: 'most declare "name" or "shopId" in  query',
       };
     }
-    const findAllUsers = await this.authRepository.findAll({
-      where: where,
-    });
+
     return {
       status: 200,
       message: findAllUsers,
@@ -525,11 +547,8 @@ export class AuthService {
     });
     const findAllShopCodes = await this.authRepository.findAll({
       where: { subscriber: subscriber },
-      attributes: ['shopCode'],
-      order: [
-        ['history', 'DESC'],
-        ['hours', 'DESC'],
-      ],
+      attributes: ['shopCode', 'updatedAt'],
+      order: [['updatedAt', 'DESC']],
     });
     for (let i = 0; i < findAllShopCodes.length; i++) {
       console.log(array.includes(findAllShopCodes[i]));

@@ -20,7 +20,8 @@ export class TruckBreakDownItemsService {
     breakDown['historyDriverRegister'] = body['date'];
     breakDown['driverName'] = body['name'];
     breakDown['driverId'] = body['id'];
-
+    breakDown['numberOfBreakDown'] = (await this.lastNumberOfBreakDown()) + 1;
+    // console.log(breakDown['numberOfBreakDown']);
     for (let item of answers) {
       breakDownItems['answer_' + item['number']] = item['comment'];
       breakDownItems['type_' + item['number']] = item['type'];
@@ -38,5 +39,19 @@ export class TruckBreakDownItemsService {
       status: 200,
       message: 'insert report truck breakdown  successfully',
     };
+  }
+
+  async lastNumberOfBreakDown() {
+    const lastBreakDown = await this.truckBreakDownRepository.findOne({
+      where: {},
+      include: [{ all: true }],
+      order: [['numberOfBreakDown', 'DESC']],
+      limit: 1,
+    });
+    if (!lastBreakDown) {
+      return 100;
+    } else {
+      return lastBreakDown.numberOfBreakDown;
+    }
   }
 }

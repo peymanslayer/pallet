@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Res } from '@nestjs/common';
 import { TruckBreakDownItemsService } from './truck-break-down-items.service';
 import { Response } from 'express';
 

@@ -11,7 +11,6 @@ import { GenerateCode } from './generate.code';
 import { Op } from 'sequelize';
 import { Comment } from 'src/comment/comment..entity';
 import { Driver } from 'src/driver/driver.entity';
-import moment from 'moment';
 import { Workbook } from 'exceljs';
 
 @Injectable()
@@ -32,27 +31,39 @@ export class OrderService {
     const month = parseInt(parts[1], 10);
     const day = parseInt(parts[2], 10);
     const fullDate = `${year}/${month}/${day}`;
-    const insertOrder = await this.orderRepository.create<Order>({
-      ...body,
-      history: fullDate,
-    });
-    const findOrderByUser = await this.orderRepository.findAll({
-      where: {},
-    });
-    for (let i = 0; i < findOrderByUser.length; i++) {
-      await this.orderRepository.update(
-        {
-          numberOfOrder: 100 + 1 + i,
+    const updateReserveOrder = await this.orderRepository.update(
+      {
+        ...body,
+        history: fullDate,
+      },
+      {
+        where: {
+          userId: body.userId,
+          shopId: null,
         },
-        {
-          where: { id: findOrderByUser[i].id },
-        },
-      );
-    }
-    if (insertOrder) {
+      },
+    );
+    // const insertOrder = await this.orderRepository.create<Order>({
+    //   ...body,
+    //   history: fullDate,
+    // });
+    // const findOrderByUser = await this.orderRepository.findAll({
+    //   where: {},
+    // });
+    // for (let i = 0; i < findOrderByUser.length; i++) {
+    //   await this.orderRepository.update(
+    //     {
+    //       numberOfOrder: 100 + 1 + i,
+    //     },
+    //     {
+    //       where: { id: findOrderByUser[i].id },
+    //     },
+    //   );
+    // }
+    if (updateReserveOrder) {
       return {
         status: 201,
-        message: insertOrder,
+        message: 'insert order successfully',
       };
     } else {
       return {
@@ -60,6 +71,37 @@ export class OrderService {
         message: 'order not created',
       };
     }
+  }
+  async getNewOrderNumber(body: any) {
+    let newNumber: number;
+    //check have reserve order for this user
+    const checkOpenOrder = await this.orderRepository.findOne({
+      where: {
+        userId: body.userId,
+        shopId: null,
+      },
+    });
+    if (checkOpenOrder) {
+      newNumber = checkOpenOrder.numberOfOrder;
+    } else {
+      const lastOrderNumber = await this.orderRepository.findOne({
+        where: {},
+        include: [{ all: true }],
+        order: [['numberOfOrder', 'DESC']],
+        limit: 1,
+        subQuery: false,
+      });
+
+      console.log('last order nubmer');
+      console.log(Object.entries(lastOrderNumber));
+
+      newNumber = lastOrderNumber.numberOfOrder + 1;
+      const res = await this.orderRepository.create<Order>({
+        userId: body.userId,
+        numberOfOrder: newNumber,
+      });
+    }
+    return { newOrderNumber: newNumber, message: `successfully` };
   }
 
   async findOrder(body: FindOrderDto) {
@@ -182,6 +224,7 @@ export class OrderService {
           isDeletedByDriver: null,
           deletedAt: null,
           isRegisteredByDriver: null,
+          shopId: { [Op.ne]: null },
         },
       },
       order: [['id', 'DESC']],
@@ -1018,8 +1061,11 @@ export class OrderService {
     if (body.afterHistory && body.beforeHistory) {
       const findAllByShopCode = await this.orderRepository.findAll({
         where: {
-          history: {
-            [Op.in]: [body.beforeHistory, body.afterHistory],
+          [Op.and]: {
+            history: {
+              [Op.in]: [body.beforeHistory, body.afterHistory],
+            },
+            shopId: { [Op.ne]: null },
           },
         },
       });
@@ -1030,8 +1076,11 @@ export class OrderService {
     }
     const findAllByShopCode = await this.orderRepository.findAll({
       where: {
-        history: {
-          [Op.in]: [todayHistory, todayHistory],
+        [Op.and]: {
+          history: {
+            [Op.in]: [todayHistory, todayHistory],
+          },
+          shopId: { [Op.ne]: null },
         },
       },
     });

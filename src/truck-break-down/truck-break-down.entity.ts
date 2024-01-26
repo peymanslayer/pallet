@@ -9,6 +9,9 @@ export class TruckBreakDown extends Model {
   driverId: string;
 
   @Column
+  numberOfBreakDown: number;
+
+  @Column
   carNumber: string;
 
   @Column

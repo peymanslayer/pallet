@@ -18,13 +18,13 @@ export const databaseProviders = [
     useFactory: async () => {
       const sequelize = new Sequelize({
         dialect: 'mysql',
-        // host: 'himalayas.liara.cloud', // production db
-        host: 'everest.liara.cloud', // test db
-        // port: 32679,
-        port: 30389,
+        host: 'himalayas.liara.cloud', // production db
+        // host: 'everest.liara.cloud', // test db
+        port: 32679,
+        // port: 30389,
         username: 'root',
-        // password: 'XY9n0YoCwwTmjF7W6zZPYSSm',
-        password: 'OarJYbxUV9bSSM9KMfQdV2XB',
+        password: 'XY9n0YoCwwTmjF7W6zZPYSSm',
+        // password: 'OarJYbxUV9bSSM9KMfQdV2XB',
         database: 'nifty_diffie',
         pool: {
           max: 15,

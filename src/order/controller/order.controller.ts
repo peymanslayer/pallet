@@ -8,6 +8,7 @@ import {
   Param,
   Put,
   Req,
+  Patch,
 } from '@nestjs/common';
 import { InsertOrderDto } from '../dtos/insert.order.dto';
 import { Response, response } from 'express';
@@ -30,6 +31,7 @@ export class OrderController {
     private readonly orderDriverService: OrderDriverService,
     private readonly httpService: HttpService,
   ) {}
+  // jamal comment : i know this uri method most patch but, i can't describe this for teammate
   @Post('/api/insertorder')
   async insertOrder(@Body() body: InsertOrderDto, @Res() response: Response) {
     try {
@@ -135,7 +137,17 @@ export class OrderController {
       response.status(500).json('internal server error');
     }
   }
-  // #hint: front url: store-order/details
+
+  @Post('/api/getNewOrderNumber')
+  async getNewOrderNumber(@Body() body: any, @Res() response: Response) {
+    try {
+      const getNewOrderNumber = await this.orderService.getNewOrderNumber(body);
+      response.status(201).json(getNewOrderNumber);
+    } catch (err) {
+      response.status(500).json('internal server Error');
+    }
+  }
+  // #hint: front url: store-order/details -> button ثبت سفارش
   @Post('/api/getOrdersByUser')
   async getOrdersByUser(@Body() body: FindOrderDto, @Res() response: Response) {
     try {

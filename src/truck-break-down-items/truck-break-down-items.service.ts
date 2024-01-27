@@ -43,6 +43,43 @@ export class TruckBreakDownItemsService {
     };
   }
 
+  async updateByDriver(id: number, body: any) {
+    let message: string;
+    let status: number;
+    const breakDownItems = {};
+    const answers: [] = body['answers'];
+    // for frontEnd developer solution !!!!
+    for (let item = 0; item <= 20; item++) {
+      breakDownItems['answer_' + item] = null;
+      breakDownItems['type_' + item] = null;
+    }
+    const restToNullBreakDown = await this.truckBreakDownItemsRepository.update(
+      breakDownItems,
+      { where: { id: id } },
+    );
+
+    for (let item of answers) {
+      breakDownItems['answer_' + item['number']] = item['comment'];
+      breakDownItems['type_' + item['number']] = item['type'];
+    }
+    const updateBreakDown = await this.truckBreakDownItemsRepository.update(
+      breakDownItems,
+      { where: { id: id } },
+    );
+
+    if (updateBreakDown) {
+      message = `update breakDown id = ${id} successfully`;
+      status = 200;
+    } else {
+      message = `update item id = ${id} failed`;
+      status = 400;
+    }
+    return {
+      status: status,
+      message: message,
+    };
+  }
+
   async lastNumberOfBreakDown() {
     const lastBreakDown = await this.truckBreakDownRepository.findOne({
       where: {},

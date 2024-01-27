@@ -1,4 +1,12 @@
-import { Controller, Delete, Get, Param, Query, Res } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Query,
+  Res,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { TruckBreakDownService } from './truck-break-down.service';
 

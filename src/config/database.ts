@@ -11,6 +11,7 @@ import { CheckList } from 'src/check-list/check-list.entity';
 import { CheckListComment } from 'src/check-list-comment/check-list-comment.entity';
 import { TruckBreakDown } from 'src/truck-break-down/truck-break-down.entity';
 import { TruckBreakDownItems } from 'src/truck-break-down-items/truck-break-down-items.entity';
+import { Chat } from 'src/chat/chat.entity';
 
 export const databaseProviders = [
   {
@@ -47,6 +48,7 @@ export const databaseProviders = [
         CheckListComment,
         TruckBreakDown,
         TruckBreakDownItems,
+        // Chat,
       ]);
 
       await sequelize.sync().then((e) => console.log(e));

@@ -115,4 +115,31 @@ export class TruckBreakDownService {
       count: data.length,
     };
   }
+
+  async delete(id: number) {
+    let message: string;
+    let status: number;
+    const deleteBreakDown = await this.truckBreakDownRepository.destroy({
+      where: {
+        id: id,
+      },
+    });
+    const deleteItems = await this.truckBreakDownItemsRepository.destroy({
+      where: {
+        id: id,
+      },
+    });
+    if (deleteBreakDown && deleteItems) {
+      message = `delete breakDown id = ${id} successfully`;
+      status = 200;
+    } else {
+      message = `delete item id = ${id} failed`;
+      status = 400;
+    }
+
+    return {
+      status: status,
+      message: message,
+    };
+  }
 }

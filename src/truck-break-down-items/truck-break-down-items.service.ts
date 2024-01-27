@@ -20,7 +20,9 @@ export class TruckBreakDownItemsService {
     breakDown['historyDriverRegister'] = body['date'];
     breakDown['driverName'] = body['name'];
     breakDown['driverId'] = body['id'];
+    breakDown['carLife'] = body['carLife'];
     breakDown['numberOfBreakDown'] = (await this.lastNumberOfBreakDown()) + 1;
+
     // console.log(breakDown['numberOfBreakDown']);
     for (let item of answers) {
       breakDownItems['answer_' + item['number']] = item['comment'];

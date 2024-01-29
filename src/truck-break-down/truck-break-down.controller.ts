@@ -24,7 +24,7 @@ export class TruckBreakDownController {
     }
   }
 
-  @Get('/api/truckbreakdown')
+  @Get('/api/truckbreakdown/all')
   async getAll(@Res() response: Response) {
     try {
       const res = await this.truckBreakDownService.getAll();

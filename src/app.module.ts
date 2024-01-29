@@ -14,6 +14,7 @@ import { CheckListCommentModule } from './check-list-comment/check-list-comment.
 import { TruckBreakDownModule } from './truck-break-down/truck-break-down.module';
 import { TruckBreakDownItemsModule } from './truck-break-down-items/truck-break-down-items.module';
 import { ChatModule } from './chat/chat.module';
+import { TruckInfoModule } from './truck-info/truck-info.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ChatModule } from './chat/chat.module';
     TruckBreakDownModule,
     TruckBreakDownItemsModule,
     ChatModule,
+    TruckInfoModule,
   ],
   controllers: [],
   providers: [],

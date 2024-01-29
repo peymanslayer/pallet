@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { TruckBreakDownItems } from 'src/truck-break-down-items/truck-break-down-items.entity';
 import { TruckBreakDown } from 'src/truck-break-down/truck-break-down.entity';
+import { TruckInfo } from 'src/truck-info/truck-info.entity';
 @Injectable()
 export class TruckBreakDownService {
   constructor(
@@ -9,6 +10,8 @@ export class TruckBreakDownService {
     private readonly truckBreakDownRepository: typeof TruckBreakDown,
     @Inject('TRUCKBREAKDOWNITEMS_REPOSITORY')
     private readonly truckBreakDownItemsRepository: typeof TruckBreakDownItems,
+    @Inject('TRUCKINFO_REPOSITORY')
+    private readonly truckInfoRepository: typeof TruckInfo,
   ) {}
 
   async getAll() {
@@ -50,12 +53,16 @@ export class TruckBreakDownService {
         id: breakDown.truckBreakDownItemsId,
       },
     });
+    const truckInfo = await this.truckInfoRepository.findOne({
+      where: { driverId: breakDown.dataValues.driverId },
+    });
+    console.log(Object.entries(truckInfo));
     data = breakDown.dataValues;
     data['dateDriver'] = breakDown.dataValues.historyDriverRegister;
     data['hoursDriver'] = breakDown.dataValues.hoursDriverRegister;
     data['driverName'] = breakDown.dataValues.driverName;
-    data['carNumber'] = breakDown.dataValues.carNumber;
-    data['carLife'] = breakDown.dataValues.carLife;
+    data['carNumber'] = truckInfo.carNumber;
+    data['carLife'] = truckInfo.lastCarLife;
     const answers = Object.entries(res.dataValues);
     for (let answer of answers) {
       let ans = {};

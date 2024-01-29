@@ -12,6 +12,7 @@ import { CheckListComment } from 'src/check-list-comment/check-list-comment.enti
 import { TruckBreakDown } from 'src/truck-break-down/truck-break-down.entity';
 import { TruckBreakDownItems } from 'src/truck-break-down-items/truck-break-down-items.entity';
 import { Chat } from 'src/chat/chat.entity';
+import { TruckInfo } from 'src/truck-info/truck-info.entity';
 
 export const databaseProviders = [
   {
@@ -48,6 +49,7 @@ export const databaseProviders = [
         CheckListComment,
         TruckBreakDown,
         TruckBreakDownItems,
+        TruckInfo,
         // Chat,
       ]);
 

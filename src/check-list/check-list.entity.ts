@@ -8,6 +8,7 @@ export class CheckList extends Model<CheckList> {
   @Column
   name: string;
 
+  // kilometer's of truck , in "truck-break-down" used
   @Column
   answer_0: number;
 

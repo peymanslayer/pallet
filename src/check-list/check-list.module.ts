@@ -3,6 +3,7 @@ import { CheckListController } from './check-list.controller';
 import { CheckListService } from './check-list.service';
 import { CheckListProviders } from './check-list.provider';
 import { CheckListCommentProviders } from 'src/check-list-comment/check-list-comment.provider';
+import { TruckInfoProviders } from 'src/truck-info/truck-info.provider';
 
 @Module({
   controllers: [CheckListController],
@@ -10,6 +11,7 @@ import { CheckListCommentProviders } from 'src/check-list-comment/check-list-com
     CheckListService,
     ...CheckListProviders,
     ...CheckListCommentProviders,
+    ...TruckInfoProviders,
   ],
 })
 export class CheckListModule {}

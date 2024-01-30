@@ -6,6 +6,12 @@ export class CheckList extends Model<CheckList> {
   userId: number;
 
   @Column
+  history: string;
+
+  @Column
+  hours: string;
+
+  @Column
   name: string;
 
   // kilometer's of truck , in "truck-break-down" used

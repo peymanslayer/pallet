@@ -121,4 +121,33 @@ export class CheckListService {
       message: `get all check list of driver : ${check['name']}`,
     };
   }
+
+  async getAnswers(checkListId: number) {
+    let data = [];
+
+    const checkList = await this.checkListRepository.findOne({
+      where: {
+        id: checkListId,
+      },
+    });
+    const comment = await this.checkListCommentRepository.findOne({
+      where: {
+        checkListId: checkListId,
+      },
+    });
+
+    for (let item = 1; item <= 21; item++) {
+      let check = {};
+      check['answer'] = checkList[`answer_${item}`];
+      check['comment'] = comment[`comment_${item}`];
+      check['number'] = item;
+      data.push(check);
+    }
+
+    return {
+      status: 200,
+      data: data,
+      message: `data of check list id = ${checkListId} `,
+    };
+  }
 }

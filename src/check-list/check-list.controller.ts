@@ -22,6 +22,18 @@ export class CheckListController {
     }
   }
 
+  @Get('/api/checklist/answers/:id')
+  async getAnswers(@Param('id') id: number, @Res() response: Response) {
+    try {
+      const res = await this.checkListService.getAnswers(id);
+      response
+        .status(res.status)
+        .json({ data: res.data, message: res.message });
+    } catch (err) {
+      console.log(err);
+      response.status(500).json(err);
+    }
+  }
   @Post('/api/checklist')
   async insertCheckListDriver(@Body() body: any, @Res() response: Response) {
     try {

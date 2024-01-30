@@ -88,29 +88,13 @@ export class CheckListService {
 
     // for each chklst add answers to data[x].answers
     for (let checkList of allCheckList) {
-      // console.log(Object.entries(checkList));
-
-      // const allComment = await this.checkListCommentRepository.findOne({
-      //   where: { checkListId: checkList.id },
-      // });
-      // make answers and comments of question
-      // for (let item = 1; item <= 21; item++) {
-      //   let answer = {};
-      //   // console.log(items[`answer_${item}`]);
-      //   answer['answer'] = checkList[`answer_${item}`];
-      //   answer['comment'] = allComment[`comment_${item}`];
-      //   answer['number'] = item;
-      //   answers.push(answer);
-      // }
       const info = checkList.dataValues;
 
-      // check = info;
       check['id'] = info['id'];
       check['date'] = info['history'];
       check['hours'] = info['hours'];
       check['userId'] = info['userId'];
       check['name'] = info['name'];
-      // check['answers'] = answers;
 
       data.push(check);
     }
@@ -149,5 +133,21 @@ export class CheckListService {
       data: data,
       message: `data of check list id = ${checkListId} `,
     };
+  }
+
+  async removeCheckList(id: number) {
+    const removeCheckList = await this.checkListRepository.destroy({
+      where: {
+        id: id,
+      },
+    });
+
+    const removeComment = await this.checkListCommentRepository.destroy({
+      where: {
+        checkListId: id,
+      },
+    });
+
+    return { status: 200, message: 'reomve checkList successfully' };
   }
 }

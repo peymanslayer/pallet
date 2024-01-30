@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Res,
+} from '@nestjs/common';
 import { CheckListService } from './check-list.service';
 import { Response } from 'express';
 
@@ -34,10 +42,22 @@ export class CheckListController {
       response.status(500).json(err);
     }
   }
+
   @Post('/api/checklist')
   async insertCheckListDriver(@Body() body: any, @Res() response: Response) {
     try {
       const res = await this.checkListService.insertCheckList(body);
+      response.status(res.status).json(res.message);
+    } catch (err) {
+      console.log(err);
+      response.status(500).json(err);
+    }
+  }
+
+  @Delete('/api/checklist/:id')
+  async removeCheckList(@Param('id') id: number, @Res() response: Response) {
+    try {
+      const res = await this.checkListService.removeCheckList(id);
       response.status(res.status).json(res.message);
     } catch (err) {
       console.log(err);

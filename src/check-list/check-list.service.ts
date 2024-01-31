@@ -3,6 +3,7 @@ import { CheckList } from './check-list.entity';
 import { CheckListComment } from 'src/check-list-comment/check-list-comment.entity';
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
 import { CarNumber } from '../enum';
+import { Op } from 'sequelize';
 @Injectable()
 export class CheckListService {
   constructor(
@@ -66,12 +67,11 @@ export class CheckListService {
           driverId: checkList['userId'],
         });
       }
-
-      return {
-        status: 200,
-        message: 'insert check list successfully',
-      };
     }
+    return {
+      status: 200,
+      message: 'insert check list successfully',
+    };
   }
 
   async getllByDriverId(userId: number) {
@@ -120,10 +120,15 @@ export class CheckListService {
       },
     });
 
-    for (let item = 1; item <= 21; item++) {
+    for (let item = 0; item <= 20; item++) {
       let check = {};
       check['answer'] = checkList[`answer_${item}`];
-      check['comment'] = comment[`comment_${item}`];
+      // for answer's not have record comment , user not set any comment when answered
+      if (!comment) {
+        check['comment'] = null;
+      } else {
+        check['comment'] = comment[`comment_${item}`];
+      }
       check['number'] = item;
       data.push(check);
     }
@@ -132,6 +137,24 @@ export class CheckListService {
       status: 200,
       data: data,
       message: `data of check list id = ${checkListId} `,
+    };
+  }
+
+  async dailyCheck(userId: number, date: string) {
+    let check = false; // default not register daily check
+
+    const checkList = await this.checkListRepository.count({
+      where: { [Op.and]: { userId: userId, history: date } },
+    });
+
+    if (checkList === 1) {
+      check = true;
+    }
+
+    return {
+      data: check,
+      status: 200,
+      message: `status of driver registered daily checklist, hint: false -> unregistered `,
     };
   }
 

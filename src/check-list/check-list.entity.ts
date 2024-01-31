@@ -77,7 +77,4 @@ export class CheckList extends Model<CheckList> {
 
   @Column
   answer_20: string;
-
-  @Column
-  answer_21: string;
 }

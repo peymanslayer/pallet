@@ -1058,12 +1058,14 @@ export class OrderService {
     const findMin = await this.orderRepository.min('history');
     console.log(findMin);
     const todayHistory = this.getTime().message.result;
+    //TODO: check 2024/1/22 not 2024/01/22 in todayHistory
+    //api/findAllOrdersByFilter -> admin-orders
     if (body.afterHistory && body.beforeHistory) {
       const findAllByShopCode = await this.orderRepository.findAll({
         where: {
           [Op.and]: {
             history: {
-              [Op.in]: [body.beforeHistory, body.afterHistory],
+              [Op.between]: [body.beforeHistory, body.afterHistory],
             },
             shopId: { [Op.ne]: null },
           },
@@ -1077,9 +1079,8 @@ export class OrderService {
     const findAllByShopCode = await this.orderRepository.findAll({
       where: {
         [Op.and]: {
-          history: {
-            [Op.in]: [todayHistory, todayHistory],
-          },
+          history: todayHistory,
+
           shopId: { [Op.ne]: null },
         },
       },

@@ -4,6 +4,8 @@ import { Column, Model, Table } from 'sequelize-typescript';
 export class CheckListComment extends Model<CheckListComment> {
   @Column
   checkListId: number;
+  @Column
+  comment_0: string;
 
   @Column
   comment_1: string;
@@ -64,7 +66,4 @@ export class CheckListComment extends Model<CheckListComment> {
 
   @Column
   comment_20: string;
-
-  @Column
-  comment_21: string;
 }

@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Res,
 } from '@nestjs/common';
 import { CheckListService } from './check-list.service';
@@ -13,6 +14,23 @@ import { Response } from 'express';
 @Controller()
 export class CheckListController {
   constructor(private readonly checkListService: CheckListService) {}
+
+  @Get('/api/checklist/dailycheck/')
+  async checkListDaily(
+    @Query('userId') userId: number,
+    @Query('date') date: string,
+    @Res() response: Response,
+  ) {
+    try {
+      const res = await this.checkListService.dailyCheck(userId, date);
+      response
+        .status(res.status)
+        .json({ data: res.data, message: res.message });
+    } catch (err) {
+      console.log(err);
+      response.status(500).json(err);
+    }
+  }
 
   @Get('/api/checklist/:driverId')
   async getAllCheckList(

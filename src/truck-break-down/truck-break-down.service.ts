@@ -61,7 +61,7 @@ export class TruckBreakDownService {
     data['dateDriver'] = breakDown.dataValues.historyDriverRegister;
     data['hoursDriver'] = breakDown.dataValues.hoursDriverRegister;
     data['driverName'] = breakDown.dataValues.driverName;
-    data['carNumber'] = truckInfo.carNumber;
+    data['carNumber'] = truckInfo.number;
     data['carLife'] = truckInfo.lastCarLife;
     const answers = Object.entries(res.dataValues);
     for (let answer of answers) {

@@ -10,5 +10,11 @@ export class TruckInfo extends Model<TruckInfo> {
   lastCarLife: string;
 
   @Column
-  carNumber: string;
+  number: string;
+
+  @Column
+  type: string;
+
+  @Column
+  zone: string;
 }

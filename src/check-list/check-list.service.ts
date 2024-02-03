@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CheckList } from './check-list.entity';
 import { CheckListComment } from 'src/check-list-comment/check-list-comment.entity';
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
-import { CarNumber } from '../enum';
 import { Op } from 'sequelize';
 @Injectable()
 export class CheckListService {
@@ -51,7 +50,6 @@ export class CheckListService {
       const updateTruckInfo = await this.truckInfoRepository.update(
         {
           lastCarLife: checkList['answer_0'],
-          carNumber: CarNumber[`id${checkList['userId']}`],
         },
         {
           where: {
@@ -63,7 +61,6 @@ export class CheckListService {
       if (updateTruckInfo[0] == 0) {
         const createTruckInfo = await this.truckInfoRepository.create({
           lastCarLife: checkList['answer_0'],
-          carNumber: CarNumber[`id${checkList['userId']}`],
           driverId: checkList['userId'],
         });
       }

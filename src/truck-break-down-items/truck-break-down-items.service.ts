@@ -27,7 +27,7 @@ export class TruckBreakDownItemsService {
     breakDown['driverName'] = body['name'];
     breakDown['driverId'] = body['id'];
     breakDown['carLife'] = truckInfo.lastCarLife || null;
-    breakDown['carNumber'] = truckInfo.carNumber || null;
+    breakDown['carNumber'] = truckInfo.number || null;
     breakDown['numberOfBreakDown'] = (await this.lastNumberOfBreakDown()) + 1;
 
     // console.log(breakDown['numberOfBreakDown']);

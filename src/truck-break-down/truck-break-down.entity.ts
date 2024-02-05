@@ -9,13 +9,17 @@ export class TruckBreakDown extends Model {
   driverId: string;
 
   @Column
+  driverName: string;
+
+  @Column
+  driverMobile: string;
+
+  @Column
   numberOfBreakDown: number;
 
-  @Column
-  carNumber: string;
-
-  @Column
-  driverName: string;
+  //this field in truckInfo not used in this report(maybe)
+  // @Column
+  // carNumber: string;
 
   @Column
   carLife: number;

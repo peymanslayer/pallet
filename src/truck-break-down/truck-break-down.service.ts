@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common';
-
 import { TruckBreakDownItems } from 'src/truck-break-down-items/truck-break-down-items.entity';
 import { TruckBreakDown } from 'src/truck-break-down/truck-break-down.entity';
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
@@ -16,9 +15,9 @@ export class TruckBreakDownService {
 
   async getAll() {
     let data = [];
-    const res = await this.truckBreakDownRepository.findAndCountAll();
+    const breakDowns = await this.truckBreakDownRepository.findAndCountAll();
 
-    for (let item of res.rows) {
+    for (let item of breakDowns.rows) {
       let breakDown = {};
       const answers = await this.truckBreakDownItemsRepository.findOne({
         where: {
@@ -34,7 +33,43 @@ export class TruckBreakDownService {
     return {
       status: 200,
       data: data,
-      count: res.count,
+      count: breakDowns.count,
+    };
+  }
+
+  async getAllRepairUser() {
+    let data = [];
+    const breakDowns = await this.truckBreakDownRepository.findAndCountAll();
+
+    for (let item of breakDowns.rows) {
+      let breakDown = {};
+      let row = {};
+      const truckInfo = await this.truckInfoRepository.findOne({
+        where: {
+          driverId: item.driverId,
+        },
+      });
+      breakDown = item.dataValues;
+      // console.log(JSON.parse(JSON.stringify(truckInfo)));
+      // truckInfo.dataValues not act !!!
+      Object.assign(breakDown, JSON.parse(JSON.stringify(truckInfo)));
+      row['hours'] = breakDown['hoursDriverRegister'];
+      row['history'] = breakDown['historyDriverRegister'];
+      row['driverName'] = breakDown['driverName'];
+      row['driverMobile'] = breakDown['driverMobile'];
+      row['carType'] = breakDown['type'];
+      row['carNumber'] = breakDown['carNumber'];
+      row['kilometer'] = breakDown['lastCarLife'];
+      row['checkListStatus'] = breakDown['state'];
+      row['breakDownStatus'] = breakDown['repairComment'];
+
+      data.push(row);
+    }
+
+    return {
+      status: 200,
+      data: data,
+      count: breakDowns.count,
     };
   }
 
@@ -61,7 +96,7 @@ export class TruckBreakDownService {
     data['dateDriver'] = breakDown.dataValues.historyDriverRegister;
     data['hoursDriver'] = breakDown.dataValues.hoursDriverRegister;
     data['driverName'] = breakDown.dataValues.driverName;
-    data['carNumber'] = truckInfo.number;
+    data['carNumber'] = truckInfo.carNumber;
     data['carLife'] = truckInfo.lastCarLife;
     const answers = Object.entries(res.dataValues);
     for (let answer of answers) {

@@ -1,5 +1,5 @@
 //provided by "mr.aalayi"
-export enum CarNumber {
+export enum CAR_NUMBER {
   // userId = carNumber ,
   id140 = '۷۹ع۶۷۸', // "hamid ghiyasvand"
   //141 not have carNumber "hadi kiyan far"
@@ -17,4 +17,10 @@ export enum CarNumber {
   id154 = '۷۵و۷۸۴', // "sadegh feli"
   id155 = '۱۹ع۲۴۸', // "omid shakhsi"
   id263 = '۹۹غ۴۶۲', // "davoud rahmani"
+}
+
+export enum CHECKLIST_ANSWERS {
+  GOOD = 'good',
+  MID = 'medium',
+  BAD = 'weak',
 }

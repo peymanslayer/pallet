@@ -3,6 +3,7 @@ import { CheckList } from './check-list.entity';
 import { CheckListComment } from 'src/check-list-comment/check-list-comment.entity';
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
 import { Op } from 'sequelize';
+import { CHECKLIST_ANSWERS } from 'src/enum';
 @Injectable()
 export class CheckListService {
   constructor(
@@ -30,6 +31,7 @@ export class CheckListService {
         checkListComment['comment_' + item['number']] = item['comment'];
       }
     }
+    //compute lowest answer's
 
     const insertCheckList =
       await this.checkListRepository.create<CheckList>(checkList);
@@ -50,6 +52,7 @@ export class CheckListService {
       const updateTruckInfo = await this.truckInfoRepository.update(
         {
           lastCarLife: checkList['answer_0'],
+          state: this.lowestValueCheckList(Object.values(checkList)),
         },
         {
           where: {
@@ -62,6 +65,7 @@ export class CheckListService {
         const createTruckInfo = await this.truckInfoRepository.create({
           lastCarLife: checkList['answer_0'],
           driverId: checkList['userId'],
+          state: this.lowestValueCheckList(Object.values(checkList)),
         });
       }
     }
@@ -69,6 +73,20 @@ export class CheckListService {
       status: 200,
       message: 'insert check list successfully',
     };
+  }
+  lowestValueCheckList(answers: string[]) {
+    let lowest: string;
+    console.log('answer list to check lowest', answers);
+    if (answers.includes(CHECKLIST_ANSWERS.GOOD)) {
+      lowest = CHECKLIST_ANSWERS.GOOD;
+    }
+    if (answers.includes(CHECKLIST_ANSWERS.MID)) {
+      lowest = CHECKLIST_ANSWERS.MID;
+    }
+    if (answers.includes(CHECKLIST_ANSWERS.BAD)) {
+      lowest = CHECKLIST_ANSWERS.BAD;
+    }
+    return lowest;
   }
 
   async getllByDriverId(userId: number) {

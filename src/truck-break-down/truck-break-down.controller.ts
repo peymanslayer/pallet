@@ -35,6 +35,17 @@ export class TruckBreakDownController {
     }
   }
 
+  @Get('/api/truckbreakdown/repairman')
+  async getAllBreakDown(@Res() response: Response) {
+    try {
+      const res = await this.truckBreakDownService.getAllRepairUser();
+      response.status(res.status).json({ data: res.data, count: res.count });
+    } catch (err) {
+      console.log(err);
+      response.status(500).json(err);
+    }
+  }
+
   @Get('/api/truckbreakdown/:id')
   async getbyId(@Param('id') id: number, @Res() response: Response) {
     try {

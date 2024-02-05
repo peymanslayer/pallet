@@ -9,8 +9,12 @@ export class TruckInfo extends Model<TruckInfo> {
   @Column
   lastCarLife: string;
 
+  // store last state of truck based on lowest asnwer's of checkList daily
   @Column
-  number: string;
+  state: string;
+
+  @Column
+  carNumber: string;
 
   @Column
   type: string;

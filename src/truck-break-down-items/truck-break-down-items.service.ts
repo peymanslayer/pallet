@@ -21,13 +21,17 @@ export class TruckBreakDownItemsService {
     const truckInfo = await this.truckInfoRepository.findOne({
       where: { driverId: body['id'] },
     });
-    console.log(Object.entries(truckInfo));
+    // console.log(Object.entries(truckInfo)); // debug
     breakDown['hoursDriverRegister'] = body['hours'];
     breakDown['historyDriverRegister'] = body['date'];
     breakDown['driverName'] = body['name'];
     breakDown['driverId'] = body['id'];
     breakDown['carLife'] = truckInfo.lastCarLife || null;
-    breakDown['carNumber'] = truckInfo.number || null;
+    breakDown['carNumber'] = truckInfo.carNumber || null;
+    breakDown['driverMobile'] = body['mobile'];
+    `comment: reserve a number of register berakDown
+              for user to goal have unique number in same time register`;
+
     breakDown['numberOfBreakDown'] = (await this.lastNumberOfBreakDown()) + 1;
 
     // console.log(breakDown['numberOfBreakDown']);
@@ -95,6 +99,7 @@ export class TruckBreakDownItemsService {
       limit: 1,
     });
     if (!lastBreakDown) {
+      //start number of breakDown in system from "100"
       return 100;
     } else {
       return lastBreakDown.numberOfBreakDown;

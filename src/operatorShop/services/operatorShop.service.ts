@@ -14,15 +14,16 @@ export class OperatorShopService {
   ) {}
 
   async insertOperatorShop(body: InsertOperatorShopDto) {
-    const limitOfDriverOfOperator = await this.limitOfDriverOfOperator(
-      body.driver,
-    );
-    if (limitOfDriverOfOperator.length > 1) {
-      return {
-        status: 400,
-        message: 'limit',
-      };
-    }
+    // amit check invoke : mohammad zeynali
+    // const limitOfDriverOfOperator = await this.limitOfDriverOfOperator(
+    //   body.driver,
+    // );
+    // if (limitOfDriverOfOperator.length > 1) {
+    //   return {
+    //     status: 400,
+    //     message: 'limit',
+    //   };
+    // }
     const insertOperatorShop = await this.operatorShopRepository.create({
       ...body,
     });
@@ -34,30 +35,27 @@ export class OperatorShopService {
 
   async exportExcelOfOperator(req) {
     let data = [];
-    let findAllOrderOfOperatorById=[];
-    if(req.beforeHistory&&req.afterHistory){
+    let findAllOrderOfOperatorById = [];
+    if (req.beforeHistory && req.afterHistory) {
       console.log('in');
-      
-     findAllOrderOfOperatorById =
-      await this.operatorShopRepository.findAll({
-        where:{
-          registerHistory:{
-            [Op.between]:[req.beforeHistory,req.afterHistory]
-          }
+
+      findAllOrderOfOperatorById = await this.operatorShopRepository.findAll({
+        where: {
+          registerHistory: {
+            [Op.between]: [req.beforeHistory, req.afterHistory],
+          },
         },
-        order:[['createdAt','DESC']]
-        
+        order: [['createdAt', 'DESC']],
       });
-    }else{
-      findAllOrderOfOperatorById =
-      await this.operatorShopRepository.findAll({
-        order:[['createdAt','DESC']]
+    } else {
+      findAllOrderOfOperatorById = await this.operatorShopRepository.findAll({
+        order: [['createdAt', 'DESC']],
       });
     }
     for (let i = 0; i < findAllOrderOfOperatorById.length; i++) {
       data.push({
         shopCode: findAllOrderOfOperatorById[i].shopCode,
-        name:findAllOrderOfOperatorById[i].name,
+        name: findAllOrderOfOperatorById[i].name,
         registerHistory: findAllOrderOfOperatorById[i].registerHistory,
         registerTime: findAllOrderOfOperatorById[i].registerTime,
         driver: findAllOrderOfOperatorById[i].driver,
@@ -69,7 +67,7 @@ export class OperatorShopService {
     const workSheet = book.addWorksheet('operator');
     workSheet.columns = [
       { key: 'کد فروشگاه', header: 'کد فروشگاه', width: 20 },
-      {key:'نام کاربر پالت',header:'نام کاربر پالت', width:20},
+      { key: 'نام کاربر پالت', header: 'نام کاربر پالت', width: 20 },
       { key: 'تاریخ ثیت', header: 'تاریخ ثبت', width: 20 },
       { key: 'ساعت ثبت', header: 'ساعت ثبت', width: 20 },
       { key: 'نام راننده', header: 'نام راننده', width: 20 },
@@ -94,7 +92,7 @@ export class OperatorShopService {
               [Op.between]: [body.beforeHistory, body.afterHistory],
             },
           },
-          order:[['registerHistory','DESC']]
+          order: [['registerHistory', 'DESC']],
         });
       return {
         status: 200,
@@ -104,7 +102,7 @@ export class OperatorShopService {
       const findAllDeletedOrderByShopId =
         await this.operatorShopRepository.findAll({
           where: { operatorId: body.operatorId },
-          order:[['registerHistory','DESC']]
+          order: [['registerHistory', 'DESC']],
         });
       return {
         status: 200,

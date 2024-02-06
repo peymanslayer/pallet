@@ -15,7 +15,9 @@ export class TruckBreakDownService {
 
   async getAll() {
     let data = [];
-    const breakDowns = await this.truckBreakDownRepository.findAndCountAll();
+    const breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+      order: [['id', 'DESC']],
+    });
 
     for (let item of breakDowns.rows) {
       let breakDown = {};
@@ -39,20 +41,23 @@ export class TruckBreakDownService {
 
   async getAllRepairUser() {
     let data = [];
-    const breakDowns = await this.truckBreakDownRepository.findAndCountAll();
+    const breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+      order: [['id', 'DESC']],
+    });
 
     for (let item of breakDowns.rows) {
       let breakDown = {};
       let row = {};
-      const truckInfo = await this.truckInfoRepository.findOne({
-        where: {
-          driverId: item.driverId,
-        },
-      });
+      // const truckInfo = await this.truckInfoRepository.findOne({
+      //   where: {
+      //     driverId: item.driverId,
+      //   },
+      // });
       breakDown = item.dataValues;
       // console.log(JSON.parse(JSON.stringify(truckInfo)));
       // truckInfo.dataValues not act !!!
-      Object.assign(breakDown, JSON.parse(JSON.stringify(truckInfo)));
+      // Object.assign(breakDown, JSON.parse(JSON.stringify(truckInfo)));
+      row['numberOfBreakDown'] = breakDown['numberOfBreakDown'];
       row['hours'] = breakDown['hoursDriverRegister'];
       row['history'] = breakDown['historyDriverRegister'];
       row['driverName'] = breakDown['driverName'];

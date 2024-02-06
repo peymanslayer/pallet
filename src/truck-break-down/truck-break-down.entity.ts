@@ -17,9 +17,10 @@ export class TruckBreakDown extends Model {
   @Column
   numberOfBreakDown: number;
 
-  //this field in truckInfo not used in this report(maybe)
-  // @Column
-  // carNumber: string;
+  //this field in truckInfo not used in this report(maybe) FALSE
+  // for not join in each report add this model
+  @Column
+  carNumber: string;
 
   @Column
   carLife: number;

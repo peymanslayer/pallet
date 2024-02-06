@@ -26,8 +26,8 @@ export class TruckBreakDownItemsService {
     breakDown['historyDriverRegister'] = body['date'];
     breakDown['driverName'] = body['name'];
     breakDown['driverId'] = body['id'];
-    breakDown['carLife'] = truckInfo.lastCarLife || null;
-    breakDown['carNumber'] = truckInfo.carNumber || null;
+    breakDown['carLife'] = truckInfo ? truckInfo.lastCarLife : null;
+    breakDown['carNumber'] = truckInfo ? truckInfo.carNumber : null;
     breakDown['driverMobile'] = body['mobile'];
     `comment: reserve a number of register berakDown
               for user to goal have unique number in same time register`;

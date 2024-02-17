@@ -11,6 +11,9 @@ export class TruckBreakDownService {
     private readonly truckBreakDownItemsRepository: typeof TruckBreakDownItems,
     @Inject('TRUCKINFO_REPOSITORY')
     private readonly truckInfoRepository: typeof TruckInfo,
+    //comment : better solution inject "truckBreakDownItem Service" instead inject "truckBreakDownItemsRepository"
+    // @Inject('TRUCKBREAKDOWNITEMS_REPOSITORY')
+    // private truckBreakDownItemService: typeof TruckBreakDownService,
   ) {}
 
   async getAll() {
@@ -39,7 +42,7 @@ export class TruckBreakDownService {
     };
   }
 
-  async getAllRepairUser() {
+  async repairUserGetAll() {
     let data = [];
     const breakDowns = await this.truckBreakDownRepository.findAndCountAll({
       order: [['id', 'DESC']],
@@ -48,25 +51,23 @@ export class TruckBreakDownService {
     for (let item of breakDowns.rows) {
       let breakDown = {};
       let row = {};
-      // const truckInfo = await this.truckInfoRepository.findOne({
-      //   where: {
-      //     driverId: item.driverId,
-      //   },
-      // });
+
       breakDown = item.dataValues;
-      // console.log(JSON.parse(JSON.stringify(truckInfo)));
-      // truckInfo.dataValues not act !!!
-      // Object.assign(breakDown, JSON.parse(JSON.stringify(truckInfo)));
+
       row['numberOfBreakDown'] = breakDown['numberOfBreakDown'];
       row['hours'] = breakDown['hoursDriverRegister'];
       row['history'] = breakDown['historyDriverRegister'];
       row['driverName'] = breakDown['driverName'];
       row['driverMobile'] = breakDown['driverMobile'];
-      row['carType'] = breakDown['type'];
       row['carNumber'] = breakDown['carNumber'];
-      row['kilometer'] = breakDown['lastCarLife'];
-      row['checkListStatus'] = breakDown['state'];
-      row['breakDownStatus'] = breakDown['repairComment'];
+      row['kilometer'] = breakDown['carLife']; // carLife set value when driver register daily check list
+      console.log('itemsId to fetch: ', breakDown['truckBreakDownItemsId']);
+      row['answers'] = await this.getBreakDownItemsById(
+        breakDown['truckBreakDownItemsId'],
+      );
+      // row['carType'] = breakDown['type']; // depricated
+      // row['checkListStatus'] = breakDown['state']; // depricated
+      // row['breakDownStatus'] = breakDown['repairComment']; // depricated
 
       data.push(row);
     }
@@ -143,7 +144,6 @@ export class TruckBreakDownService {
       const items = res.dataValues;
       // console.log(items);
       report = item.dataValues;
-
       // due to keys of field have unique number , answer_1, answer_2, ..., answe_20
       for (let item = 1; item <= 20; item++) {
         // console.log(items[`answer_${item}`]);
@@ -152,6 +152,7 @@ export class TruckBreakDownService {
           report['comment'] = items[`answer_${item}`];
           report['number'] = item;
           data.push(report);
+          // comment: break aim just return one of item's
           break;
         }
       }
@@ -161,6 +162,33 @@ export class TruckBreakDownService {
       data: data,
       count: data.length,
     };
+  }
+  // comment: better solution impelement in "truckBreakDownItems" service and inject this here
+  async getBreakDownItemsById(id: number) {
+    let data = [];
+
+    const res = await this.truckBreakDownItemsRepository.findOne({
+      where: {
+        id: id,
+      },
+    });
+    const items = res.dataValues;
+    // console.log('items fetch: ', items);
+
+    // due to keys of field have unique number , answer_1, answer_2, ..., answe_20
+    for (let item = 1; item <= 20; item++) {
+      let report = {};
+      //  console.log(items[`answer_${item}`]); // debug
+      if (items[`answer_${item}`] != null) {
+        report['type'] = items[`type_${item}`];
+        report['comment'] = items[`answer_${item}`];
+        report['number'] = item;
+        // console.log('reoprt: ', report); // debug
+        data.push(report);
+      }
+    }
+
+    return data;
   }
 
   async delete(id: number) {

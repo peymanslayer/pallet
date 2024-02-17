@@ -1,15 +1,23 @@
 import { Column, Model, Table } from 'sequelize-typescript';
 
 @Table
-// used for info truck in "truck-break-down"
+// comment: used for info truck in "truck-break-down"
 export class TruckInfo extends Model<TruckInfo> {
+  // comment: driverId in this model derived from "id" of driver model !!!
+  // comment: this impelement by peyman(first devloper of project)
   @Column
   driverId: number;
+
+  // @Column
+  // driverName: string;
+
+  // @Column
+  // driverMobile: string;
 
   @Column
   lastCarLife: string;
 
-  // store last state of truck based on lowest asnwer's of checkList daily
+  // comment: store last state of truck based on lowest asnwer's of checkList daily
   @Column
   state: string;
 

@@ -14,7 +14,7 @@ export class OperatorShopService {
   ) {}
 
   async insertOperatorShop(body: InsertOperatorShopDto) {
-    // amit check invoke : mohammad zeynali
+    // omit check invoke : mohammad zeynali
     // const limitOfDriverOfOperator = await this.limitOfDriverOfOperator(
     //   body.driver,
     // );

@@ -2,8 +2,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CheckList } from './check-list.entity';
 import { CheckListComment } from 'src/check-list-comment/check-list-comment.entity';
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
-import { Op } from 'sequelize';
+import { Op, json } from 'sequelize';
 import { CHECKLIST_ANSWERS } from 'src/enum';
+import { Auth } from 'src/auth/auth.entity';
 @Injectable()
 export class CheckListService {
   constructor(
@@ -13,6 +14,8 @@ export class CheckListService {
     private readonly checkListCommentRepository: typeof CheckListComment,
     @Inject('TRUCKINFO_REPOSITORY')
     private readonly truckInfoRepository: typeof TruckInfo,
+    @Inject('AUTH_REPOSITORY')
+    private readonly authRepository: typeof Auth,
   ) {}
   async insertCheckList(body: Object) {
     const checkList = {};
@@ -74,6 +77,7 @@ export class CheckListService {
       message: 'insert check list successfully',
     };
   }
+
   lowestValueCheckList(answers: string[]) {
     let lowest: string;
     console.log('answer list to check lowest', answers);
@@ -90,10 +94,10 @@ export class CheckListService {
   }
 
   async getllByDriverId(userId: number) {
-    // return data : [{date,hours,answers[orderby number]}]
+    // comment:  return data : [{date,hours,answers[orderby number]}]
     let data = [];
     let check = {};
-    let answers = [];
+
     //get all of checklist of user checklists
     const res = await this.checkListRepository.findAndCountAll({
       where: { userId: userId },
@@ -155,22 +159,124 @@ export class CheckListService {
     };
   }
 
-  async dailyCheck(userId: number, date: string) {
-    let check = false; // default not register daily check
+  async dailyCheck(userId: number, date: string, done: string) {
+    let check = false; // comment: default not register daily check
+    // comment: variable's of daily check in repair panel
+    const data = [];
+    let driversDone = [];
+    let driversUndone = [];
+    let idDriversUndone = [];
+    let idDriversDone = [];
+    let idDrivers = [];
+    let message: string;
+    console.log(typeof done);
+    // comment: daily check for driver register checklist
+    if (done === undefined) {
+      const checkList = await this.checkListRepository.count({
+        where: { [Op.and]: { userId: userId, history: date } },
+      });
 
-    const checkList = await this.checkListRepository.count({
-      where: { [Op.and]: { userId: userId, history: date } },
-    });
+      if (checkList === 1) {
+        check = true;
+      }
 
-    if (checkList === 1) {
-      check = true;
+      return {
+        data: check,
+        status: 200,
+        message: `status of driver registered daily checklist, hint: false -> unregistered `,
+      };
     }
+    // comment: daily check in repair panel
+    else {
+      `Driver done field's return: 
+        driverName, zone, carNumber, carLife, mobile, type, state, hours, history
+       Driver undone field's return: 
+        driverName, zone, carNumber, carLife, mobile, type`;
+      const res = await this.checkListRepository.findAll({
+        where: { history: date },
+        attributes: ['userId', 'history', 'hours'],
+      });
 
-    return {
-      data: check,
-      status: 200,
-      message: `status of driver registered daily checklist, hint: false -> unregistered `,
-    };
+      // comment: fetch data of driver's register daily checkList
+      res.forEach((element) => {
+        idDriversDone.push(element.dataValues['userId']);
+        driversDone.push(element.dataValues);
+      });
+      // console.log('res: ', idDriversDone); // debug
+      // console.log('driverDone: ', driversDone); // debug
+
+      // comment: fetch data of driver's unregister daily checkList
+      if (done === 'true') {
+        idDrivers = idDriversDone;
+        message = 'list of driver done check list today';
+      } else {
+        const res = await this.authRepository.findAll({
+          attributes: ['id', 'name', 'role', 'mobile'],
+          where: {
+            [Op.and]: {
+              role: 'companyDriver',
+              id: { [Op.notIn]: idDriversDone },
+            },
+          },
+        });
+        // console.log('drivers undone: ', res); // debug
+        res.forEach((element) => {
+          idDriversUndone.push(element.dataValues.id);
+        });
+        idDrivers = idDriversUndone;
+        message = 'list of driver undone check list today';
+      }
+
+      const drivers = await this.authRepository.findAll({
+        attributes: ['id', 'name', 'role', 'mobile'],
+        where: {
+          [Op.and]: {
+            role: 'companyDriver',
+            id: { [Op.in]: idDrivers },
+          },
+        },
+      });
+      for (let item of drivers) {
+        // console.log('driver result: ', item.dataValues); // debug
+        let checkInfo = {};
+        Object.assign(checkInfo, item.dataValues);
+
+        // comment: for driver done list on repair panel add "hours" and "history"
+        if (done === 'true') {
+          console.log('driversDone : ', driversDone);
+          for (let done of driversDone) {
+            if (done['userId'] === item['id']) {
+              checkInfo['hours'] = done['hours'];
+              checkInfo['history'] = done['history'];
+              break;
+            }
+          }
+        }
+        const truckInfo = await this.truckInfoRepository.findOne({
+          where: { driverId: item.dataValues.id },
+        });
+        // comment:  handled ; if not exist companyDriver in truckInfo table
+        if (truckInfo) {
+          Object.assign(checkInfo, truckInfo.dataValues);
+        } else {
+          checkInfo['lastCarLife'] = null;
+          checkInfo['carNumber'] = null;
+          checkInfo['type'] = null;
+          checkInfo['zone'] = null;
+          checkInfo['state'] = null;
+          checkInfo['hours'] = null;
+          checkInfo['history'] = null;
+        }
+
+        data.push(checkInfo);
+      }
+
+      return {
+        data: data,
+        status: 200,
+        message: message,
+      };
+    }
   }
 
   async removeCheckList(id: number) {

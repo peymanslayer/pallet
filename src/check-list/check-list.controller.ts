@@ -19,10 +19,11 @@ export class CheckListController {
   async checkListDaily(
     @Query('userId') userId: number,
     @Query('date') date: string,
+    @Query('done') done: string,
     @Res() response: Response,
   ) {
     try {
-      const res = await this.checkListService.dailyCheck(userId, date);
+      const res = await this.checkListService.dailyCheck(userId, date, done);
       response
         .status(res.status)
         .json({ data: res.data, message: res.message });

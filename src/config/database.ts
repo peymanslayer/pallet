@@ -20,12 +20,14 @@ export const databaseProviders = [
     useFactory: async () => {
       const sequelize = new Sequelize({
         dialect: 'mysql',
-        host: 'himalayas.liara.cloud', // production db
+        //---------------------------------------- production db
+        host: 'himalayas.liara.cloud',
         port: 32679,
         username: 'root',
         password: 'XY9n0YoCwwTmjF7W6zZPYSSm',
         database: 'nifty_diffie',
-        // host: 'localhost', // test db
+        //---------------------------------------- test db
+        // host: 'localhost',
         // port: 3306,
         // username: 'test',
         // password: '123123',

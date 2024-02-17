@@ -14,10 +14,10 @@ export class DriverService {
     @Inject(forwardRef(() => OrderService))
     private readonly orderService: OrderService,
     @Inject(forwardRef(() => OrderDriverService))
-    private readonly orderDriverService:OrderDriverService
+    private readonly orderDriverService: OrderDriverService,
   ) {}
-
-  async insertDriver(name:string) {
+  // comment: not used in front. depricated
+  async insertDriver(name: string) {
     const minNumberOfPassword = 10000;
     const maxNumberOfPassword = 99999;
     const insertDriver = await this.driverRepository.create({
@@ -50,49 +50,54 @@ export class DriverService {
   //   }
   //  }
   // }
-  async findOneDriverById(id:number){
-    const findOneDriverById=await this.driverRepository.findByPk(id);
-    const findOrder=await this.driverRepository.findOne({
-      where:{orderId:findOneDriverById.orderId},
-      include:{model:Order}
-    })
-    if(findOneDriverById){
-      return findOrder
-    }else{
-      return 'driver not found'
+
+  async findOneDriverById(id: number) {
+    const findOneDriverById = await this.driverRepository.findByPk(id);
+    const findOrder = await this.driverRepository.findOne({
+      where: { orderId: findOneDriverById.orderId },
+      include: { model: Order },
+    });
+    if (findOneDriverById) {
+      return findOrder;
+    } else {
+      return 'driver not found';
     }
   }
 
-  async findDriver(driverId:number){
-   const findDriver=await this.driverRepository.findByPk(driverId);
-    return{
-      status:200,
-      message:findDriver
-    } 
+  async findDriver(driverId: number) {
+    const findDriver = await this.driverRepository.findByPk(driverId);
+    return {
+      status: 200,
+      message: findDriver,
+    };
+  }
+  // comment: not used in front. depricated
+  async findDriverByName(name: string) {
+    const findDriverByName = await this.driverRepository.findOne({
+      where: { driverName: name },
+    });
+    return {
+      status: 200,
+      message: findDriverByName,
+    };
   }
 
-  async findDriverByName(name:string){
-   const findDriverByName=await this.driverRepository.findOne({
-    where:{driverName:name}
-   });
-   return{
-    status:200,
-    message:findDriverByName
-   }
+  async deleteDriverByName(name: string) {
+    const deleteDriverByName = await this.driverRepository.destroy({
+      where: { driverName: name },
+    });
+    return deleteDriverByName;
   }
 
-  async deleteDriverByName(name:string){
-    const deleteDriverByName=await this.driverRepository.destroy({where:{driverName:name}});
-    return deleteDriverByName
+  async updateDriver(beforeName: string, afterName: string) {
+    const updateDriver = await this.driverRepository.update(
+      {
+        driverName: afterName,
+      },
+      {
+        where: { driverName: beforeName },
+      },
+    );
+    return updateDriver;
   }
-
-  async updateDriver(beforeName:string,afterName:string){
-   const updateDriver=await this.driverRepository.update({
-    driverName:afterName
-   },{
-    where:{driverName:beforeName}
-   });
-   return updateDriver
-  }
-
 }

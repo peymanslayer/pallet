@@ -44,13 +44,25 @@ export class TruckBreakDownService {
     };
   }
 
-  async repairUserGetAll() {
+  async repairUserGetAll(repairComment: string) {
     let data = [];
-    const breakDowns = await this.truckBreakDownRepository.findAndCountAll({
-      where: { repairComment: { [Op.eq]: null } },
-      order: [['id', 'DESC']],
-    });
+    let breakDowns: {
+      rows: TruckBreakDown[];
+      count: number;
+    };
 
+    if (repairComment === 'true') {
+      breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+        where: { repairComment: { [Op.ne]: null } },
+        order: [['id', 'DESC']],
+      });
+    } else {
+      breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+        where: { repairComment: { [Op.eq]: null } },
+        order: [['id', 'DESC']],
+      });
+    }
+    console.log(breakDowns);
     for (let item of breakDowns.rows) {
       let breakDown = {};
       let row = {};

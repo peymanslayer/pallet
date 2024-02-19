@@ -37,9 +37,13 @@ export class TruckBreakDownController {
   }
 
   @Get('/api/truckbreakdown/repairman')
-  async getAllBreakDown(@Res() response: Response) {
+  async getAllBreakDown(
+    @Res() response: Response,
+    @Query('repairComment') repairComment: string,
+  ) {
     try {
-      const res = await this.truckBreakDownService.repairUserGetAll();
+      const res =
+        await this.truckBreakDownService.repairUserGetAll(repairComment);
       response.status(res.status).json({ data: res.data, count: res.count });
     } catch (err) {
       console.log(err);

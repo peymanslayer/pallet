@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { TruckBreakDownItems } from 'src/truck-break-down-items/truck-break-down-items.entity';
 import { TruckBreakDown } from 'src/truck-break-down/truck-break-down.entity';
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
+import { UpdateTruckBreakDownDto } from './dto/update.truck-breakdown.dto';
 @Injectable()
 export class TruckBreakDownService {
   constructor(
@@ -53,7 +54,7 @@ export class TruckBreakDownService {
       let row = {};
 
       breakDown = item.dataValues;
-
+      row['id'] = breakDown['id'];
       row['numberOfBreakDown'] = breakDown['numberOfBreakDown'];
       row['hours'] = breakDown['hoursDriverRegister'];
       row['history'] = breakDown['historyDriverRegister'];
@@ -61,7 +62,7 @@ export class TruckBreakDownService {
       row['driverMobile'] = breakDown['driverMobile'];
       row['carNumber'] = breakDown['carNumber'];
       row['kilometer'] = breakDown['carLife']; // carLife set value when driver register daily check list
-      console.log('itemsId to fetch: ', breakDown['truckBreakDownItemsId']);
+      // console.log('itemsId to fetch: ', breakDown['truckBreakDownItemsId']); // debug
       row['answers'] = await this.getBreakDownItemsById(
         breakDown['truckBreakDownItemsId'],
       );
@@ -189,6 +190,29 @@ export class TruckBreakDownService {
     }
 
     return data;
+  }
+
+  async update(id: number, body: UpdateTruckBreakDownDto) {
+    const res = await this.truckBreakDownRepository.update(
+      {
+        ...body,
+      },
+      {
+        where: { id: id },
+      },
+    );
+
+    if (res[0] > 0) {
+      return {
+        status: 200,
+        message: 'update successfully',
+      };
+    } else {
+      return {
+        status: 500,
+        message: 'update failed',
+      };
+    }
   }
 
   async delete(id: number) {

@@ -35,109 +35,107 @@ export class InsertOrderDto {
 
   @IsNotEmpty()
   @IsNumber()
-  orderNumber:number
+  orderNumber: number;
 
   @IsNotEmpty()
-  shopId:number
+  shopId: number;
 
   @IsNotEmpty()
-  driverId:number
+  driverId: number;
 
   @IsNotEmpty()
-  Password5Number:number
+  Password5Number: number;
 
   @IsNotEmpty()
-  history:string
+  history: string;
 
   @IsNotEmpty()
-  userId:number
+  userId: number;
 
   @IsNotEmpty()
-  id:number
+  id: number;
 
   @IsNotEmpty()
-  driverName:string
+  driverName: string;
 
   @IsNotEmpty()
-  hoursOfRegisterDriver:string
+  hoursOfRegisterDriver: string;
 
   @IsNotEmpty()
-  historyOfDriver:string
+  historyOfDriver: string;
 
   @IsNotEmpty()
-  shopUser:string
+  shopUser: string;
 
   @IsNotEmpty()
-  hours:string
+  hours: string;
 
   @IsNotEmpty()
-  woodPalletCheckDriver:boolean
+  woodPalletCheckDriver: boolean;
 
   @IsNotEmpty()
-  plasticPalletCheckDriver:boolean
+  plasticPalletCheckDriver: boolean;
 
   @IsNotEmpty()
-  basketOfPegahYogurtCheckDriver:boolean
+  basketOfPegahYogurtCheckDriver: boolean;
 
   @IsNotEmpty()
-  basketOfPegahِDoughCheckDriver:boolean
+  basketOfPegahِDoughCheckDriver: boolean;
 
   @IsNotEmpty()
-  dominoBasketCheckDriver:boolean
+  dominoBasketCheckDriver: boolean;
 
   @IsNotEmpty()
-  harazBasketCheckDriver:boolean
+  harazBasketCheckDriver: boolean;
 
   @IsNotEmpty()
-  kallehBasketCheckDriver:boolean
+  kallehBasketCheckDriver: boolean;
 
   @IsNotEmpty()
-  boxBasketCheckDriver:boolean
+  boxBasketCheckDriver: boolean;
 
   @IsNotEmpty()
-  woodPalletCheckStock:boolean
+  woodPalletCheckStock: boolean;
 
   @IsNotEmpty()
-  plasticPalletCheckStock:boolean
+  plasticPalletCheckStock: boolean;
 
   @IsNotEmpty()
-  basketOfPegahYogurtCheckStock:boolean
+  basketOfPegahYogurtCheckStock: boolean;
 
   @IsNotEmpty()
-  basketOfPegahِDoughCheckStock:boolean
+  basketOfPegahِDoughCheckStock: boolean;
 
   @IsNotEmpty()
-  dominoBasketCheckStock:boolean
+  dominoBasketCheckStock: boolean;
 
   @IsNotEmpty()
-  harazBasketCheckStock:boolean
+  harazBasketCheckStock: boolean;
 
   @IsNotEmpty()
-  kallehBasketCheckStock:boolean
+  kallehBasketCheckStock: boolean;
 
   @IsNotEmpty()
-  boxBasketCheckStock:boolean
+  boxBasketCheckStock: boolean;
 
   @IsNotEmpty()
-  basketOfpaakDough:number
+  basketOfpaakDough: number;
 
   @IsNotEmpty()
-  basketOfpaakyogurt:number
+  basketOfpaakyogurt: number;
 
   @IsNotEmpty()
-  basketOfpaakDoughCheckDriver:boolean
+  basketOfpaakDoughCheckDriver: boolean;
 
   @IsNotEmpty()
-  basketOfpaakyogurtCheckDriver:boolean
+  basketOfpaakyogurtCheckDriver: boolean;
 
   @IsNotEmpty()
-  basketOfpaakyogurtCheckStock:boolean
+  basketOfpaakyogurtCheckStock: boolean;
 
   @IsNotEmpty()
-  basketOfpaakDoughCheckStock:boolean
+  basketOfpaakDoughCheckStock: boolean;
 
   @IsNotEmpty()
-  orderSub:string
+  orderSub: string;
 }
-
-

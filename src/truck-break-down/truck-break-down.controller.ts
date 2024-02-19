@@ -1,9 +1,10 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
   Param,
-  Patch,
+  Put,
   Query,
   Res,
 } from '@nestjs/common';
@@ -61,6 +62,21 @@ export class TruckBreakDownController {
   async deleteById(@Param('id') id: number, @Res() response: Response) {
     try {
       const res = await this.truckBreakDownService.delete(id);
+      response.status(res.status).json(res.message);
+    } catch (err) {
+      console.log(err);
+      response.status(500).json(err);
+    }
+  }
+
+  @Put('/api/truckbreakdown/:id')
+  async updateTruckBreakDown(
+    @Param('id') id: number,
+    @Body() body: any,
+    @Res() response: Response,
+  ) {
+    try {
+      const res = await this.truckBreakDownService.update(id, body);
       response.status(res.status).json(res.message);
     } catch (err) {
       console.log(err);

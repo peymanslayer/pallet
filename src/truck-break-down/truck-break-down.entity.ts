@@ -1,4 +1,4 @@
-import { Column, Model, Table } from 'sequelize-typescript';
+import { Column, DataType, Model, Table } from 'sequelize-typescript';
 
 @Table
 export class TruckBreakDown extends Model {
@@ -31,24 +31,37 @@ export class TruckBreakDown extends Model {
   @Column
   historyDriverRegister: string;
 
-  @Column
+  @Column(DataType.ENUM('necessary', 'notNecessary', 'immediately'))
   repairComment: string;
 
-  @Column
-  hoursRepairComment: string;
+  // unused
+  // @Column
+  // hoursRepairComment: string;
 
-  @Column
-  historyRepairComment: string;
+  // unused
+  // @Column
+  // historyRepairComment: string;
 
-  @Column
-  hoursSendToRepair: string;
+  //unused
+  // @Column
+  // hoursSendToRepair: string;
 
   @Column
   historySendToRepair: string;
 
-  @Column
-  hoursReciveToRepair: string;
+  //unused
+  // @Column
+  // hoursReciveToRepair: string;
 
   @Column
   historyReciveToRepair: string;
+
+  @Column
+  histroyDeliveryTruck: string;
+
+  @Column
+  historyDeliveryDriver: string;
+
+  @Column
+  piece: string;
 }

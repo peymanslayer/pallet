@@ -3,6 +3,7 @@ import { TruckBreakDownItems } from 'src/truck-break-down-items/truck-break-down
 import { TruckBreakDown } from 'src/truck-break-down/truck-break-down.entity';
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
 import { UpdateTruckBreakDownDto } from './dto/update.truck-breakdown.dto';
+import { Op } from 'sequelize';
 @Injectable()
 export class TruckBreakDownService {
   constructor(
@@ -46,6 +47,7 @@ export class TruckBreakDownService {
   async repairUserGetAll() {
     let data = [];
     const breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+      where: { repairComment: { [Op.eq]: null } },
       order: [['id', 'DESC']],
     });
 

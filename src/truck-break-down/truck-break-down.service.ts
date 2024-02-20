@@ -44,7 +44,11 @@ export class TruckBreakDownService {
     };
   }
 
-  async repairUserGetAll(repairComment: string, count: string) {
+  async repairUserGetAll(
+    repairComment: string,
+    reciveToRepair: string,
+    count: string,
+  ) {
     let data = [];
     let countList: number;
     let breakDowns: {
@@ -54,7 +58,17 @@ export class TruckBreakDownService {
 
     if (repairComment === 'true') {
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
-        where: { repairComment: { [Op.ne]: null } },
+        where: {
+          [Op.and]: {
+            repairComment: { [Op.ne]: null },
+            historyReciveToRepair: { [Op.eq]: null },
+          },
+        },
+        order: [['id', 'DESC']],
+      });
+    } else if (reciveToRepair === 'true') {
+      breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+        where: { historyReciveToRepair: { [Op.ne]: null } },
         order: [['id', 'DESC']],
       });
     } else {

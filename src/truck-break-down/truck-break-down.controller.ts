@@ -40,11 +40,13 @@ export class TruckBreakDownController {
   async getAllBreakDown(
     @Res() response: Response,
     @Query('repairComment') repairComment: string,
+    @Query('historyReciveToRepair') reciveToRepair: string,
     @Query('count') count: string,
   ) {
     try {
       const res = await this.truckBreakDownService.repairUserGetAll(
         repairComment,
+        reciveToRepair,
         count,
       );
       if (count) {

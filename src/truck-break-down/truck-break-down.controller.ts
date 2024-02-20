@@ -40,11 +40,18 @@ export class TruckBreakDownController {
   async getAllBreakDown(
     @Res() response: Response,
     @Query('repairComment') repairComment: string,
+    @Query('count') count: string,
   ) {
     try {
-      const res =
-        await this.truckBreakDownService.repairUserGetAll(repairComment);
-      response.status(res.status).json({ data: res.data, count: res.count });
+      const res = await this.truckBreakDownService.repairUserGetAll(
+        repairComment,
+        count,
+      );
+      if (count) {
+        response.status(res.status).json({ data: res.data });
+      } else {
+        response.status(res.status).json({ data: res.data, count: res.count });
+      }
     } catch (err) {
       console.log(err);
       response.status(500).json(err);

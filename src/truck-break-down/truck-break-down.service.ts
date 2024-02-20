@@ -62,7 +62,7 @@ export class TruckBreakDownService {
         order: [['id', 'DESC']],
       });
     }
-    console.log(breakDowns);
+    // console.log(breakDowns);
     for (let item of breakDowns.rows) {
       let breakDown = {};
       let row = {};
@@ -76,6 +76,12 @@ export class TruckBreakDownService {
       row['driverMobile'] = breakDown['driverMobile'];
       row['carNumber'] = breakDown['carNumber'];
       row['kilometer'] = breakDown['carLife']; // carLife set value when driver register daily check list
+      row['repairComment'] = breakDown['repairComment'];
+      row['historySendToRepair'] = breakDown['historySendToRepair'];
+      row['historyReciveToRepair'] = breakDown['historyReciveToRepair'];
+      row['histroyDeliveryTruck'] = breakDown['histroyDeliveryTruck'];
+      row['historyDeliveryDriver'] = breakDown['historyDeliveryDriver'];
+      row['piece'] = breakDown['piece'];
       // console.log('itemsId to fetch: ', breakDown['truckBreakDownItemsId']); // debug
       row['answers'] = await this.getBreakDownItemsById(
         breakDown['truckBreakDownItemsId'],

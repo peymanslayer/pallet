@@ -8,7 +8,7 @@ import {
   BelongsToMany,
 } from 'sequelize-typescript';
 import { DataType } from 'sequelize-typescript';
-import { Order } from 'src/order/order,entity';
+import { Order } from 'src/order/order.entity';
 import { OrderDriver } from 'src/order/orderDriver.entity';
 
 @Table
@@ -22,7 +22,6 @@ export class Driver extends Model {
   @Column({ type: DataType.STRING })
   driverName: string;
 
-
-  @Column({type:DataType.INTEGER})
+  @Column({ type: DataType.INTEGER })
   orderId: number;
 }

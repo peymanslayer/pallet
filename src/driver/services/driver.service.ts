@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Driver } from '../driver.entity';
 import { InsertDriverDto } from '../dto/insert.driver.dto';
-import { Order } from 'src/order/order,entity';
+import { Order } from 'src/order/order.entity';
 import { OrderService } from 'src/order/services/order.service';
 import { forwardRef } from '@nestjs/common';
 import { OrderDriverService } from 'src/order/services/orderDriver.service';

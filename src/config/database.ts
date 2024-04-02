@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize-typescript';
 import { Auth } from 'src/auth/auth.entity';
-import { Order } from 'src/order/order,entity';
+import { Order } from 'src/order/order.entity';
 import { Comment } from 'src/comment/comment..entity';
 import { Driver } from 'src/driver/driver.entity';
 import { OrderDriver } from 'src/order/orderDriver.entity';
@@ -21,17 +21,17 @@ export const databaseProviders = [
       const sequelize = new Sequelize({
         dialect: 'mysql',
         //---------------------------------------- production db
-        host: 'himalayas.liara.cloud',
-        port: 32679,
-        username: 'root',
-        password: 'XY9n0YoCwwTmjF7W6zZPYSSm',
-        database: 'nifty_diffie',
+        // host: 'himalayas.liara.cloud',
+        // port: 32679,
+        // username: 'root',
+        // password: 'XY9n0YoCwwTmjF7W6zZPYSSm',
+        // database: 'nifty_diffie',
         //---------------------------------------- test db
-        // host: 'localhost',
-        // port: 3306,
-        // username: 'test',
-        // password: '123123',
-        // database: 'chstseven_test',
+        host: 'localhost',
+        port: 3306,
+        username: 'test',
+        password: '123123',
+        database: 'chstseven_test',
 
         pool: {
           max: 15,

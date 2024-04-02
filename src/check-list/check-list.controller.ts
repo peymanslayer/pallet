@@ -36,10 +36,16 @@ export class CheckListController {
   @Get('/api/checklist/:driverId')
   async getAllCheckList(
     @Param('driverId') driverId: number,
+    @Param('beforHistory') beforHistory: string,
+    @Param('afterHistory') afterHistory: string,
     @Res() response: Response,
   ) {
     try {
-      const res = await this.checkListService.getllByDriverId(driverId);
+      const res = await this.checkListService.getllByDriverId(
+        driverId,
+        beforHistory,
+        afterHistory,
+      );
       response
         .status(res.status)
         .json({ data: res.data, message: res.message });

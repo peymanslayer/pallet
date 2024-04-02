@@ -1,29 +1,23 @@
 import { IsEmail, IsNotEmpty } from 'class-validator';
 
 export class SignUpDto {
-  @IsNotEmpty()
-  @IsEmail()
   email: string;
 
   @IsNotEmpty()
   password: string;
 
-  @IsNotEmpty()
-  name:string
-  
-  @IsNotEmpty()
-  role:string
+  name: string;
 
   @IsNotEmpty()
-  mobile:string
+  role: string;
 
   @IsNotEmpty()
-  personelCode:string
+  mobile: string;
 
   @IsNotEmpty()
-  shopCode:number
+  personelCode: string;
 
-  @IsNotEmpty()
-  subscriber:string
+  shopCode: number;
 
+  subscriber: string;
 }

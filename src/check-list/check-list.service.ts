@@ -93,20 +93,28 @@ export class CheckListService {
     return lowest;
   }
 
-  async getllByDriverId(userId: number) {
+  async getllByDriverId(
+    userId: number,
+    beforHistory: string,
+    afterHistory: string,
+  ) {
     // comment:  return data : [{date,hours,answers[orderby number]}]
+    let where = {};
     let data = [];
-    let check = {};
 
+    if (userId) where['userId'] = userId;
+    if (beforHistory && afterHistory)
+      where['history'] = `[Op.between]:{${beforHistory},${afterHistory}}`;
     //get all of checklist of user checklists
     const res = await this.checkListRepository.findAndCountAll({
-      where: { userId: userId },
+      where: where,
       order: [['id', 'DESC']],
     });
     const allCheckList = res.rows;
 
     // for each chklst add answers to data[x].answers
     for (let checkList of allCheckList) {
+      let check = {};
       const info = checkList.dataValues;
 
       check['id'] = info['id'];
@@ -121,7 +129,7 @@ export class CheckListService {
     return {
       status: 200,
       data: data,
-      message: `get all check list of driver : ${check['name']}`,
+      message: `get all check list of driver name : ${data[0]['name']}`,
     };
   }
 

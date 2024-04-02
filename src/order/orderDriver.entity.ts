@@ -1,6 +1,12 @@
-import { Table,ForeignKey,Column,Model, DataType } from "sequelize-typescript";
-import { Order } from "./order,entity";
-import { Driver } from "src/driver/driver.entity";
+import {
+  Table,
+  ForeignKey,
+  Column,
+  Model,
+  DataType,
+} from 'sequelize-typescript';
+import { Order } from './order.entity';
+import { Driver } from 'src/driver/driver.entity';
 
 @Table
 export class OrderDriver extends Model {
@@ -12,6 +18,6 @@ export class OrderDriver extends Model {
   @Column
   orderId: number;
 
-  @Column({type:DataType.DATE})
+  @Column({ type: DataType.DATE })
   deletedAt?: Date;
 }

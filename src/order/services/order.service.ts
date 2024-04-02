@@ -1,5 +1,5 @@
 import { Body, Inject, Injectable } from '@nestjs/common';
-import { Order } from '../order,entity';
+import { Order } from '../order.entity';
 import { InsertOrderDto } from '../dtos/insert.order.dto';
 import { FindOrderDto } from '../dtos/find.order.dto';
 import { DeleteOrderDto } from '../dtos/delete.order.dto';
@@ -404,7 +404,7 @@ export class OrderService {
             },
           },
         },
-        order: [['history', 'DESC']],
+        order: [['id', 'DESC']],
       });
     } else {
       findAllDeletedOrderByShopId = await this.orderRepository.findAll({
@@ -417,7 +417,7 @@ export class OrderService {
             },
           },
         },
-        order: [['history', 'DESC']],
+        order: [['id', 'DESC']],
       });
     }
 
@@ -455,8 +455,8 @@ export class OrderService {
           },
         },
         order: [
-          ['history', 'DESC'],
-          ['hours', 'DESC'],
+          ['id', 'DESC'],
+          // ['hours', 'DESC'],
         ],
       });
     } else {
@@ -468,8 +468,8 @@ export class OrderService {
           },
         },
         order: [
-          ['history', 'DESC'],
-          ['hours', 'DESC'],
+          ['id', 'DESC'],
+          // ['hours', 'DESC'],
         ],
       });
     }
@@ -504,7 +504,7 @@ export class OrderService {
             },
           },
         },
-        order: [['history', 'DESC']],
+        order: [['id', 'DESC']],
       });
     } else {
       findAllDeletedOrderByShopId = await this.orderRepository.findAll({
@@ -517,8 +517,8 @@ export class OrderService {
           },
         },
         order: [
-          ['history', 'DESC'],
-          ['hours', 'DESC'],
+          ['id', 'DESC'],
+          // ['hours', 'DESC'],
         ],
       });
     }
@@ -572,6 +572,8 @@ export class OrderService {
 
   async findAllOrdersRegisteredByStock(stockId: number, body: FindOrderDto) {
     let findAllOrdersRegisteredByStock = [];
+    let todayHistory = this.getTime().message.result;
+
     if (body.beforeHistory && body.afterHistory) {
       findAllOrdersRegisteredByStock = await this.orderRepository.findAll({
         where: {
@@ -580,9 +582,15 @@ export class OrderService {
             [Op.ne]: null,
           },
           deletedAt: null,
-          historyOfStock: {
+          history: {
             [Op.between]: [body.beforeHistory, body.afterHistory],
           },
+          // history: {
+          //   [Op.between]: [
+          //     new Date(body.beforeHistory),
+          //     new Date(body.afterHistory),
+          //   ],
+          // },
         },
         order: [['historyOfStock', 'DESC']],
       });
@@ -594,6 +602,7 @@ export class OrderService {
             [Op.ne]: null,
           },
           deletedAt: null,
+          history: todayHistory,
         },
         order: [['historyOfStock', 'DESC']],
       });

@@ -39,6 +39,9 @@ export class TruckBreakDownController {
   @Get('/api/truckbreakdown/repairman')
   async getAllBreakDown(
     @Res() response: Response,
+    @Query('beforeHistory') beforeHistory: string,
+    @Query('afterHistory') afterHistory: string,
+    @Query('carNumber') carNumber: string,
     @Query('repairComment') repairComment: string,
     @Query('historyReciveToRepair') reciveToRepair: string,
     @Query('count') count: string,
@@ -48,6 +51,9 @@ export class TruckBreakDownController {
         repairComment,
         reciveToRepair,
         count,
+        beforeHistory,
+        afterHistory,
+        carNumber,
       );
       if (count) {
         response.status(res.status).json({ data: res.data });

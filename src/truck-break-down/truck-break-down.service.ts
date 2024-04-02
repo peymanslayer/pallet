@@ -20,6 +20,7 @@ export class TruckBreakDownService {
 
   async getAll() {
     let data = [];
+
     const breakDowns = await this.truckBreakDownRepository.findAndCountAll({
       order: [['id', 'DESC']],
     });
@@ -48,29 +49,51 @@ export class TruckBreakDownService {
     repairComment: string,
     reciveToRepair: string,
     count: string,
+    beforeHistory: string,
+    afterHistory: string,
+    carNumber: string,
   ) {
+    let filter = {}; // filter by "date" or "carNumber"
     let data = [];
     let countList: number;
     let breakDowns: {
       rows: TruckBreakDown[];
       count: number;
     };
-
+    if (beforeHistory || afterHistory) {
+      if (!afterHistory) {
+        afterHistory = '2400/0/0';
+      }
+      if (!beforeHistory) {
+        beforeHistory = '2023/0/0';
+      }
+      filter['historyDriverRegister'] = {
+        [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
+      };
+    }
+    if (carNumber) {
+      filter['carNumber'] = carNumber;
+    }
+    console.log(filter);
+    // get list of  "Activity in Progress"
     if (repairComment === 'true') {
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {
           [Op.and]: {
             repairComment: { [Op.ne]: null },
             historyReciveToRepair: { [Op.eq]: null },
+            ...filter,
           },
         },
         order: [['id', 'DESC']],
       });
+      // get list of "Activity done"
     } else if (reciveToRepair === 'true') {
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: { historyReciveToRepair: { [Op.ne]: null } },
         order: [['id', 'DESC']],
       });
+      // get list of "Activity necessary to do"
     } else {
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: { repairComment: { [Op.eq]: null } },

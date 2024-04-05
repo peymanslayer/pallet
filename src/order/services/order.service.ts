@@ -526,25 +526,52 @@ export class OrderService {
   }
 
   async findOrderList(shopId: number, userId: number, body: FindOrderDto) {
-    const findAllDeletedOrderByShopId = await this.findAllDeletedOrderByShopId(
-      userId,
-      shopId,
-      body,
-    );
-    const findAllRegisteredOrderByUser =
-      await this.findAllRegisteredOrderByUser(shopId, body);
-    const findDeletedOrderByDriver = await this.findDeletedOrderByDriver(
-      shopId,
-      body,
-    );
+    let res: Array<Order>;
+
+    if (body.afterHistory && body.afterHistory) {
+      res = await this.orderRepository.findAll({
+        where: {
+          [Op.and]: {
+            userId: userId,
+            shopId: shopId,
+            history: {
+              [Op.between]: [body.beforeHistory, body.afterHistory],
+            },
+          },
+        },
+        order: [['id', 'DESC']],
+      });
+    } else {
+      res = await this.orderRepository.findAll({
+        where: {
+          [Op.and]: {
+            userId: userId,
+            shopId: shopId,
+          },
+        },
+        order: [['id', 'DESC']],
+      });
+    }
     return {
       status: 200,
-      message: {
-        findAllDeletedOrderByShopId: findAllDeletedOrderByShopId.message,
-        findAllRegisteredOrderByUser,
-        findDeletedOrderByDriver,
-      },
+      data: this.sortOnNewestDriverAcceptAndNewOrder(res),
     };
+  }
+
+  sortOnNewestDriverAcceptAndNewOrder(orderSortId: Array<Order>) {
+    const newestDriverAccept = [];
+    const orderSortNewest = [];
+    const newestOrder = orderSortId[0];
+
+    for (let order of orderSortId) {
+      console.log('order update: ', order.updatedAt);
+      console.log('order neweset: ', newestOrder.createdAt);
+      if (order.updatedAt > newestOrder.createdAt && order.historyOfDriver)
+        newestDriverAccept.push(order);
+      else orderSortNewest.push(order);
+    }
+
+    return newestDriverAccept.concat(orderSortNewest);
   }
 
   async findAllOrdersByDriverId(body: FindOrderDto) {

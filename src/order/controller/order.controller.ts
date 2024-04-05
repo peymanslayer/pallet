@@ -250,7 +250,7 @@ export class OrderController {
         body.userId,
         body,
       );
-      response.status(orderList.status).json(orderList.message);
+      response.status(orderList.status).send(orderList);
     } catch (err) {
       console.log(err);
       response.status(500).json('inetrnal server error');

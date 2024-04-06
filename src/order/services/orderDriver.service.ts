@@ -8,6 +8,7 @@ import { GenerateCode } from './generate.code';
 import { Op, or } from 'sequelize';
 import { InsertOrderDto } from '../dtos/insert.order.dto';
 import { UpdateOrderDto } from '../dtos/update.order.dto';
+import { Auth } from 'src/auth/auth.entity';
 
 @Injectable()
 export class OrderDriverService {
@@ -20,9 +21,14 @@ export class OrderDriverService {
     private readonly generateCodeService: GenerateCode,
     @Inject(forwardRef(() => DriverService))
     private readonly driverService: DriverService,
+    @Inject('AUTH_REPOSITORY') private readonly authRepository: typeof Auth,
   ) {}
   async findAllOrderOfDriver(id: number) {
-    const findAllOrderOfDriver = await this.driverService.findOneDriverById(id);
+    // update to auth model
+    // const findAllOrderOfDriver = await this.driverService.findOneDriverById(id);
+    const findAllOrderOfDriver = await this.authRepository.findOne({
+      where: { id: id },
+    });
     if (!findAllOrderOfDriver) {
       return {
         status: 400,
@@ -42,19 +48,25 @@ export class OrderDriverService {
   ) {
     console.log(driverId, orderId);
 
-    let array = [];
-    const insertOrderDriver = await this.orderDriverRepository.create({
-      driverId: driverId,
-      orderId: orderId,
+    // let array = [];
+    // const insertOrderDriver = await this.orderDriverRepository.create({
+    //   driverId: driverId,
+    //   orderId: orderId,
+    // });
+    // const findDriver = await this.driverService.findDriver(driverId); // update to auth find, comment: done , checked
+    const findDriver = await this.authRepository.findOne({
+      where: {
+        id: driverId,
+      },
     });
-    const findDriver = await this.driverService.findDriver(driverId);
+    // console.log('driver name ', findDriver);
     const code = this.generateCodeService.generateCode().message;
     const updateOrder = await this.orderRepository.update(
       {
         driver: driverId,
         registeredPassword: code,
         isRegisteredByDriver: 'ثبت شده توسط راننده',
-        driverName: findDriver.message.driverName,
+        driverName: findDriver.name,
         historyOfDriver: body.historyOfDriver,
         hoursOfRegisterDriver: body.hoursOfRegisterDriver,
       },
@@ -70,36 +82,39 @@ export class OrderDriverService {
         where: { id: orderId },
       },
     );
-    if (updateOrder[0] == 0) {
-      return {
-        status: 400,
-        message: 'order not updated',
-      };
-    }
-    const findAllOrderByOrderId = await this.orderDriverRepository.findAll({
-      where: { driverId: driverId },
-    });
-    for (let i = 0; i < findAllOrderByOrderId.length; i++) {
-      console.log(findAllOrderByOrderId[i].orderId);
 
-      const findOrder = await this.orderService.findOrderById(
-        findAllOrderByOrderId[i].orderId,
-      );
-      console.log(findOrder);
+    return { status: 200, message: 'order driver register' };
+    // if (updateOrder[0] == 0) {
+    //   return {
+    //     status: 400,
+    //     message: 'order not updated',
+    //   };
+    // }
+    // const findAllOrderByOrderId = await this.orderDriverRepository.findAll({
+    //   where: { driverId: driverId },
+    // });
+    // for (let i = 0; i < findAllOrderByOrderId.length; i++) {
+    //   console.log(findAllOrderByOrderId[i].orderId);
 
-      array.push(findOrder);
-    }
+    //   const findOrder = await this.orderService.findOrderById(
+    //     findAllOrderByOrderId[i].orderId,
+    //   );
+    //   console.log(findOrder);
 
-    return {
-      status: 200,
-      message: array,
-    };
+    //   array.push(findOrder);
+    // }
+
+    // return {
+    //   status: 200,
+    //   message: array,
+    // };
   }
 
   async insertToOrderDriver(orderId: number, driverId: number) {
     console.log(orderId, driverId);
 
     const insertToOrderDriver = await this.orderDriverRepository.create({
+      // maybe wrong
       orderId: orderId,
       driverId: driverId,
     });

@@ -9,15 +9,17 @@ import { DriverModule } from 'src/driver/driver.module';
 import { OrderDriverProviders } from './orderDriver.provider';
 import { GenerateCode } from './services/generate.code';
 import { OrderDriverService } from './services/orderDriver.service';
+import { AuthProviders } from 'src/auth/auth.provider';
 
 @Module({
-  imports: [CommentModule, forwardRef(() => DriverModule),HttpModule],
+  imports: [CommentModule, forwardRef(() => DriverModule), HttpModule],
   providers: [
     OrderService,
     GenerateCode,
     OrderDriverService,
     ...OrderProviders,
     ...OrderDriverProviders,
+    ...AuthProviders,
   ],
   controllers: [OrderController],
   exports: [OrderService, OrderDriverService],

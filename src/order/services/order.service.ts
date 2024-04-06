@@ -8,10 +8,11 @@ import { DriverService } from 'src/driver/services/driver.service';
 import { forwardRef } from '@nestjs/common';
 import { OrderDriver } from '../orderDriver.entity';
 import { GenerateCode } from './generate.code';
-import { Op } from 'sequelize';
+import { Op, where } from 'sequelize';
 import { Comment } from 'src/comment/comment..entity';
 import { Driver } from 'src/driver/driver.entity';
 import { Workbook } from 'exceljs';
+import { Auth } from 'src/auth/auth.entity';
 
 @Injectable()
 export class OrderService {
@@ -21,6 +22,7 @@ export class OrderService {
     private readonly orderDriverrRepository: typeof OrderDriver,
     @Inject(forwardRef(() => DriverService))
     private readonly driverSerice: DriverService,
+    @Inject('AUTH_REPOSITORY') private readonly authRepository: typeof Auth,
     private readonly commentService: CommentService,
     private readonly generateService: GenerateCode,
   ) {}
@@ -296,15 +298,19 @@ export class OrderService {
   async updateOrderDriver(driverId: number, shopId: number, orderId: number) {
     let array = [];
     await this.orderDriverrRepository.create({
+      // maybe confilict with insertOrderByDriver
       driverId: driverId,
       orderId: orderId,
     });
-    // const findDriver = await this.driverSerice.findDriver(driverId);
+    // const findDriver = await this.driverSerice.findDriver(driverId); //update to auth find, comment: not used findDriver
     const updateOrder = await this.orderDriverrRepository.findAll({
       where: { orderId: orderId },
     });
     for (let i = 0; i < updateOrder.length; i++) {
-      let driver = await this.driverSerice.findDriver(updateOrder[i].driverId);
+      // let driver = await this.driverSerice.findDriver(updateOrder[i].driverId); // update to auth find,
+      let driver = await this.authRepository.findOne({
+        where: { id: updateOrder[i].driverId },
+      });
       array.push(driver);
     }
     return {
@@ -456,7 +462,7 @@ export class OrderService {
         },
         order: [
           ['id', 'DESC'],
-          // ['hours', 'DESC'],
+          // ['hours', 'DESC'], // check order by
         ],
       });
     } else {
@@ -473,10 +479,20 @@ export class OrderService {
         ],
       });
     }
+    console.log(
+      '------------------------ findDeletedOrderByDriver',
+      findDeletedOrderByDriver,
+    );
     for (let i = 0; i < findDeletedOrderByDriver.length; i++) {
-      const findInformaionDriver = await this.driverSerice.findDriver(
-        findDeletedOrderByDriver[i].driver,
-      );
+      // update to auth find, comment: Done , most checked and TODO update  pervious record orders.driver to auth.id
+      // const findInformaionDriver = await this.driverSerice.findDriver(
+      //   findDeletedOrderByDriver[i].driver, // driver = driverId
+      // );
+      const findInformaionDriver = await this.authRepository.findOne({
+        where: {
+          id: findDeletedOrderByDriver[i].driver,
+        },
+      });
       if (findInformaionDriver) {
         drivers.push(findInformaionDriver);
       }
@@ -575,11 +591,16 @@ export class OrderService {
   }
 
   async findAllOrdersByDriverId(body: FindOrderDto) {
-    const findByDriverId = await this.driverSerice.findDriverByName(body.name);
-    if (findByDriverId.message) {
+    // update to auth find by name , comment: Done , just test
+    // const findByDriverId = await this.driverSerice.findDriverByName(body.name);
+    const findByDriverId = await this.authRepository.findOne({
+      where: { name: body.name },
+    });
+
+    if (findByDriverId) {
       const findAllOrdersByDriverId = await this.orderRepository.findAll({
         where: {
-          driver: findByDriverId.message.id,
+          driver: findByDriverId.id,
           isRegisteredByDriver: 'ثبت شده توسط راننده',
           isRegisteredByStock: null,
           deletedAt: null,
@@ -622,6 +643,11 @@ export class OrderService {
         order: [['historyOfStock', 'DESC']],
       });
     } else {
+      const date = new Date();
+      // becouse when insert record date is used "getTime" function
+      // search for today used "getTime" function
+      // const today = `${date.getFullYear()}/${date.getMonth()}/${date.getDate()}`;
+
       findAllOrdersRegisteredByStock = await this.orderRepository.findAll({
         where: {
           stockId: stockId,
@@ -629,7 +655,7 @@ export class OrderService {
             [Op.ne]: null,
           },
           deletedAt: null,
-          history: todayHistory,
+          historyOfStock: todayHistory,
         },
         order: [['historyOfStock', 'DESC']],
       });
@@ -644,7 +670,7 @@ export class OrderService {
     const findAllOrdersNotRegisteredByStock =
       await this.orderRepository.findAll({
         where: {
-          driver: stockId,
+          driver: stockId, // TODO : check
           isRegisteredByDriver: {
             [Op.ne]: null,
           },
@@ -717,8 +743,12 @@ export class OrderService {
 
   getTime() {
     const date = new Date();
+    console.log('date in getTime: ', date);
     const time = date.getFullYear();
-    const month = date.getMonth() + 1;
+    // sample format of date: "2022/2/22"
+    // in first month of year return "0", therfor check and set "1" if "0"
+    // const month = date.getMonth() ? date.getMonth() : 1;
+    const month = date.getMonth() + 1; // TODO: check
     const day = date.getDate();
     const result = `${time}/${month}/${day}`;
     const hourss = date.getHours();
@@ -1059,12 +1089,12 @@ export class OrderService {
   async findAllByShopCode(shopCode: string, body: FindOrderDto) {
     const findMin = await this.orderRepository.findAll({});
     console.log(findMin);
-
     const todayHistory = this.getTime().message.result;
     if (body.afterHistory && body.beforeHistory) {
       const findAllByShopCode = await this.orderRepository.findAll({
         where: {
-          shopId: shopCode,
+          //  handle filtered just by "history"
+          shopId: shopCode ? shopCode : `[Op.like]: '%'`,
 
           history: {
             [Op.in]: [body.beforeHistory, body.afterHistory],

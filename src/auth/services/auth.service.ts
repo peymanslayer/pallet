@@ -325,7 +325,7 @@ export class AuthService {
     });
     if (findUser.role == 'driver' || findUser.role == 'companyDriver') {
       await this.authRepository.destroy({ where: { id: findUser.id } });
-      await this.driverService.deleteDriverByName(findUser.name);
+      await this.driverService.deleteDriverByName(findUser.name); // not used driver model
       return {
         status: 200,
         message: 'driver deleted',
@@ -359,6 +359,7 @@ export class AuthService {
     if (findedUser.role == 'driver' || findedUser.role == 'companyDriver') {
       if (body.password) {
         if (body.name) {
+          // update to auth model , comment: checked, not impact
           const updateDriver = await this.driverService.updateDriver(
             findedUser.name,
             body.name,

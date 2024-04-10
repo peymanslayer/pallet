@@ -93,6 +93,7 @@ export class OperatorShopService {
             },
           },
           order: [['registerHistory', 'DESC']],
+          limit: 10,
         });
       return {
         status: 200,
@@ -103,6 +104,7 @@ export class OperatorShopService {
         await this.operatorShopRepository.findAll({
           where: { operatorId: body.operatorId },
           order: [['registerHistory', 'DESC']],
+          limit: 10,
         });
       return {
         status: 200,

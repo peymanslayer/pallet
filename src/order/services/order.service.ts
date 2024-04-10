@@ -1088,19 +1088,18 @@ export class OrderService {
 
   async findAllByShopCode(shopCode: string, body: FindOrderDto) {
     const findMin = await this.orderRepository.findAll({});
-    console.log(findMin);
-    const todayHistory = this.getTime().message.result;
     if (body.afterHistory && body.beforeHistory) {
-      const findAllByShopCode = await this.orderRepository.findAll({
-        where: {
-          //  handle filtered just by "history"
-          shopId: shopCode ? shopCode : `[Op.like]: '%'`,
+      const where = {};
+      where['history'] = {
+        [Op.between]: [`${body.beforeHistory}`, `${body.afterHistory}`],
+      };
+      if (shopCode) where['shopId'] = shopCode;
+      else where['shopId'] = { [Op.ne]: '' };
 
-          history: {
-            [Op.in]: [body.beforeHistory, body.afterHistory],
-          },
-        },
+      const findAllByShopCode = await this.orderRepository.findAll({
+        where: where,
       });
+      console.log(shopCode ? shopCode : `[Op.like]: {"%"}`);
       return {
         status: 200,
         message: findAllByShopCode,
@@ -1109,9 +1108,6 @@ export class OrderService {
     const findAllByShopCode = await this.orderRepository.findAll({
       where: {
         shopId: shopCode,
-        history: {
-          [Op.in]: [todayHistory, todayHistory],
-        },
       },
     });
     return {

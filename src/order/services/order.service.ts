@@ -1008,10 +1008,11 @@ export class OrderService {
 
   async listOfExcelOrderByShopCode(shopCode: string) {
     let data = [];
+    let where = {};
+    if (shopCode) where['shopId'] = shopCode;
+    else where['shopId'] = { [Op.ne]: '' };
     const findAllOrder = await this.orderRepository.findAll({
-      where: {
-        shopId: shopCode,
-      },
+      where: where,
     });
     for (let i = 0; i < findAllOrder.length; i++) {
       data.push({

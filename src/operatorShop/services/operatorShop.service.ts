@@ -36,6 +36,9 @@ export class OperatorShopService {
   async exportExcelOfOperator(req) {
     let data = [];
     let findAllOrderOfOperatorById = [];
+    let shopId = {};
+    if (req.shopId) shopId['shopId'] = req.shopId;
+    else shopId['shopId'] = { [Op.ne]: '' };
     if (req.beforeHistory && req.afterHistory) {
       console.log('in');
 
@@ -44,6 +47,7 @@ export class OperatorShopService {
           registerHistory: {
             [Op.between]: [req.beforeHistory, req.afterHistory],
           },
+          shopId,
         },
         order: [['createdAt', 'DESC']],
       });

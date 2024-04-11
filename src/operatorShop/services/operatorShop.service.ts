@@ -87,34 +87,24 @@ export class OperatorShopService {
   }
 
   async findAllOperatorShopById(body: FindAllOperatorShopById) {
-    if (body.afterHistory && body.beforeHistory) {
-      const findAllDeletedOrderByShopId =
-        await this.operatorShopRepository.findAll({
-          where: {
-            operatorId: body.operatorId,
-            registerHistory: {
-              [Op.between]: [body.beforeHistory, body.afterHistory],
-            },
-          },
-          order: [['registerHistory', 'DESC']],
-          limit: 10,
-        });
-      return {
-        status: 200,
-        message: findAllDeletedOrderByShopId,
+    const where = {};
+    if (body.afterHistory && body.beforeHistory)
+      where['history'] = {
+        [Op.between]: [`${body.beforeHistory}`, `${body.afterHistory}`],
       };
-    } else {
-      const findAllDeletedOrderByShopId =
-        await this.operatorShopRepository.findAll({
-          where: { operatorId: body.operatorId },
-          order: [['registerHistory', 'DESC']],
-          limit: 10,
-        });
-      return {
-        status: 200,
-        message: findAllDeletedOrderByShopId,
-      };
-    }
+    if (body.operatorId) where['operatorId'] = body.operatorId;
+    else where['operatorId'] = { [Op.ne]: '' };
+
+    const findAllDeletedOrderByShopId =
+      await this.operatorShopRepository.findAll({
+        where: where,
+        order: [['registerHistory', 'DESC']],
+        limit: 10,
+      });
+    return {
+      status: 200,
+      message: findAllDeletedOrderByShopId,
+    };
   }
 
   async limitOfDriverOfOperator(name: string) {

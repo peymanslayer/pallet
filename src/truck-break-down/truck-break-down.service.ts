@@ -226,6 +226,19 @@ export class TruckBreakDownService {
       count: data.length,
     };
   }
+
+  async replayRepairman(driverId: any) {
+    const res = await this.truckBreakDownRepository.count({
+      where: {
+        driverId: driverId,
+        repairComment: { [Op.ne]: null },
+      },
+    });
+    return {
+      status: 200,
+      data: res,
+    };
+  }
   // comment: better solution impelement in "truckBreakDownItems" service and inject this here
   async getBreakDownItemsById(id: number) {
     let data = [];

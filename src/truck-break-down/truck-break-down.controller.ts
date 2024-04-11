@@ -26,6 +26,20 @@ export class TruckBreakDownController {
     }
   }
 
+  @Get('/api/truckbreakdown/repairman/replay')
+  async replayRepairman(
+    @Query('userId') userId: any,
+    @Res() response: Response,
+  ) {
+    try {
+      const res = await this.truckBreakDownService.replayRepairman(userId);
+      response.status(res.status).json(res.data);
+    } catch (err) {
+      console.log(err);
+      response.status(500).json(err);
+    }
+  }
+
   @Get('/api/truckbreakdown/all')
   async getAll(@Res() response: Response) {
     try {

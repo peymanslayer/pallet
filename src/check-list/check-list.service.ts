@@ -99,14 +99,13 @@ export class CheckListService {
     afterHistory: string,
   ) {
     // comment:  return data : [{date,hours,answers[orderby number]}]
-    let where = {};
     let data = [];
-
-    if (userId) where['userId'] = userId;
+    let where = {};
     if (beforHistory && afterHistory)
       where['history'] = {
         [Op.between]: [`${beforHistory}`, `${afterHistory}`],
       };
+    if (userId) where['userId'] = userId;
     //get all of checklist of user checklists
     const res = await this.checkListRepository.findAndCountAll({
       where: where,

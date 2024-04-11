@@ -88,8 +88,9 @@ export class OperatorShopService {
 
   async findAllOperatorShopById(body: FindAllOperatorShopById) {
     const where = {};
+    let limit = body.limit ? body.limit : 50;
     if (body.afterHistory && body.beforeHistory)
-      where['history'] = {
+      where['registerHistory'] = {
         [Op.between]: [`${body.beforeHistory}`, `${body.afterHistory}`],
       };
     if (body.operatorId) where['operatorId'] = body.operatorId;
@@ -99,7 +100,7 @@ export class OperatorShopService {
       await this.operatorShopRepository.findAll({
         where: where,
         order: [['registerHistory', 'DESC']],
-        limit: 10,
+        limit: limit,
       });
     return {
       status: 200,

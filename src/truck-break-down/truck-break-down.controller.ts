@@ -14,6 +14,7 @@ import { TruckBreakDownService } from './truck-break-down.service';
 @Controller()
 export class TruckBreakDownController {
   constructor(private truckBreakDownService: TruckBreakDownService) {}
+  // list breakdown of panel "Driver"
   @Get('/api/truckbreakdown/')
   async getByUserId(@Query('userId') userId: any, @Res() response: Response) {
     try {

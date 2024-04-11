@@ -194,7 +194,7 @@ export class TruckBreakDownService {
       where: {
         driverId: driverId,
       },
-      order: [['id', 'DESC']],
+      order: [['updatedAt', 'DESC']],
     });
     // create report for each breakdwon
     for (let item of breakDown.rows) {

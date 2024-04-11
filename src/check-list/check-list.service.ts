@@ -104,7 +104,9 @@ export class CheckListService {
 
     if (userId) where['userId'] = userId;
     if (beforHistory && afterHistory)
-      where['history'] = `[Op.between]:{${beforHistory},${afterHistory}}`;
+      where['history'] = {
+        [Op.between]: [`${beforHistory}`, `${afterHistory}`],
+      };
     //get all of checklist of user checklists
     const res = await this.checkListRepository.findAndCountAll({
       where: where,
@@ -129,7 +131,7 @@ export class CheckListService {
     return {
       status: 200,
       data: data,
-      message: `get all check list of driver name : ${data[0]['name']}`,
+      message: `get all check list of driver id : ${userId}`,
     };
   }
 

@@ -36,8 +36,9 @@ export class CheckListController {
   @Get('/api/checklist/:driverId')
   async getAllCheckList(
     @Param('driverId') driverId: number,
-    @Param('beforHistory') beforHistory: string,
-    @Param('afterHistory') afterHistory: string,
+    @Query('beforHistory') beforHistory: string,
+    @Query('afterHistory') afterHistory: string,
+
     @Res() response: Response,
   ) {
     try {

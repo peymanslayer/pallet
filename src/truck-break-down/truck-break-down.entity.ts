@@ -64,4 +64,7 @@ export class TruckBreakDown extends Model {
 
   @Column
   piece: string;
+
+  @Column
+  lastFetch: Date;
 }

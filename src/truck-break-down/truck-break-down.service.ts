@@ -90,13 +90,23 @@ export class TruckBreakDownService {
       // get list of "Activity done"
     } else if (reciveToRepair === 'true') {
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
-        where: { historyReciveToRepair: { [Op.ne]: null } },
+        where: {
+          [Op.and]: {
+            historyReciveToRepair: { [Op.ne]: null },
+            ...filter,
+          },
+        },
         order: [['id', 'DESC']],
       });
       // get list of "Activity necessary to do"
     } else {
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
-        where: { repairComment: { [Op.eq]: null } },
+        where: {
+          [Op.and]: {
+            repairComment: { [Op.eq]: null },
+            ...filter,
+          },
+        },
         order: [['id', 'DESC']],
       });
     }
@@ -190,11 +200,15 @@ export class TruckBreakDownService {
 
   async getByDriverId(driverId: any) {
     let data = [];
+    const now = new Date().toISOString();
     const breakDown = await this.truckBreakDownRepository.findAndCountAll({
       where: {
         driverId: driverId,
       },
-      order: [['updatedAt', 'DESC']],
+      order: [
+        ['updatedAt', 'DESC'],
+        ['id', 'DESC'],
+      ],
     });
     // create report for each breakdwon
     for (let item of breakDown.rows) {
@@ -207,6 +221,9 @@ export class TruckBreakDownService {
       const items = res.dataValues;
       // console.log(items);
       report = item.dataValues;
+
+      if (item.lastFetch < item.updatedAt) report['notify'] = 1;
+      else report['notify'] = 0;
       // due to keys of field have unique number , answer_1, answer_2, ..., answe_20
       for (let item = 1; item <= 20; item++) {
         // console.log(items[`answer_${item}`]);
@@ -220,6 +237,18 @@ export class TruckBreakDownService {
         }
       }
     }
+    // update last fetch aim alert to driver in frontEnd when repairman new answer
+
+    // console.log(new Date().toISOString());
+    await this.truckBreakDownRepository.update(
+      { lastFetch: new Date().toISOString() },
+      {
+        where: {
+          driverId: driverId,
+          repairComment: { [Op.ne]: null },
+        },
+      },
+    );
     return {
       status: 200,
       data: data,

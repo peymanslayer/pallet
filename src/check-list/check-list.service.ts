@@ -48,30 +48,30 @@ export class CheckListService {
         await this.checkListCommentRepository.create<CheckListComment>(
           checkListComment,
         );
-
-      // update lastCarLife  in "truck_info"
-      // check answered kilometer ; "answer_0" is kilometer number of truck
-      // console.log(CarNumber[`id${checkList['userId']}`]); // debug
-      const updateTruckInfo = await this.truckInfoRepository.update(
-        {
-          lastCarLife: checkList['answer_0'],
-          state: this.lowestValueCheckList(Object.values(checkList)),
-        },
-        {
-          where: {
-            driverId: checkList['userId'],
-          },
-        },
-      );
-      // console.log(updateTruckInfo[0]); // debug "updateTruckInfo[0]" number of affected on row's with this update
-      if (updateTruckInfo[0] == 0) {
-        const createTruckInfo = await this.truckInfoRepository.create({
-          lastCarLife: checkList['answer_0'],
-          driverId: checkList['userId'],
-          state: this.lowestValueCheckList(Object.values(checkList)),
-        });
-      }
     }
+    // update lastCarLife  in "truck_info"
+    // check answered kilometer ; "answer_0" is kilometer number of truck
+    // console.log(CarNumber[`id${checkList['userId']}`]); // debug
+    const updateTruckInfo = await this.truckInfoRepository.update(
+      {
+        lastCarLife: checkList['answer_0'],
+        state: this.lowestValueCheckList(Object.values(checkList)),
+      },
+      {
+        where: {
+          driverId: checkList['userId'],
+        },
+      },
+    );
+    // console.log(updateTruckInfo[0]); // debug "updateTruckInfo[0]" number of affected on row's with this update
+    if (updateTruckInfo[0] == 0) {
+      const createTruckInfo = await this.truckInfoRepository.create({
+        lastCarLife: checkList['answer_0'],
+        driverId: checkList['userId'],
+        state: this.lowestValueCheckList(Object.values(checkList)),
+      });
+    }
+
     return {
       status: 200,
       message: 'insert check list successfully',

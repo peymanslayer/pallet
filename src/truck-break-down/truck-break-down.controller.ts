@@ -26,13 +26,13 @@ export class TruckBreakDownController {
     }
   }
 
-  @Get('/api/truckbreakdown/repairman/replay')
-  async replayRepairman(
+  @Get('/api/truckbreakdown/transport/replay')
+  async replayTransportAdmin(
     @Query('userId') userId: any,
     @Res() response: Response,
   ) {
     try {
-      const res = await this.truckBreakDownService.replayRepairman(userId);
+      const res = await this.truckBreakDownService.replayTransportAdmin(userId);
       response.status(res.status).json(res.data);
     } catch (err) {
       console.log(err);
@@ -51,20 +51,82 @@ export class TruckBreakDownController {
     }
   }
 
-  @Get('/api/truckbreakdown/repairman')
-  async getAllBreakDown(
+  @Get('/api/truckbreakdown/transport')
+  async getAllBreakDownTransport(
     @Res() response: Response,
     @Query('beforeHistory') beforeHistory: string,
     @Query('afterHistory') afterHistory: string,
     @Query('carNumber') carNumber: string,
-    @Query('repairComment') repairComment: string,
+    @Query('transportComment') transportComment: string,
+    @Query('repairDone') repairDone: string,
+    @Query('count') count: string,
+  ) {
+    try {
+      const res = await this.truckBreakDownService.transportUserGetAll(
+        transportComment,
+        repairDone,
+        count,
+        beforeHistory,
+        afterHistory,
+        carNumber,
+      );
+      if (count) {
+        response.status(res.status).json({ data: res.data });
+      } else {
+        response.status(res.status).json({ data: res.data, count: res.count });
+      }
+    } catch (err) {
+      console.log(err);
+      response.status(500).json(err);
+    }
+  }
+
+  @Get('/api/truckbreakdown/logistic')
+  async getAllBreakDownLogistic(
+    @Res() response: Response,
+    @Query('beforeHistory') beforeHistory: string,
+    @Query('afterHistory') afterHistory: string,
+    @Query('carNumber') carNumber: string,
+    @Query('logisticComment') logisticComment: string,
     @Query('historyReciveToRepair') reciveToRepair: string,
     @Query('count') count: string,
   ) {
     try {
-      const res = await this.truckBreakDownService.repairUserGetAll(
-        repairComment,
+      const res = await this.truckBreakDownService.logisticUserGetAll(
+        logisticComment,
         reciveToRepair,
+        count,
+        beforeHistory,
+        afterHistory,
+        carNumber,
+      );
+      if (count) {
+        response.status(res.status).json({ data: res.data });
+      } else {
+        response.status(res.status).json({ data: res.data, count: res.count });
+      }
+    } catch (err) {
+      console.log(err);
+      response.status(500).json(err);
+    }
+  }
+
+  @Get('/api/truckbreakdown/repairShop')
+  async getAllBreakDownRepairShop(
+    @Res() response: Response,
+    @Query('beforeHistory') beforeHistory: string,
+    @Query('afterHistory') afterHistory: string,
+    @Query('carNumber') carNumber: string,
+    @Query('transportComment') transportComment: string,
+    // @Query('historyReciveToRepair') reciveToRepair: string, // not used
+    @Query('deliveryDriver') deliveryDriver: string,
+    @Query('count') count: string,
+  ) {
+    try {
+      const res = await this.truckBreakDownService.repairShopGetAll(
+        transportComment,
+        // reciveToRepair,
+        deliveryDriver,
         count,
         beforeHistory,
         afterHistory,

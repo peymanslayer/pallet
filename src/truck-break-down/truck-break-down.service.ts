@@ -44,9 +44,125 @@ export class TruckBreakDownService {
       count: breakDowns.count,
     };
   }
+  // list of dashboard role "transportAdmin"
+  async transportUserGetAll(
+    transportComment: string,
+    repairDone: string,
+    count: string,
+    beforeHistory: string,
+    afterHistory: string,
+    carNumber: string,
+  ) {
+    let filter = {}; // filter by "date" or "carNumber"
+    let data = [];
+    let countList: number;
+    let breakDowns: {
+      rows: TruckBreakDown[];
+      count: number;
+    };
+    if (beforeHistory || afterHistory) {
+      if (!afterHistory) {
+        afterHistory = '2400/0/0';
+      }
+      if (!beforeHistory) {
+        beforeHistory = '2023/0/0';
+      }
+      filter['historyDriverRegister'] = {
+        [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
+      };
+    }
+    if (carNumber) {
+      filter['carNumber'] = carNumber;
+    }
+    console.log(filter);
+    // get list of  "Activity in Progress"
+    if (transportComment === 'true') {
+      breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+        where: {
+          [Op.and]: {
+            transportComment: { [Op.ne]: null },
+            historyReciveToRepair: { [Op.eq]: null },
+            logisticConfirm: { [Op.ne]: false },
+            ...filter,
+          },
+        },
+        order: [['id', 'DESC']],
+      });
+      // get list of "Activity done"
+    } else if (repairDone === 'true') {
+      breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+        where: {
+          [Op.and]: {
+            logisticConfirm: { [Op.ne]: false },
+            transportComment: { [Op.in]: ['necessary', 'immediately'] },
+            historyDeliveryDriver: { [Op.ne]: null },
+            ...filter,
+          },
+        },
+        order: [['id', 'DESC']],
+      });
+      // get list of "Activity necessary to do"
+    } else {
+      breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+        where: {
+          [Op.and]: {
+            transportComment: { [Op.eq]: null },
+            logisticConfirm: { [Op.ne]: false },
+            ...filter,
+          },
+        },
+        order: [['id', 'DESC']],
+      });
+    }
+    // console.log(breakDowns); //debug
+    if (count === 'true') {
+      countList = breakDowns.count;
+    } else {
+      for (let item of breakDowns.rows) {
+        let breakDown = {};
+        let row = {};
 
-  async repairUserGetAll(
-    repairComment: string,
+        breakDown = item.dataValues;
+        row['id'] = breakDown['id'];
+        row['numberOfBreakDown'] = breakDown['numberOfBreakDown'];
+        row['hours'] = breakDown['hoursDriverRegister'];
+        row['history'] = breakDown['historyDriverRegister'];
+        row['driverName'] = breakDown['driverName'];
+        row['driverMobile'] = breakDown['driverMobile'];
+        row['carNumber'] = breakDown['carNumber'];
+        row['kilometer'] = breakDown['carLife']; // carLife set value when driver register daily check list
+        row['transportComment'] = breakDown['transportComment'];
+        row['logisticConfirm'] = breakDown['logisticConfirm'];
+        row['historySendToRepair'] = breakDown['historySendToRepair'];
+        row['historyReciveToRepair'] = breakDown['historyReciveToRepair'];
+        row['histroyDeliveryTruck'] = breakDown['histroyDeliveryTruck'];
+        row['historyDeliveryDriver'] = breakDown['historyDeliveryDriver'];
+        row['hoursRepairComment'] = breakDown['hoursRepairComment'];
+        row['historyRepairComment'] = breakDown['historyRepairComment'];
+
+        row['piece'] = breakDown['piece'];
+        // console.log('itemsId to fetch: ', breakDown['truckBreakDownItemsId']); // debug
+        row['answers'] = await this.getBreakDownItemsById(
+          breakDown['truckBreakDownItemsId'],
+        );
+        // row['carType'] = breakDown['type']; // depricated
+        // row['checkListStatus'] = breakDown['state']; // depricated
+        // row['breakDownStatus'] = breakDown['repairComment']; // depricated
+
+        data.push(row);
+      }
+    }
+
+    return {
+      status: 200,
+      data: countList === 0 || countList ? countList : data,
+      count: breakDowns.count,
+    };
+  }
+
+  // list of dashboard role "LogisticAdmin"
+  async logisticUserGetAll(
+    logisticComment: string,
     reciveToRepair: string,
     count: string,
     beforeHistory: string,
@@ -76,11 +192,11 @@ export class TruckBreakDownService {
     }
     console.log(filter);
     // get list of  "Activity in Progress"
-    if (repairComment === 'true') {
+    if (logisticComment === 'true') {
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {
           [Op.and]: {
-            repairComment: { [Op.ne]: null },
+            logisticConfirm: { [Op.eq]: true },
             historyReciveToRepair: { [Op.eq]: null },
             ...filter,
           },
@@ -88,22 +204,22 @@ export class TruckBreakDownService {
         order: [['id', 'DESC']],
       });
       // get list of "Activity done"
-    } else if (reciveToRepair === 'true') {
-      breakDowns = await this.truckBreakDownRepository.findAndCountAll({
-        where: {
-          [Op.and]: {
-            historyReciveToRepair: { [Op.ne]: null },
-            ...filter,
-          },
-        },
-        order: [['id', 'DESC']],
-      });
+      // } else if (reciveToRepair === 'true') {
+      //   breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+      //     where: {
+      //       [Op.and]: {
+      //         historyReciveToRepair: { [Op.ne]: null },
+      //         ...filter,
+      //       },
+      //     },
+      //     order: [['id', 'DESC']],
+      //   });
       // get list of "Activity necessary to do"
     } else {
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {
           [Op.and]: {
-            repairComment: { [Op.eq]: null },
+            logisticConfirm: { [Op.eq]: false },
             ...filter,
           },
         },
@@ -127,7 +243,113 @@ export class TruckBreakDownService {
         row['driverMobile'] = breakDown['driverMobile'];
         row['carNumber'] = breakDown['carNumber'];
         row['kilometer'] = breakDown['carLife']; // carLife set value when driver register daily check list
-        row['repairComment'] = breakDown['repairComment'];
+        row['logisticConfirm'] = breakDown['logisticConfirm'];
+        row['transportComment'] = breakDown['transportComment'];
+        row['historySendToRepair'] = breakDown['historySendToRepair'];
+        row['historyReciveToRepair'] = breakDown['historyReciveToRepair'];
+        row['histroyDeliveryTruck'] = breakDown['histroyDeliveryTruck'];
+        row['historyDeliveryDriver'] = breakDown['historyDeliveryDriver'];
+        row['piece'] = breakDown['piece'];
+        // console.log('itemsId to fetch: ', breakDown['truckBreakDownItemsId']); // debug
+        row['answers'] = await this.getBreakDownItemsById(
+          breakDown['truckBreakDownItemsId'],
+        );
+        // row['carType'] = breakDown['type']; // depricated
+        // row['checkListStatus'] = breakDown['state']; // depricated
+        // row['breakDownStatus'] = breakDown['repairComment']; // depricated
+
+        data.push(row);
+      }
+    }
+
+    return {
+      status: 200,
+      data: countList === 0 || countList ? countList : data,
+      count: breakDowns.count,
+    };
+  }
+
+  async repairShopGetAll(
+    transportComment: string,
+    // reciveToRepair,
+    deliveryDriver: string,
+    count: string,
+    beforeHistory: string,
+    afterHistory: string,
+    carNumber: string,
+  ) {
+    let filter = {}; // filter by "date" or "carNumber"
+    let data = [];
+    let countList: number;
+    let breakDowns: {
+      rows: TruckBreakDown[];
+      count: number;
+    };
+    if (beforeHistory || afterHistory) {
+      if (!afterHistory) {
+        afterHistory = '2400/0/0';
+      }
+      if (!beforeHistory) {
+        beforeHistory = '2023/0/0';
+      }
+      filter['historyDriverRegister'] = {
+        [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
+      };
+    }
+    if (carNumber) {
+      filter['carNumber'] = carNumber;
+    }
+
+    // get list of  "Delivery to repair"
+    if (transportComment === 'true') {
+      breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+        where: {
+          [Op.and]: {
+            transportComment: { [Op.in]: ['necessary', 'immediately'] },
+            // historyReciveToRepair: { [Op.eq]: null }, //not used in this query
+            repairmanComment: { [Op.eq]: null },
+            piece: { [Op.eq]: null },
+            logisticConfirm: { [Op.ne]: false },
+            ...filter,
+          },
+        },
+        order: [['id', 'DESC']],
+      });
+      // get list of "Delivery to Driver"
+    } else if (deliveryDriver === 'true') {
+      breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+        where: {
+          [Op.and]: {
+            transportComment: { [Op.in]: ['necessary', 'immediately'] },
+            // historyReciveToRepair: { [Op.ne]: null }, //not used in this query
+            logisticConfirm: { [Op.ne]: false },
+            repairmanComment: { [Op.eq]: null },
+            historyDeliveryDriver: { [Op.ne]: null },
+            ...filter,
+          },
+        },
+        order: [['id', 'DESC']],
+      });
+    }
+    if (count === 'true') {
+      countList = breakDowns.count;
+    } else {
+      for (let item of breakDowns.rows) {
+        let breakDown = {};
+        let row = {};
+
+        breakDown = item.dataValues;
+        row['id'] = breakDown['id'];
+        row['numberOfBreakDown'] = breakDown['numberOfBreakDown'];
+        row['hours'] = breakDown['hoursDriverRegister'];
+        row['history'] = breakDown['historyDriverRegister'];
+        row['driverName'] = breakDown['driverName'];
+        row['driverMobile'] = breakDown['driverMobile'];
+        row['carNumber'] = breakDown['carNumber'];
+        row['kilometer'] = breakDown['carLife']; // carLife set value when driver register daily check list
+        row['transportComment'] = breakDown['transportComment'];
+        row['logisticConfirm'] = breakDown['logisticConfirm'];
+        row['repairmanComment'] = breakDown['repairmanComment'];
         row['historySendToRepair'] = breakDown['historySendToRepair'];
         row['historyReciveToRepair'] = breakDown['historyReciveToRepair'];
         row['histroyDeliveryTruck'] = breakDown['histroyDeliveryTruck'];
@@ -245,7 +467,7 @@ export class TruckBreakDownService {
       {
         where: {
           driverId: driverId,
-          repairComment: { [Op.ne]: null },
+          transportComment: { [Op.ne]: null },
         },
       },
     );
@@ -256,11 +478,11 @@ export class TruckBreakDownService {
     };
   }
 
-  async replayRepairman(driverId: any) {
+  async replayTransportAdmin(driverId: any) {
     const res = await this.truckBreakDownRepository.count({
       where: {
         driverId: driverId,
-        repairComment: { [Op.ne]: null },
+        transportComment: { [Op.ne]: null },
       },
     });
     return {

@@ -31,16 +31,20 @@ export class TruckBreakDown extends Model {
   @Column
   historyDriverRegister: string;
 
+  @Column({ defaultValue: false })
+  logisticConfirm: boolean;
+
   @Column(DataType.ENUM('necessary', 'notNecessary', 'immediately'))
-  repairComment: string;
+  transportComment: string;
 
-  // unused
-  // @Column
-  // hoursRepairComment: string;
+  @Column
+  repairmanComment: string;
 
-  // unused
-  // @Column
-  // historyRepairComment: string;
+  @Column
+  hoursRepairComment: string;
+
+  @Column
+  historyRepairComment: string;
 
   //unused
   // @Column
@@ -59,6 +63,7 @@ export class TruckBreakDown extends Model {
   @Column
   histroyDeliveryTruck: string;
 
+  // history of register repairman "deliver truck to driver after repair"
   @Column
   historyDeliveryDriver: string;
 

@@ -1,5 +1,7 @@
 export class UpdateTruckBreakDownDto {
-  repairComment: string;
+  repairmanComment: string;
+
+  transportComment: string;
 
   historySendToRepair: string;
 

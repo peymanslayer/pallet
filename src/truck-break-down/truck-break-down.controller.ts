@@ -26,6 +26,19 @@ export class TruckBreakDownController {
     }
   }
 
+  @Get('/api/truckbreakdown/driver/notify')
+  async dirverNotifyReplay(
+    @Query('userId') userId: any,
+    @Res() response: Response,
+  ) {
+    try {
+      const res = await this.truckBreakDownService.driverNotifyReplay(userId);
+      response.status(200).json(res);
+    } catch (err) {
+      response.status(500).json(err);
+    }
+  }
+
   @Get('/api/truckbreakdown/transport/replay')
   async replayTransportAdmin(
     @Query('userId') userId: any,

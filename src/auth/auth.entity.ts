@@ -14,25 +14,25 @@ export class Auth extends Model {
   email: string;
 
   @Column
-  token:string
+  token: string;
 
   @Column
-  role:string
+  role: string;
 
   @Column
-  mobile:string
-  
-  @Unique
-  @Column
-  personelCode:number
+  mobile: string;
 
   @Unique
   @Column
-  shopCode:number
+  personelCode: string;
+
+  // @Unique // check with "pm" it not necessary
+  @Column
+  shopCode: number;
 
   @Column
-  originalPassword:string
+  originalPassword: string;
 
   @Column
-  subscriber:string
+  subscriber: string;
 }

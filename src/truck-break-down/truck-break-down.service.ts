@@ -422,7 +422,7 @@ export class TruckBreakDownService {
 
   async getByDriverId(driverId: any) {
     let data = [];
-    const now = new Date().toISOString();
+
     const breakDown = await this.truckBreakDownRepository.findAndCountAll({
       where: {
         driverId: driverId,
@@ -443,7 +443,7 @@ export class TruckBreakDownService {
       const items = res.dataValues;
       // console.log(items);
       report = item.dataValues;
-
+      // handle notify
       if (item.lastFetch < item.updatedAt) report['notify'] = 1;
       else report['notify'] = 0;
       // due to keys of field have unique number , answer_1, answer_2, ..., answe_20
@@ -463,7 +463,11 @@ export class TruckBreakDownService {
 
     // console.log(new Date().toISOString());
     await this.truckBreakDownRepository.update(
-      { lastFetch: new Date().toISOString() },
+      {
+        lastFetch: new Date().toISOString(),
+        notifyTransportComment: false,
+        notifyRepairmanComment: false,
+      },
       {
         where: {
           driverId: driverId,
@@ -476,6 +480,26 @@ export class TruckBreakDownService {
       data: data,
       count: data.length,
     };
+  }
+
+  async driverNotifyReplay(driverId: any) {
+    // const now = new Date().toISOString();
+    let countNotify = 0;
+    const res = await this.truckBreakDownRepository.findAll({
+      where: {
+        driverId: driverId,
+        // lastFetch: { [Op.or]: [{ [Op.lte]:  }, { [Op.eq]: null }] },
+      },
+    });
+
+    for (let i of res) {
+      if (i.lastFetch < i.updatedAt) {
+        if (i.notifyTransportComment) countNotify++;
+        if (i.notifyRepairmanComment) countNotify++;
+      }
+    }
+
+    return { data: countNotify };
   }
 
   async replayTransportAdmin(driverId: any) {
@@ -519,9 +543,15 @@ export class TruckBreakDownService {
   }
 
   async update(id: number, body: UpdateTruckBreakDownDto) {
+    //check and update notify state for driver
+    const notify = {};
+    if (body.transportComment) notify['notifyTransportComment'] = true;
+    if (body.repairmanComment) notify['notifyRepairmanComment'] = true;
+
     const res = await this.truckBreakDownRepository.update(
       {
         ...body,
+        ...notify,
       },
       {
         where: { id: id },

@@ -93,14 +93,14 @@ export class Order extends Model {
   @Column({ type: DataType.INTEGER })
   driver: number;
 
-  @Column({ type: DataType.INTEGER })
-  isRegisteredByDriver: number;
+  @Column({ type: DataType.STRING })
+  isRegisteredByDriver: string;
 
   @Column({ type: DataType.INTEGER })
   numberOfOrder: number;
 
-  @Column({ type: DataType.INTEGER })
-  isRegisteredByStock: number;
+  @Column({ type: DataType.STRING })
+  isRegisteredByStock: string;
 
   @Column({ type: DataType.INTEGER })
   stockId: number;

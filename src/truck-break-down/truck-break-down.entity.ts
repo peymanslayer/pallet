@@ -37,8 +37,14 @@ export class TruckBreakDown extends Model {
   @Column(DataType.ENUM('necessary', 'notNecessary', 'immediately'))
   transportComment: string;
 
+  @Column({ defaultValue: false })
+  notifyTransportComment: boolean;
+
   @Column
   repairmanComment: string;
+
+  @Column({ defaultValue: false })
+  notifyRepairmanComment: boolean;
 
   @Column
   hoursRepairComment: string;

@@ -84,6 +84,7 @@ export class TruckBreakDownService {
             historyReciveToRepair: { [Op.eq]: null },
             logisticConfirm: { [Op.ne]: false },
             ...filter,
+            limit: 20,
           },
         },
         order: [['id', 'DESC']],
@@ -97,6 +98,7 @@ export class TruckBreakDownService {
             transportComment: { [Op.in]: ['necessary', 'immediately'] },
             historyDeliveryDriver: { [Op.ne]: null },
             ...filter,
+            limit: 20,
           },
         },
         order: [['id', 'DESC']],
@@ -112,6 +114,7 @@ export class TruckBreakDownService {
           },
         },
         order: [['id', 'DESC']],
+        limit: 20,
       });
     }
     // console.log(breakDowns); //debug
@@ -202,6 +205,7 @@ export class TruckBreakDownService {
           },
         },
         order: [['id', 'DESC']],
+        limit: 20,
       });
       // get list of "Activity done"
       // } else if (reciveToRepair === 'true') {
@@ -224,6 +228,7 @@ export class TruckBreakDownService {
           },
         },
         order: [['id', 'DESC']],
+        limit: 20,
       });
     }
     // console.log(breakDowns); //debug
@@ -314,6 +319,7 @@ export class TruckBreakDownService {
           },
         },
         order: [['id', 'DESC']],
+        limit: 20,
       });
       // get list of "Delivery to Driver"
     } else if (deliveryDriver === 'true') {
@@ -329,6 +335,7 @@ export class TruckBreakDownService {
           },
         },
         order: [['id', 'DESC']],
+        limit: 20,
       });
     }
     if (count === 'true') {
@@ -431,6 +438,7 @@ export class TruckBreakDownService {
         ['updatedAt', 'DESC'],
         ['id', 'DESC'],
       ],
+      limit: 20,
     });
     // create report for each breakdwon
     for (let item of breakDown.rows) {

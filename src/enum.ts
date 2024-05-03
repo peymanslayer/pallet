@@ -24,3 +24,7 @@ export enum CHECKLIST_ANSWERS {
   MID = 'medium',
   BAD = 'weak',
 }
+
+export enum MESSAGE_ALERT {
+  truckBreakDown_limit_register = 'شما یک ثبت خرابی بررسی نشده توسط تعمیرگاه دارید',
+}

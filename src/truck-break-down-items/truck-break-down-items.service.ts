@@ -2,7 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { TruckBreakDown } from 'src/truck-break-down/truck-break-down.entity';
 import { TruckBreakDownItems } from './truck-break-down-items.entity';
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
-
+import { Op } from 'sequelize';
+import { MESSAGE_ALERT } from 'src/enum';
 @Injectable()
 export class TruckBreakDownItemsService {
   constructor(
@@ -21,6 +22,14 @@ export class TruckBreakDownItemsService {
     const truckInfo = await this.truckInfoRepository.findOne({
       where: { driverId: body['id'] },
     });
+
+    if (this.checkActiveTruckBreakDown) {
+      return {
+        status: 410,
+        message: MESSAGE_ALERT.truckBreakDown_limit_register,
+      };
+    }
+
     // console.log(Object.entries(truckInfo)); // debug
     breakDown['hoursDriverRegister'] = body['hours'];
     breakDown['historyDriverRegister'] = body['date'];
@@ -104,5 +113,14 @@ export class TruckBreakDownItemsService {
     } else {
       return lastBreakDown.numberOfBreakDown;
     }
+  }
+
+  async checkActiveTruckBreakDown(driverId: number) {
+    return await this.truckBreakDownRepository.count({
+      where: {
+        driverId: driverId,
+        historyDeliveryDriver: { [Op.ne]: null },
+      },
+    });
   }
 }

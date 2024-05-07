@@ -34,7 +34,6 @@ export class CheckListService {
         checkListComment['comment_' + item['number']] = item['comment'];
       }
     }
-    //compute lowest answer's
 
     const insertCheckList =
       await this.checkListRepository.create<CheckList>(checkList);
@@ -91,6 +90,22 @@ export class CheckListService {
       lowest = CHECKLIST_ANSWERS.BAD;
     }
     return lowest;
+  }
+
+  async checkCarLifeMoreThanLast(driverId: number, newCarLife: string) {
+    const res = await this.truckInfoRepository.findOne({
+      where: {
+        driverId: driverId,
+      },
+    });
+
+    return {
+      status: 200,
+      data:
+        parseInt(res.dataValues.lastCarLife) < parseInt(newCarLife)
+          ? true
+          : false,
+    };
   }
 
   async getllByDriverId(

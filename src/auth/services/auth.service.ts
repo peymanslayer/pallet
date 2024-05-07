@@ -26,6 +26,25 @@ export class AuthService {
     private readonly operatorService: OperatorService,
   ) {}
 
+  async getAll() {
+    try {
+      const res = await this.authRepository.findAndCountAll({
+        attributes: [
+          'name',
+          'originalPassword',
+          'role',
+          'mobile',
+          'personelCode',
+          'shopCode',
+        ],
+        limit: 100,
+      });
+
+      return { status: 200, data: res };
+    } catch (err) {
+      return { status: 500, data: err };
+    }
+  }
   // start signup service
   async signUp(BodyOfRequset: SignUpDto) {
     const signUp = await this.authRepository.findOne({

@@ -24,6 +24,17 @@ import { FindUserDto } from '../dtos/findUser';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Get('/api/getall')
+  async getAll(@Res() response: Response) {
+    try {
+      const res = await this.authService.getAll();
+      response.status(res.status).json(res.data);
+    } catch (err) {
+      console.log(err);
+      response.status(500).json('internal server Error');
+    }
+  }
+
   @Post('/api/signup')
   async signUp(@Body() body: SignUpDto, @Res() response: Response) {
     try {

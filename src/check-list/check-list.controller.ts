@@ -33,6 +33,24 @@ export class CheckListController {
     }
   }
 
+  @Get('/api/checklist/checknewcarlife')
+  async checkCarLifeMoreThanLast(
+    @Query('driverId') driverId: number,
+    @Query('answer_0') newCarLife: string,
+    @Res() response: Response,
+  ) {
+    try {
+      const res = await this.checkListService.checkCarLifeMoreThanLast(
+        driverId,
+        newCarLife,
+      );
+      response.status(res.status).json({ data: res.data });
+    } catch (err) {
+      console.log(err);
+      response.status(500).json(err);
+    }
+  }
+
   @Get('/api/checklist/:driverId')
   async getAllCheckList(
     @Param('driverId') driverId: number,

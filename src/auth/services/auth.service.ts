@@ -507,41 +507,36 @@ export class AuthService {
     }
   }
 
-  async findUserByName(name: any, shopId: any, subscriber: any) {
+  async findUserByAttributes(
+    name: any,
+    shopId: any,
+    subscriber: any,
+    personelCode: any,
+  ) {
     let where = {};
     let findAllUsers: Auth[];
     if (subscriber) {
       where['subscriber'] = subscriber;
-      if (name) {
-        where['name'] = name;
-      } else if (shopId) {
-        where['shopCode'] = shopId;
-      } else {
-        return {
-          status: 400,
-          message: 'most declare "name" or "shopId" in  query',
-        };
-      }
-
-      findAllUsers = await this.authRepository.findAll({
-        where: { [Op.and]: where },
-      });
-    } else if (name) {
-      // where['name'] = name;
-      findAllUsers = await this.authRepository.findAll({
-        where: { name: name },
-      });
-    } else if (shopId) {
-      // where['shopCode'] = shopId;
-      findAllUsers = await this.authRepository.findAll({
-        where: { shopCode: shopId },
-      });
-    } else {
+    }
+    if (name) {
+      where['name'] = { [Op.like]: `%${name}%` };
+    }
+    if (shopId) {
+      where['shopCode'] = shopId;
+    }
+    if (personelCode) {
+      where['personelCode'] = { [Op.like]: `%${personelCode}%` };
+    }
+    if (Object.entries(where).length == 0) {
       return {
         status: 400,
         message: 'most declare "name" or "shopId" in  query',
       };
     }
+
+    findAllUsers = await this.authRepository.findAll({
+      where: where,
+    });
 
     return {
       status: 200,

@@ -169,13 +169,15 @@ export class AuthController {
     @Query('name') name: any,
     @Query('shopId') shopId: any,
     @Query('subscriber') subscriber: any,
+    @Query('personelCode') personelCode: any,
     @Res() response: Response,
   ) {
     try {
-      const findUserByName = await this.authService.findUserByName(
+      const findUserByName = await this.authService.findUserByAttributes(
         name,
         shopId,
         subscriber,
+        personelCode,
       );
       response.status(findUserByName.status).json(findUserByName.message);
     } catch (err) {

@@ -3,7 +3,7 @@ import { DataType } from 'sequelize-typescript';
 
 @Table
 export class Auth extends Model {
-  @Unique
+  // @Unique // name not unique in data sample
   @Column({ type: DataType.STRING })
   name: string;
 

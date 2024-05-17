@@ -34,6 +34,9 @@ export class TruckBreakDown extends Model {
   @Column({ defaultValue: false })
   logisticConfirm: boolean;
 
+  @Column
+  logisticComment: string;
+
   @Column(DataType.ENUM('necessary', 'notNecessary', 'immediately'))
   transportComment: string;
 

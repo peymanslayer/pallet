@@ -11,5 +11,7 @@ export class UpdateTruckBreakDownDto {
 
   historyDeliveryDriver: string;
 
+  logisticComment: string;
+
   piece: string;
 }

@@ -216,13 +216,13 @@ export class CheckListService {
         driverName, zone, carNumber, carLife, mobile, type, state, hours, history
        Driver undone field's return: 
         driverName, zone, carNumber, carLife, mobile, type`;
-      const res = await this.checkListRepository.findAll({
+      const checkListRegisterByDriver = await this.checkListRepository.findAll({
         where: { history: date },
-        attributes: ['userId', 'history', 'hours'],
+        attributes: ['id', 'userId', 'history', 'hours'],
       });
 
       // comment: fetch data of driver's register daily checkList
-      res.forEach((element) => {
+      checkListRegisterByDriver.forEach((element) => {
         idDriversDone.push(element.dataValues['userId']);
         driversDone.push(element.dataValues);
       });
@@ -250,7 +250,7 @@ export class CheckListService {
         idDrivers = idDriversUndone;
         message = 'list of driver undone check list today';
       }
-
+      // comment; driver target to response
       const drivers = await this.authRepository.findAll({
         attributes: ['id', 'name', 'role', 'mobile'],
         where: {
@@ -267,7 +267,7 @@ export class CheckListService {
 
         // comment: for driver done list on repair panel add "hours" and "history"
         if (done === 'true') {
-          console.log('driversDone : ', driversDone);
+          // console.log('driversDone : ', driversDone); // debug
           for (let done of driversDone) {
             if (done['userId'] === item['id']) {
               checkInfo['hours'] = done['hours'];
@@ -290,6 +290,11 @@ export class CheckListService {
           checkInfo['state'] = null;
           checkInfo['hours'] = null;
           checkInfo['history'] = null;
+        }
+
+        // comment: add answer's of driver to response
+        for (let done of driversDone) {
+          checkInfo['answers'] = (await this.getAnswers(done['id'])).data;
         }
 
         data.push(checkInfo);

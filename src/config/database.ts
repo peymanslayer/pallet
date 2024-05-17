@@ -57,8 +57,8 @@ export const databaseProviders = [
         TruckInfo,
         // Chat,
       ]);
-
-      await sequelize.sync({ alter: true }).then((e) => console.log(e));
+      //{ alter: true }
+      await sequelize.sync().then((e) => console.log(e));
       return sequelize;
     },
   },

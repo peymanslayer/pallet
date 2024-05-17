@@ -30,6 +30,7 @@ export class AuthService {
     try {
       const res = await this.authRepository.findAndCountAll({
         attributes: [
+          'id',
           'name',
           'originalPassword',
           'role',
@@ -37,6 +38,7 @@ export class AuthService {
           'personelCode',
           'shopCode',
         ],
+        where: { role: { [Op.ne]: 'superAdmin' } },
         limit: 100,
       });
 
@@ -339,23 +341,19 @@ export class AuthService {
   }
 
   async deleteUser(id: number) {
-    const findUser = await this.authRepository.findOne({
+    const res = await this.authRepository.destroy({
       where: { id: id },
     });
-    if (findUser.role == 'driver' || findUser.role == 'companyDriver') {
-      await this.authRepository.destroy({ where: { id: findUser.id } });
-      await this.driverService.deleteDriverByName(findUser.name); // not used driver model
+    if (res == 0)
       return {
-        status: 200,
-        message: 'driver deleted',
+        status: 410,
+        message: 'user not found for deleted',
       };
-    } else {
-      await this.authRepository.destroy({ where: { id: findUser.id } });
-      return {
-        status: 200,
-        message: 'driver deleted',
-      };
-    }
+    // await this.driverService.deleteDriverByName(findUser.name); // not used driver model
+    return {
+      status: 200,
+      message: 'deleted user successfully',
+    };
   }
 
   async getUserById(id: number) {
@@ -507,41 +505,59 @@ export class AuthService {
     }
   }
 
-  async findUserByAttributes(
-    name: any,
-    shopId: any,
-    subscriber: any,
-    personelCode: any,
-  ) {
-    let where = {};
-    let findAllUsers: Auth[];
-    if (subscriber) {
-      where['subscriber'] = subscriber;
-    }
-    if (name) {
-      where['name'] = { [Op.like]: `%${name}%` };
-    }
-    if (shopId) {
-      where['shopCode'] = shopId;
-    }
-    if (personelCode) {
-      where['personelCode'] = { [Op.like]: `%${personelCode}%` };
-    }
-    if (Object.entries(where).length == 0) {
+  async findUserByAttributes(shopId: any, subscriber: any, nmorpc: any) {
+    try {
+      let where = {};
+      let findAllUsers: { rows: Auth[]; count: number };
+
+      if (nmorpc) {
+        findAllUsers = await this.authRepository.findAndCountAll({
+          where: {
+            [Op.or]: [
+              { name: { [Op.like]: `%${nmorpc}%` } },
+              { personelCode: { [Op.like]: `%${nmorpc}%` } },
+            ],
+          },
+          attributes: [
+            'id',
+            'name',
+            'originalPassword',
+            'role',
+            'mobile',
+            'personelCode',
+            'shopCode',
+          ],
+          limit: 50,
+        });
+      } else {
+        if (subscriber) {
+          where['subscriber'] = subscriber;
+        }
+        if (shopId) {
+          where['shopCode'] = shopId;
+        }
+        findAllUsers = await this.authRepository.findAndCountAll({
+          where: where,
+          attributes: [
+            'id',
+            'name',
+            'originalPassword',
+            'role',
+            'mobile',
+            'personelCode',
+            'shopCode',
+          ],
+          limit: 50,
+        });
+      }
+
       return {
-        status: 400,
-        message: 'most declare "name" or "shopId" in  query',
+        status: 200,
+        message: findAllUsers,
       };
+    } catch (err) {
+      console.log(err);
     }
-
-    findAllUsers = await this.authRepository.findAll({
-      where: where,
-    });
-
-    return {
-      status: 200,
-      message: findAllUsers,
-    };
   }
 
   async getUsersByShopCode(shopCode: string) {
@@ -602,4 +618,6 @@ export class AuthService {
       };
     }
   }
+
+  async;
 }

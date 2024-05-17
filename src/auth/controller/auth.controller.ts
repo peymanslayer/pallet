@@ -9,6 +9,7 @@ import {
   Delete,
   Put,
   Query,
+  Param,
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { SignUpDto } from '../dtos/signUp.dto';
@@ -24,7 +25,7 @@ import { FindUserDto } from '../dtos/findUser';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Get('/api/getall')
+  @Get('/api/auth/all')
   async getAll(@Res() response: Response) {
     try {
       const res = await this.authService.getAll();
@@ -132,10 +133,10 @@ export class AuthController {
     }
   }
 
-  @Delete('/api/deleteUser')
-  async deleteUser(@Body() body: DeleteUserDto, @Res() response: Response) {
+  @Delete('/api/deleteUser/:userId')
+  async deleteUser(@Param('userId') userId: number, @Res() response: Response) {
     try {
-      const deleteUser = await this.authService.deleteUser(body.id);
+      const deleteUser = await this.authService.deleteUser(userId);
       response.status(deleteUser.status).json(deleteUser.message);
     } catch (err) {
       console.log(err);
@@ -166,18 +167,16 @@ export class AuthController {
   //#hint search user
   @Get('/api/findUserByName')
   async findUserByName(
-    @Query('name') name: any,
     @Query('shopId') shopId: any,
     @Query('subscriber') subscriber: any,
-    @Query('personelCode') personelCode: any,
+    @Query('nmorpc') nmorpc: any,
     @Res() response: Response,
   ) {
     try {
       const findUserByName = await this.authService.findUserByAttributes(
-        name,
         shopId,
         subscriber,
-        personelCode,
+        nmorpc,
       );
       response.status(findUserByName.status).json(findUserByName.message);
     } catch (err) {

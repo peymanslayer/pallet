@@ -22,8 +22,8 @@ export class TruckBreakDownItemsService {
     const truckInfo = await this.truckInfoRepository.findOne({
       where: { driverId: body['id'] },
     });
-
-    if (this.checkActiveTruckBreakDown) {
+    // TODO : !!await this.checkActiveTruckBreakDown(body['id'])
+    if ((await this.checkActiveTruckBreakDown(body['id'])) !== 0) {
       return {
         status: 410,
         message: MESSAGE_ALERT.truckBreakDown_limit_register,

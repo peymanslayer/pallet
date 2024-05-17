@@ -84,10 +84,10 @@ export class TruckBreakDownService {
             historyReciveToRepair: { [Op.eq]: null },
             logisticConfirm: { [Op.ne]: false },
             ...filter,
-            limit: 20,
           },
         },
         order: [['id', 'DESC']],
+        limit: 20,
       });
       // get list of "Activity done"
     } else if (repairDone === 'true') {

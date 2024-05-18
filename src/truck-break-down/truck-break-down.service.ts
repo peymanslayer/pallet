@@ -136,6 +136,7 @@ export class TruckBreakDownService {
         row['kilometer'] = breakDown['carLife']; // carLife set value when driver register daily check list
         row['transportComment'] = breakDown['transportComment'];
         row['logisticConfirm'] = breakDown['logisticConfirm'];
+        row['logisticComment'] = breakDown['logisticComment'];
         row['historySendToRepair'] = breakDown['historySendToRepair'];
         row['historyReciveToRepair'] = breakDown['historyReciveToRepair'];
         row['histroyDeliveryTruck'] = breakDown['histroyDeliveryTruck'];

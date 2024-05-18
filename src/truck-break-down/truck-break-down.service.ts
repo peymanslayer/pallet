@@ -98,10 +98,10 @@ export class TruckBreakDownService {
             transportComment: { [Op.in]: ['necessary', 'immediately'] },
             historyDeliveryDriver: { [Op.ne]: null },
             ...filter,
-            limit: 20,
           },
         },
         order: [['id', 'DESC']],
+        limit: 20,
       });
       // get list of "Activity necessary to do"
     } else {

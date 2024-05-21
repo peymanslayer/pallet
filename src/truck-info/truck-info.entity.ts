@@ -8,12 +8,6 @@ export class TruckInfo extends Model<TruckInfo> {
   @Column
   driverId: number;
 
-  // @Column
-  // driverName: string;
-
-  // @Column
-  // driverMobile: string;
-
   @Column({ defaultValue: '0' })
   lastCarLife: string;
 
@@ -29,4 +23,7 @@ export class TruckInfo extends Model<TruckInfo> {
 
   @Column
   zone: string;
+
+  @Column
+  zoneCode: string;
 }

@@ -6,5 +6,6 @@ import { TruckInfoProviders } from './truck-info.provider';
 @Module({
   controllers: [TruckInfoController],
   providers: [TruckInfoService, ...TruckInfoProviders],
+  exports: [TruckInfoService],
 })
 export class TruckInfoModule {}

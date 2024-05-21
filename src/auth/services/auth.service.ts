@@ -6,6 +6,7 @@ import { Auth } from '../auth.entity';
 import { DriverService } from 'src/driver/services/driver.service';
 import { Driver } from 'src/driver/driver.entity';
 import { StockService } from 'src/ReceiveStock/services/stock.service';
+// imoprt {} from 'src/'
 import { MailerService } from '@nestjs-modules/mailer';
 import { Sequelize } from 'sequelize';
 import { Workbook } from 'exceljs';
@@ -13,6 +14,7 @@ import * as path from 'path';
 import { UpdateDto } from '../dtos/update.dto';
 import { OperatorService } from 'src/operator/services/operator.service';
 import { Op } from 'sequelize';
+import { TruckInfoService } from 'src/truck-info/truck-info.service';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +22,7 @@ export class AuthService {
     @Inject('AUTH_REPOSITORY') private authRepository: typeof Auth,
     private readonly jwt: JwtService,
     private readonly driverService: DriverService,
+    private readonly truckInfoService: TruckInfoService,
     private readonly stockService: StockService,
     private readonly mailService: MailerService,
     @Inject(forwardRef(() => OperatorService))
@@ -149,6 +152,9 @@ export class AuthService {
   // start login service
 
   async login(Body: SignUpDto) {
+    let roleDriver: string;
+    let driverId: number;
+    // let carNumber: string;
     const findUser = await this.authRepository.findOne({
       where: { personelCode: Body.personelCode },
     });
@@ -158,6 +164,17 @@ export class AuthService {
         message: 'user not exist',
       };
     } else {
+      roleDriver = findUser.dataValues.role;
+      driverId = findUser.dataValues.id;
+      console.log('find user is :', findUser.dataValues);
+      console.log('driverId is: ', driverId);
+      if (roleDriver === 'companyDriver') {
+        const truckInfoDriver = await this.truckInfoService.get(driverId);
+        findUser.dataValues['carNumber'] = truckInfoDriver.carNumber;
+        findUser.dataValues['zone'] = truckInfoDriver.zone;
+        findUser.dataValues['zondeCode'] = truckInfoDriver.zoneCode;
+      }
+      console.log('findUser return endpoint: /n', findUser);
       return await this.loginProcess(findUser, Body);
     }
   }
@@ -618,6 +635,4 @@ export class AuthService {
       };
     }
   }
-
-  async;
 }

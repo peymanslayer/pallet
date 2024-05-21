@@ -22,7 +22,7 @@ export class Auth extends Model {
   @Column
   mobile: string;
 
-  @Unique // error in "test-db"
+  // @Unique // error in "test-db"
   @Column
   personelCode: string;
 

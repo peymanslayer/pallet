@@ -35,4 +35,10 @@ export class Auth extends Model {
 
   @Column
   subscriber: string;
+
+  @Column({ defaultValue: '' })
+  zone: string;
+
+  @Column
+  zoneCode: string;
 }

@@ -164,17 +164,17 @@ export class AuthService {
         message: 'user not exist',
       };
     } else {
-      roleDriver = findUser.dataValues.role;
-      driverId = findUser.dataValues.id;
+      const roleDriver = findUser.dataValues.role;
+      const driverId = findUser.dataValues.id;
       console.log('find user is :', findUser.dataValues);
       console.log('driverId is: ', driverId);
       if (roleDriver === 'companyDriver') {
         const truckInfoDriver = await this.truckInfoService.get(driverId);
         findUser.dataValues['carNumber'] = truckInfoDriver.carNumber;
         findUser.dataValues['zone'] = truckInfoDriver.zone;
-        findUser.dataValues['zondeCode'] = truckInfoDriver.zoneCode;
+        findUser.dataValues['zoneCode'] = truckInfoDriver.zoneCode;
       }
-      console.log('findUser return endpoint: /n', findUser);
+      // console.log('findUser return endpoint: /n', findUser); // debug
       return await this.loginProcess(findUser, Body);
     }
   }
@@ -634,5 +634,36 @@ export class AuthService {
         message: 'operator not found',
       };
     }
+  }
+  /**
+   * find user's in the same zone
+   * @param zone
+   * @param role
+   * is (optional)
+   * @param attributes  select field's to return (optional)
+   * if not set any thing return all field's
+   * @returns user in the same zone
+   */
+  async userSameZone(
+    zone: string,
+    role: string,
+    attributes: Array<string> = [],
+  ) {
+    let attribute = {};
+
+    if (!attributes.length) attribute['attributes'] = { exclude: [] };
+    else attribute['attributes'] = attributes;
+    if (!zone) zone = '%';
+    if (!role) role = '%';
+    console.log('attributes: ', attributes);
+    console.log('role', role);
+    console.log('zone', zone);
+    return await this.authRepository.findAll({
+      where: {
+        zone: { [Op.like]: zone },
+        role: { [Op.like]: role },
+      },
+      ...attribute,
+    });
   }
 }

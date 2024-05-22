@@ -102,6 +102,7 @@ export class TruckBreakDownController {
     @Query('carNumber') carNumber: string,
     @Query('logisticComment') logisticComment: string,
     @Query('historyReciveToRepair') reciveToRepair: string,
+    @Query('zone') zone: string,
     @Query('count') count: string,
   ) {
     try {
@@ -112,6 +113,7 @@ export class TruckBreakDownController {
         beforeHistory,
         afterHistory,
         carNumber,
+        zone,
       );
       if (count) {
         response.status(res.status).json({ data: res.data });

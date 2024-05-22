@@ -4,6 +4,7 @@ import { TruckBreakDown } from 'src/truck-break-down/truck-break-down.entity';
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
 import { UpdateTruckBreakDownDto } from './dto/update.truck-breakdown.dto';
 import { Op } from 'sequelize';
+import { AuthService } from 'src/auth/services/auth.service';
 @Injectable()
 export class TruckBreakDownService {
   constructor(
@@ -13,6 +14,7 @@ export class TruckBreakDownService {
     private readonly truckBreakDownItemsRepository: typeof TruckBreakDownItems,
     @Inject('TRUCKINFO_REPOSITORY')
     private readonly truckInfoRepository: typeof TruckInfo,
+    private readonly authService: AuthService,
     //comment : better solution inject "truckBreakDownItem Service" instead inject "truckBreakDownItemsRepository"
     // @Inject('TRUCKBREAKDOWNITEMS_REPOSITORY')
     // private truckBreakDownItemService: typeof TruckBreakDownService,
@@ -172,14 +174,17 @@ export class TruckBreakDownService {
     beforeHistory: string,
     afterHistory: string,
     carNumber: string,
+    zone: string,
   ) {
-    let filter = {}; // filter by "date" or "carNumber"
+    let filterByDateOrCarNumber = {}; // filter by "date" or "carNumber"
     let data = [];
     let countList: number;
     let breakDowns: {
       rows: TruckBreakDown[];
       count: number;
     };
+    const driversId = [];
+
     if (beforeHistory || afterHistory) {
       if (!afterHistory) {
         afterHistory = '2400/0/0';
@@ -187,14 +192,18 @@ export class TruckBreakDownService {
       if (!beforeHistory) {
         beforeHistory = '2023/0/0';
       }
-      filter['historyDriverRegister'] = {
+      filterByDateOrCarNumber['historyDriverRegister'] = {
         [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
       };
     }
     if (carNumber) {
-      filter['carNumber'] = carNumber;
+      filterByDateOrCarNumber['carNumber'] = carNumber;
     }
-    console.log(filter);
+    const driversInZone = await this.getUsersSameZone(zone, 'companyDriver');
+    driversInZone.forEach((driver) => {
+      driversId.push(driver.dataValues['id']);
+    });
+    console.log('DIIZ', driversId); // debug
     // get list of  "Activity in Progress"
     if (logisticComment === 'true') {
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
@@ -202,7 +211,8 @@ export class TruckBreakDownService {
           [Op.and]: {
             logisticConfirm: { [Op.eq]: true },
             historyReciveToRepair: { [Op.eq]: null },
-            ...filter,
+            driverId: { [Op.in]: driversId },
+            ...filterByDateOrCarNumber,
           },
         },
         order: [['id', 'DESC']],
@@ -219,13 +229,15 @@ export class TruckBreakDownService {
       //     },
       //     order: [['id', 'DESC']],
       //   });
-      // get list of "Activity necessary to do"
-    } else {
+    }
+    // get list of "Activity necessary to do"
+    else {
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {
           [Op.and]: {
             logisticConfirm: { [Op.eq]: false },
-            ...filter,
+            driverId: { [Op.in]: driversId },
+            ...filterByDateOrCarNumber,
           },
         },
         order: [['id', 'DESC']],
@@ -605,5 +617,13 @@ export class TruckBreakDownService {
       status: status,
       message: message,
     };
+  }
+
+  async getUsersSameZone(
+    zone: string,
+    role: string,
+    attributes: Array<string> = [],
+  ) {
+    return await this.authService.userSameZone(zone, role, attributes);
   }
 }

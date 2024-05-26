@@ -203,7 +203,7 @@ export class TruckBreakDownService {
     driversInZone.forEach((driver) => {
       driversId.push(driver.dataValues['id']);
     });
-    console.log('DIIZ', driversId); // debug
+    // console.log('DIIZ', driversId); // debug
     // get list of  "Activity in Progress"
     if (logisticComment === 'true') {
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({

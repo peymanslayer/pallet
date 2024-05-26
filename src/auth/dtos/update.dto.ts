@@ -1,7 +1,7 @@
 import { IsEmail, IsNotEmpty } from 'class-validator';
 
-export class UpdateDto{
-  @IsNotEmpty()
+export class UpdateDto {
+  // @IsNotEmpty()
   @IsEmail()
   email: string;
 
@@ -9,21 +9,19 @@ export class UpdateDto{
   password: string;
 
   @IsNotEmpty()
-  name:string
-  
-  @IsNotEmpty()
-  role:string
+  name: string;
 
   @IsNotEmpty()
-  mobile:string
+  role: string;
 
   @IsNotEmpty()
-  personelCode:string
+  mobile: string;
 
   @IsNotEmpty()
-  shopCode:number
+  personelCode: string;
 
   @IsNotEmpty()
-  id:number
+  shopCode: number;
 
+  id: number;
 }

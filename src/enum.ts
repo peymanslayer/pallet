@@ -19,6 +19,28 @@ export enum CAR_NUMBER {
   id263 = '۹۹غ۴۶۲', // "davoud rahmani"
 }
 
+export enum ROLES {
+  USER = 'user',
+  DRIVER = 'driver',
+  COMPANYDRIVER = 'companyDriver',
+  OPERATOR = 'operator',
+  ADMIN = 'admin',
+  RECEIVESTOCK = 'ReceiveStock',
+  USERADMIN = 'userAdmin',
+  TRANSPORTADMIN = 'transportAdmin',
+  LOGISTICMANAGER = 'logisticsManager',
+  REPAIRSHOP = 'repairShop',
+  SUPERADMIN = 'superAdmin',
+}
+export const getEnumsString = function (roles: object) {
+  const values = Object.values(roles);
+  let valuesString = [];
+  for (let item of values) {
+    valuesString.push(item);
+  }
+  return valuesString;
+};
+
 export enum CHECKLIST_ANSWERS {
   GOOD = 'good',
   MID = 'medium',

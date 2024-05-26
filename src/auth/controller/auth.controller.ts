@@ -36,6 +36,19 @@ export class AuthController {
     }
   }
 
+  @Get('/api/auth/get/:userId')
+  async getUser(@Res() response: Response, @Param('userId') userId: number) {
+    try {
+      const user = await this.authService.getUser(userId);
+      response
+        .status(user.status)
+        .json({ message: user.message, data: user.data });
+    } catch (err) {
+      console.log(err);
+      response.status(500).json('internal server Error');
+    }
+  }
+
   @Post('/api/signup')
   async signUp(@Body() body: SignUpDto, @Res() response: Response) {
     try {
@@ -48,6 +61,21 @@ export class AuthController {
         console.log(err);
         response.status(500).json('internal server Error');
       }
+    }
+  }
+
+  @Put('/api/auth/updateUser/:userId')
+  async updateUser(
+    @Body() body: any,
+    @Res() response: Response,
+    @Param('userId') userId: number,
+  ) {
+    try {
+      const updateUser = await this.authService.updateUser(body, userId);
+      response.status(updateUser.status).json(updateUser.message);
+    } catch (err) {
+      console.log(err);
+      response.status(500).json('internal server Error');
     }
   }
 

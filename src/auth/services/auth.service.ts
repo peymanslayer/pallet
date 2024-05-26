@@ -387,7 +387,7 @@ export class AuthService {
       };
     }
   }
-
+  // check used in front?!!!
   async updateStockUser(body: UpdateDto) {
     const findedUser = await this.authRepository.findByPk(body.id);
     if (findedUser.role == 'driver' || findedUser.role == 'companyDriver') {
@@ -522,6 +522,29 @@ export class AuthService {
     }
   }
 
+  async updateUser(body: UpdateDto, userId: number) {
+    try {
+      const fieldsUpdate: object = body;
+      const user = await this.authRepository.update(fieldsUpdate, {
+        where: {
+          id: userId,
+        },
+      });
+      if (user) {
+        return {
+          message: 'update user successfully',
+          status: 200,
+        };
+      }
+    } catch (err) {
+      console.log(err);
+      return {
+        message: 'internal sevice error',
+        status: 500,
+      };
+    }
+  }
+
   async findUserByAttributes(shopId: any, subscriber: any, nmorpc: any) {
     try {
       let where = {};
@@ -585,6 +608,24 @@ export class AuthService {
       status: 200,
       message: findAll,
     };
+  }
+
+  async getUser(userId: number) {
+    try {
+      const user = await this.authRepository.findOne({
+        where: {
+          id: userId,
+        },
+      });
+      if (user)
+        return {
+          data: user.dataValues,
+          message: 'user find successfully',
+          status: 200,
+        };
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   async findUsersBySubscriber(subscriber: string) {

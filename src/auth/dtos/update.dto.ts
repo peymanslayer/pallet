@@ -2,26 +2,30 @@ import { IsEmail, IsNotEmpty } from 'class-validator';
 
 export class UpdateDto {
   // @IsNotEmpty()
-  @IsEmail()
-  email: string;
+  // @IsEmail()
+  // email: string;
 
-  @IsNotEmpty()
+  // @IsNotEmpty()
   password: string;
 
-  @IsNotEmpty()
+  // @IsNotEmpty()
   name: string;
 
-  @IsNotEmpty()
+  // @IsNotEmpty()
   role: string;
 
-  @IsNotEmpty()
+  // @IsNotEmpty()
   mobile: string;
 
-  @IsNotEmpty()
+  // @IsNotEmpty()
   personelCode: string;
 
-  @IsNotEmpty()
+  // @IsNotEmpty()
   shopCode: number;
+
+  zone: string;
+
+  carNumber: string;
 
   id: number;
 }

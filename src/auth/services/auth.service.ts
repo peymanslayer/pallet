@@ -15,7 +15,7 @@ import { UpdateDto } from '../dtos/update.dto';
 import { OperatorService } from 'src/operator/services/operator.service';
 import { Op } from 'sequelize';
 import { TruckInfoService } from 'src/truck-info/truck-info.service';
-
+import { ROLES } from 'src/enum';
 @Injectable()
 export class AuthService {
   constructor(
@@ -525,6 +525,15 @@ export class AuthService {
   async updateUser(body: UpdateDto, userId: number) {
     try {
       const fieldsUpdate: object = body;
+      if (body.password) {
+        fieldsUpdate['originalPassword'] = body.password;
+        fieldsUpdate['password'] = await bcrypt.hash(body.password, 10);
+      }
+      if (await this.truckInfoService.get(userId)) {
+        await this.truckInfoService.update(userId, {
+          carNumber: body.carNumber,
+        });
+      }
       const user = await this.authRepository.update(fieldsUpdate, {
         where: {
           id: userId,

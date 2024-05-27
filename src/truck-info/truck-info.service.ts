@@ -15,4 +15,12 @@ export class TruckInfoService {
     });
     return truckInfoDriver;
   }
+
+  async update(driverId: number, body: any) {
+    const infoUpdate = await this.truckInfoRepository.update(body, {
+      where: {
+        driverId: driverId,
+      },
+    });
+  }
 }

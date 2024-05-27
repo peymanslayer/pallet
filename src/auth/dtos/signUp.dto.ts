@@ -20,4 +20,6 @@ export class SignUpDto {
   shopCode: number;
 
   subscriber: string;
+
+  zone: string;
 }

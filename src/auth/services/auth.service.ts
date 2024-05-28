@@ -16,6 +16,7 @@ import { OperatorService } from 'src/operator/services/operator.service';
 import { Op } from 'sequelize';
 import { TruckInfoService } from 'src/truck-info/truck-info.service';
 import { ROLES } from 'src/enum';
+import { TruckInfoInsertDto } from 'src/truck-info/dto/truck-info.insert.dto';
 @Injectable()
 export class AuthService {
   constructor(
@@ -118,22 +119,25 @@ export class AuthService {
   }
 
   async createUser(token: string, Body: SignUpDto, hashpassword: string) {
+    Body['originalPassword'] = Body.password;
+    Body['token'] = token;
+    Body['password'] = hashpassword;
+
     const createUser = await this.authRepository.create({
-      // email:Body.email,
-      // password: hashpassword,
-      // originalPassword:Body.password,
-      // token: token,
-      // name: Body.name,
-      // role:Body.role,
-      // mobile:Body.mobile,
-      // personelCode:Body.personelCode,
-      // shopCode:Body.shopCode
       ...Body,
-      originalPassword: Body.password,
-      token: token,
-      password: hashpassword,
+      // originalPassword: Body.password, // depricated
+      // token: token, // depricated
+      // password: hashpassword, // depricated
     });
     if (createUser) {
+      if (Body.role === ROLES.DRIVER || Body.role === ROLES.COMPANYDRIVER) {
+        let truckInfo = new TruckInfoInsertDto();
+        truckInfo.carNumber = Body.carNumber;
+        truckInfo['type'] = Body.type;
+        truckInfo['driverId'] = createUser.id;
+
+        await this.truckInfoService.add(truckInfo);
+      }
       return {
         status: 200,
         message: createUser,

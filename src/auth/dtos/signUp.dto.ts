@@ -22,4 +22,8 @@ export class SignUpDto {
   subscriber: string;
 
   zone: string;
+
+  carNumber: string;
+
+  type: string; //TODO : change name field to "typeTruck" and check not lost data
 }

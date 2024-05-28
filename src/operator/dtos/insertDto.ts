@@ -10,4 +10,6 @@ export class InsertOperatorDto {
   userId: number;
   subscriber: string;
   zone: string;
+  carNumber: string; // not used just aim integrate with model auth
+  type: string; // not used just aim integrate with model auth
 }

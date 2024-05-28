@@ -630,12 +630,22 @@ export class AuthService {
           id: userId,
         },
       });
-      if (user)
+      if (user) {
+        const data = {};
+        Object.assign(data, user.dataValues);
+        if (user.role === ROLES.DRIVER || user.role === ROLES.COMPANYDRIVER) {
+          const truckInfo = await this.truckInfoService.get(user.id);
+          data['carNumber'] = truckInfo.carNumber || '';
+          data['type'] = truckInfo.type || '';
+
+          // Object.assign(data);
+        }
         return {
-          data: user.dataValues,
+          data: data,
           message: 'user find successfully',
           status: 200,
         };
+      }
     } catch (err) {
       console.log(err);
     }

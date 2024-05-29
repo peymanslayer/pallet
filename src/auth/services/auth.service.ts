@@ -6,7 +6,6 @@ import { Auth } from '../auth.entity';
 import { DriverService } from 'src/driver/services/driver.service';
 import { Driver } from 'src/driver/driver.entity';
 import { StockService } from 'src/ReceiveStock/services/stock.service';
-// imoprt {} from 'src/'
 import { MailerService } from '@nestjs-modules/mailer';
 import { Sequelize } from 'sequelize';
 import { Workbook } from 'exceljs';
@@ -32,7 +31,10 @@ export class AuthService {
 
   async getAll() {
     try {
-      const res = await this.authRepository.findAndCountAll({
+      // TODO ; relation "auth" and "truckInfo"
+      const data = {};
+      const rows = [];
+      const users = await this.authRepository.findAndCountAll({
         attributes: [
           'id',
           'name',
@@ -46,8 +48,34 @@ export class AuthService {
         limit: 100,
       });
 
-      return { status: 200, data: res };
+      for (let user of users.rows) {
+        const usersInfo = {};
+        // console.log('user info', user.dataValues);
+        Object.assign(usersInfo, user.dataValues);
+
+        if (
+          user.dataValues.role === ROLES.COMPANYDRIVER ||
+          user.dataValues.role === ROLES.DRIVER
+        ) {
+          const truckInfo = await this.getTruckInfo(user.dataValues.id);
+          if (truckInfo) {
+            usersInfo['carNumber'] = truckInfo.carNumber;
+            usersInfo['type'] = truckInfo.type;
+          } else {
+            usersInfo['carNumber'] = '';
+            usersInfo['type'] = '';
+          }
+        }
+
+        rows.push(usersInfo);
+      }
+
+      data['count'] = users.count;
+      data['rows'] = rows;
+
+      return { status: 200, data: data };
     } catch (err) {
+      console.log(err);
       return { status: 500, data: err };
     }
   }
@@ -634,7 +662,8 @@ export class AuthService {
         const data = {};
         Object.assign(data, user.dataValues);
         if (user.role === ROLES.DRIVER || user.role === ROLES.COMPANYDRIVER) {
-          const truckInfo = await this.truckInfoService.get(user.id);
+          const truckInfo = await this.getTruckInfo(user.id);
+          // TODO moved two after line to func "getTruckInfo"
           data['carNumber'] = truckInfo.carNumber || '';
           data['type'] = truckInfo.type || '';
 
@@ -646,6 +675,14 @@ export class AuthService {
           status: 200,
         };
       }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async getTruckInfo(driverId: number) {
+    try {
+      return await this.truckInfoService.get(driverId);
     } catch (err) {
       console.log(err);
     }

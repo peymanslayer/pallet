@@ -196,15 +196,13 @@ export class AuthService {
         message: 'user not exist',
       };
     } else {
-      const roleDriver = findUser.dataValues.role;
-      const driverId = findUser.dataValues.id;
+      const role = findUser.dataValues.role;
+      const userId = findUser.dataValues.id;
       console.log('find user is :', findUser.dataValues);
       console.log('driverId is: ', driverId);
-      if (roleDriver === 'companyDriver') {
-        const truckInfoDriver = await this.truckInfoService.get(driverId);
+      if (role === 'companyDriver') {
+        const truckInfoDriver = await this.truckInfoService.get(userId);
         findUser.dataValues['carNumber'] = truckInfoDriver.carNumber;
-        findUser.dataValues['zone'] = truckInfoDriver.zone;
-        findUser.dataValues['zoneCode'] = truckInfoDriver.zoneCode;
       }
       // console.log('findUser return endpoint: /n', findUser); // debug
       return await this.loginProcess(findUser, Body);
@@ -585,6 +583,9 @@ export class AuthService {
       };
     }
   }
+  // async updateUser(fieldsUpdate:object, where: {}){
+  //   return await this.authRepository.update(fieldsUpdate,{where})
+  // }
 
   async findUserByAttributes(shopId: any, subscriber: any, nmorpc: any) {
     try {

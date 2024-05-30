@@ -105,14 +105,15 @@ export class TruckBreakDownController {
     @Query('count') count: string,
   ) {
     try {
-      const exportExcel = await this.truckBreakDownService.exportReport(
-        transportComment,
-        repairDone,
-        count,
-        beforeHistory,
-        afterHistory,
-        carNumber,
-      );
+      const exportExcel =
+        await this.truckBreakDownService.exportReportTransportAdmin(
+          transportComment,
+          repairDone,
+          count,
+          beforeHistory,
+          afterHistory,
+          carNumber,
+        );
       response.setHeader(
         'Content-Disposition',
         'attachment; filename="exported-data.xlsx"',
@@ -155,6 +156,42 @@ export class TruckBreakDownController {
     } catch (err) {
       console.log(err);
       response.status(500).json(err);
+    }
+  }
+
+  @Get('/api/truckbreakdown/logistic/export')
+  async exportReportLogisticAdmin(
+    @Res() response: Response,
+    @Query('beforeHistory') beforeHistory: string,
+    @Query('afterHistory') afterHistory: string,
+    @Query('carNumber') carNumber: string,
+    @Query('logisticComment') logisticComment: string,
+    @Query('historyReciveToRepair') reciveToRepair: string,
+    @Query('zone') zone: string,
+    @Query('count') count: string,
+  ) {
+    try {
+      const exportExcel =
+        await this.truckBreakDownService.exportReportLogisticAdmin(
+          logisticComment,
+          reciveToRepair,
+          count,
+          beforeHistory,
+          afterHistory,
+          carNumber,
+          zone,
+        );
+      response.setHeader(
+        'Content-Disposition',
+        'attachment; filename="exported-data.xlsx"',
+      );
+      response.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+      response.send(exportExcel);
+    } catch (err) {
+      response.status(500).json('internal server error');
     }
   }
 

@@ -1,4 +1,4 @@
-export const COLUMNS_NAME_EXCEL_REPORT_TRANSPORT_ADMIN = [
+export const COLUMNS_NAME_EXCEL_REPORT_TRANSPORT_AND_LOGISTIC_ADMIN = [
   { header: 'نام راننده', width: 20 },
   { header: 'مبایل راننده', width: 20 },
   { header: 'شناسه ثبت خرابی', width: 20 },

@@ -33,7 +33,7 @@ export enum ROLES {
   SUPERADMIN = 'superAdmin',
 }
 
-export const FIELDS_OF_EXCEL_REPORT_TRANSPORT_ADMIN = [
+export const FIELDS_OF_EXCEL_REPORT_TRANSPORT_AND_LOGISTIC_ADMIN = [
   'driverName',
   'driverMobile',
   'numberOfBreakDown',

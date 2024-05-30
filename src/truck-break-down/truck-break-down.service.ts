@@ -7,8 +7,8 @@ import { Op } from 'sequelize';
 import { AuthService } from 'src/auth/services/auth.service';
 import { Workbook } from 'exceljs';
 import { generateDataExcel } from 'src/utility/export_excel';
-import { FIELDS_OF_EXCEL_REPORT_TRANSPORT_ADMIN } from 'src/static/enum';
-import { COLUMNS_NAME_EXCEL_REPORT_TRANSPORT_ADMIN } from 'src/static/fields-excelFile';
+import { FIELDS_OF_EXCEL_REPORT_TRANSPORT_AND_LOGISTIC_ADMIN } from 'src/static/enum';
+import { COLUMNS_NAME_EXCEL_REPORT_TRANSPORT_AND_LOGISTIC_ADMIN } from 'src/static/fields-excelFile';
 @Injectable()
 export class TruckBreakDownService {
   constructor(
@@ -171,7 +171,7 @@ export class TruckBreakDownService {
     };
   }
 
-  async exportReport(
+  async exportReportTransportAdmin(
     transportComment: string,
     repairDone: string,
     count: string,
@@ -195,12 +195,13 @@ export class TruckBreakDownService {
       );
 
       // console.log('truckBreakDowns', truckBreakDowns.data);
-      workSheet.columns = COLUMNS_NAME_EXCEL_REPORT_TRANSPORT_ADMIN;
+      workSheet.columns =
+        COLUMNS_NAME_EXCEL_REPORT_TRANSPORT_AND_LOGISTIC_ADMIN;
       if (typeof truckBreakDowns.data == 'object') {
         rows.push(...truckBreakDowns.data);
 
         const data = generateDataExcel(
-          FIELDS_OF_EXCEL_REPORT_TRANSPORT_ADMIN,
+          FIELDS_OF_EXCEL_REPORT_TRANSPORT_AND_LOGISTIC_ADMIN,
           rows,
         );
 
@@ -337,6 +338,56 @@ export class TruckBreakDownService {
       data: countList === 0 || countList ? countList : data,
       count: breakDowns.count,
     };
+  }
+
+  async exportReportLogisticAdmin(
+    logisticComment: string,
+    reciveToRepair: string,
+    count: string,
+    beforeHistory: string,
+    afterHistory: string,
+    carNumber: string,
+    zone: string,
+  ) {
+    try {
+      const book = new Workbook();
+      const workSheet = book.addWorksheet('LogisticAdmin_report');
+
+      let rows: Array<any> = [];
+
+      const truckBreakDowns = await this.logisticUserGetAll(
+        logisticComment,
+        reciveToRepair,
+        count,
+        beforeHistory,
+        afterHistory,
+        carNumber,
+        zone,
+      );
+
+      // console.log('truckBreakDowns', truckBreakDowns.data);
+      workSheet.columns =
+        COLUMNS_NAME_EXCEL_REPORT_TRANSPORT_AND_LOGISTIC_ADMIN;
+      if (typeof truckBreakDowns.data == 'object') {
+        rows.push(...truckBreakDowns.data);
+
+        const data = generateDataExcel(
+          FIELDS_OF_EXCEL_REPORT_TRANSPORT_AND_LOGISTIC_ADMIN,
+          rows,
+        );
+
+        data.forEach((x) => {
+          workSheet.addRow(Object.values(x));
+        });
+      } else {
+        workSheet.addRow('not have data');
+      }
+
+      const buffer = await book.xlsx.writeBuffer();
+      return buffer;
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   async repairShopGetAll(

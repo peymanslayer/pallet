@@ -3,7 +3,7 @@ import { CheckList } from './check-list.entity';
 import { CheckListComment } from 'src/check-list-comment/check-list-comment.entity';
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
 import { Op, json } from 'sequelize';
-import { CHECKLIST_ANSWERS } from 'src/enum';
+import { CHECKLIST_ANSWERS } from 'src/static/enum';
 import { Auth } from 'src/auth/auth.entity';
 @Injectable()
 export class CheckListService {

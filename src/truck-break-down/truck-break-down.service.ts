@@ -5,6 +5,10 @@ import { TruckInfo } from 'src/truck-info/truck-info.entity';
 import { UpdateTruckBreakDownDto } from './dto/update.truck-breakdown.dto';
 import { Op } from 'sequelize';
 import { AuthService } from 'src/auth/services/auth.service';
+import { Workbook } from 'exceljs';
+import { generateDataExcel } from 'src/utility/export_excel';
+import { FIELDS_OF_EXCEL_REPORT_TRANSPORT_ADMIN } from 'src/static/enum';
+import { COLUMNS_NAME_EXCEL_REPORT_TRANSPORT_ADMIN } from 'src/static/fields-excelFile';
 @Injectable()
 export class TruckBreakDownService {
   constructor(
@@ -46,7 +50,7 @@ export class TruckBreakDownService {
       count: breakDowns.count,
     };
   }
-  // list of dashboard role "transportAdmin"
+  // list of dashboard role "transportAdmin" // #Hint
   async transportUserGetAll(
     transportComment: string,
     repairDone: string,
@@ -76,8 +80,8 @@ export class TruckBreakDownService {
     if (carNumber) {
       filter['carNumber'] = carNumber;
     }
-    console.log(filter);
-    // get list of  "Activity in Progress"
+    // console.log(filter); // #Debug
+    // get list of  "Activity in Progress" // #Hint
     if (transportComment === 'true') {
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {
@@ -91,8 +95,9 @@ export class TruckBreakDownService {
         order: [['id', 'DESC']],
         limit: 20,
       });
-      // get list of "Activity done"
-    } else if (repairDone === 'true') {
+    }
+    // get list of "Activity done"
+    else if (repairDone === 'true') {
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {
           [Op.and]: {
@@ -119,7 +124,7 @@ export class TruckBreakDownService {
         limit: 20,
       });
     }
-    // console.log(breakDowns); //debug
+    // console.log(breakDowns); // #Debug
     if (count === 'true') {
       countList = breakDowns.count;
     } else {
@@ -147,7 +152,7 @@ export class TruckBreakDownService {
         row['historyRepairComment'] = breakDown['historyRepairComment'];
 
         row['piece'] = breakDown['piece'];
-        // console.log('itemsId to fetch: ', breakDown['truckBreakDownItemsId']); // debug
+        // console.log('itemsId to fetch: ', breakDown['truckBreakDownItemsId']); // #Debug
         row['answers'] = await this.getBreakDownItemsById(
           breakDown['truckBreakDownItemsId'],
         );
@@ -164,6 +169,53 @@ export class TruckBreakDownService {
       data: countList === 0 || countList ? countList : data,
       count: breakDowns.count,
     };
+  }
+
+  async exportReport(
+    transportComment: string,
+    repairDone: string,
+    count: string,
+    beforeHistory: string,
+    afterHistory: string,
+    carNumber: string,
+  ) {
+    try {
+      const book = new Workbook();
+      const workSheet = book.addWorksheet('TransportAdmin_report');
+
+      let rows: Array<any> = [];
+
+      const truckBreakDowns = await this.transportUserGetAll(
+        transportComment,
+        repairDone,
+        count,
+        beforeHistory,
+        afterHistory,
+        carNumber,
+      );
+
+      // console.log('truckBreakDowns', truckBreakDowns.data);
+      workSheet.columns = COLUMNS_NAME_EXCEL_REPORT_TRANSPORT_ADMIN;
+      if (typeof truckBreakDowns.data == 'object') {
+        rows.push(...truckBreakDowns.data);
+
+        const data = generateDataExcel(
+          FIELDS_OF_EXCEL_REPORT_TRANSPORT_ADMIN,
+          rows,
+        );
+
+        data.forEach((x) => {
+          workSheet.addRow(Object.values(x));
+        });
+      } else {
+        workSheet.addRow('not have data');
+      }
+
+      const buffer = await book.xlsx.writeBuffer();
+      return buffer;
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   // list of dashboard role "LogisticAdmin"
@@ -203,7 +255,7 @@ export class TruckBreakDownService {
     driversInZone.forEach((driver) => {
       driversId.push(driver.dataValues['id']);
     });
-    // console.log('DIIZ', driversId); // debug
+    // console.log('DIIZ', driversId); // #Debug
     // get list of  "Activity in Progress"
     if (logisticComment === 'true') {
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
@@ -244,7 +296,7 @@ export class TruckBreakDownService {
         limit: 20,
       });
     }
-    // console.log(breakDowns); //debug
+    // console.log(breakDowns); //#Debug
     if (count === 'true') {
       countList = breakDowns.count;
     } else {
@@ -268,7 +320,7 @@ export class TruckBreakDownService {
         row['histroyDeliveryTruck'] = breakDown['histroyDeliveryTruck'];
         row['historyDeliveryDriver'] = breakDown['historyDeliveryDriver'];
         row['piece'] = breakDown['piece'];
-        // console.log('itemsId to fetch: ', breakDown['truckBreakDownItemsId']); // debug
+        // console.log('itemsId to fetch: ', breakDown['truckBreakDownItemsId']); // #Debug
         row['answers'] = await this.getBreakDownItemsById(
           breakDown['truckBreakDownItemsId'],
         );
@@ -375,7 +427,7 @@ export class TruckBreakDownService {
         row['histroyDeliveryTruck'] = breakDown['histroyDeliveryTruck'];
         row['historyDeliveryDriver'] = breakDown['historyDeliveryDriver'];
         row['piece'] = breakDown['piece'];
-        // console.log('itemsId to fetch: ', breakDown['truckBreakDownItemsId']); // debug
+        // console.log('itemsId to fetch: ', breakDown['truckBreakDownItemsId']); // #Debug
         row['answers'] = await this.getBreakDownItemsById(
           breakDown['truckBreakDownItemsId'],
         );
@@ -550,12 +602,12 @@ export class TruckBreakDownService {
     // due to keys of field have unique number , answer_1, answer_2, ..., answe_20
     for (let item = 1; item <= 20; item++) {
       let report = {};
-      //  console.log(items[`answer_${item}`]); // debug
+      //  console.log(items[`answer_${item}`]); // #Debug
       if (items[`answer_${item}`] != null) {
         report['type'] = items[`type_${item}`];
         report['comment'] = items[`answer_${item}`];
         report['number'] = item;
-        // console.log('reoprt: ', report); // debug
+        // console.log('reoprt: ', report); // #Debug
         data.push(report);
       }
     }

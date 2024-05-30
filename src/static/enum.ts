@@ -32,6 +32,27 @@ export enum ROLES {
   REPAIRSHOP = 'repairShop',
   SUPERADMIN = 'superAdmin',
 }
+
+export const FIELDS_OF_EXCEL_REPORT_TRANSPORT_ADMIN = [
+  'driverName',
+  'driverMobile',
+  'numberOfBreakDown',
+  'carNumber',
+  'carLife',
+  'hoursDriverRegister',
+  'historyDriverRegister',
+  'logisticConfirm',
+  'transportComment',
+  'historySendToRepair',
+  'historyReciveToRepair',
+  'historyDeliveryDriver',
+  'piece',
+  'repairmanComment',
+  'hoursRepairComment',
+  'historyRepairComment',
+  'logisticComment',
+];
+
 export const getEnumsString = function (roles: object) {
   const values = Object.values(roles);
   let valuesString = [];

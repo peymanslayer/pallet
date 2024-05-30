@@ -94,6 +94,38 @@ export class TruckBreakDownController {
     }
   }
 
+  @Get('/api/truckbreakdown/transport/export')
+  async exportReportTransportAdmin(
+    @Res() response: Response,
+    @Query('beforeHistory') beforeHistory: string,
+    @Query('afterHistory') afterHistory: string,
+    @Query('carNumber') carNumber: string,
+    @Query('transportComment') transportComment: string,
+    @Query('repairDone') repairDone: string,
+    @Query('count') count: string,
+  ) {
+    try {
+      const exportExcel = await this.truckBreakDownService.exportReport(
+        transportComment,
+        repairDone,
+        count,
+        beforeHistory,
+        afterHistory,
+        carNumber,
+      );
+      response.setHeader(
+        'Content-Disposition',
+        'attachment; filename="exported-data.xlsx"',
+      );
+      response.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+      response.send(exportExcel);
+    } catch (err) {
+      response.status(500).json('internal server error');
+    }
+  }
   @Get('/api/truckbreakdown/logistic')
   async getAllBreakDownLogistic(
     @Res() response: Response,

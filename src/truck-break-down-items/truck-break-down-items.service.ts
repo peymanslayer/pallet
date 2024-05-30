@@ -3,7 +3,7 @@ import { TruckBreakDown } from 'src/truck-break-down/truck-break-down.entity';
 import { TruckBreakDownItems } from './truck-break-down-items.entity';
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
 import { Op } from 'sequelize';
-import { MESSAGE_ALERT } from 'src/enum';
+import { MESSAGE_ALERT } from 'src/static/enum';
 @Injectable()
 export class TruckBreakDownItemsService {
   constructor(

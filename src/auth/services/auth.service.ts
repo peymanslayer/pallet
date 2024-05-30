@@ -14,7 +14,7 @@ import { UpdateDto } from '../dtos/update.dto';
 import { OperatorService } from 'src/operator/services/operator.service';
 import { Op } from 'sequelize';
 import { TruckInfoService } from 'src/truck-info/truck-info.service';
-import { ROLES } from 'src/enum';
+import { ROLES } from 'src/static/enum';
 import { TruckInfoInsertDto } from 'src/truck-info/dto/truck-info.insert.dto';
 @Injectable()
 export class AuthService {
@@ -583,9 +583,6 @@ export class AuthService {
       };
     }
   }
-  // async updateUser(fieldsUpdate:object, where: {}){
-  //   return await this.authRepository.update(fieldsUpdate,{where})
-  // }
 
   async findUserByAttributes(shopId: any, subscriber: any, nmorpc: any) {
     try {

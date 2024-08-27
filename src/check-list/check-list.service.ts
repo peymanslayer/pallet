@@ -183,7 +183,7 @@ export class CheckListService {
     };
   }
 
-  async dailyCheck(userId: number, date: string, done: string) {
+  async dailyCheck(userId: number, date: string, done: string, zone: string) {
     let check = false; // comment: default not register daily check
     // comment: variable's of daily check in repair panel
     const data = [];
@@ -251,12 +251,15 @@ export class CheckListService {
         message = 'list of driver undone check list today';
       }
       // comment; driver target to response
+      const filterZone = {};
+      if (zone) filterZone['zone'] = zone;
       const drivers = await this.authRepository.findAll({
         attributes: ['id', 'name', 'role', 'mobile'],
         where: {
           [Op.and]: {
             role: 'companyDriver',
             id: { [Op.in]: idDrivers },
+            ...filterZone,
           },
         },
       });

@@ -150,6 +150,7 @@ export class AuthService {
     Body['originalPassword'] = Body.password;
     Body['token'] = token;
     Body['password'] = hashpassword;
+    Body['zone'] = Body.zone;
 
     const createUser = await this.authRepository.create({
       ...Body,

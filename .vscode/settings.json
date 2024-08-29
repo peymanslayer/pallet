@@ -1,4 +1,6 @@
 {
   "highlight-matching-tag.customEmptyElements": null,
-  "workbench.colorCustomizations": {}
+  "workbench.colorCustomizations": {},
+  "editor.fontSize": 13,
+  "editor.fontFamily": "Cascadia Code"
 }

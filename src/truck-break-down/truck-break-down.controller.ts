@@ -73,6 +73,7 @@ export class TruckBreakDownController {
     @Query('transportComment') transportComment: string,
     @Query('repairDone') repairDone: string,
     @Query('count') count: string,
+    @Query('zone') zone: string,
   ) {
     try {
       const res = await this.truckBreakDownService.transportUserGetAll(
@@ -82,6 +83,7 @@ export class TruckBreakDownController {
         beforeHistory,
         afterHistory,
         carNumber,
+        zone,
       );
       if (count) {
         response.status(res.status).json({ data: res.data });
@@ -103,6 +105,7 @@ export class TruckBreakDownController {
     @Query('transportComment') transportComment: string,
     @Query('repairDone') repairDone: string,
     @Query('count') count: string,
+    @Query('zone') zone: string,
   ) {
     try {
       const exportExcel =
@@ -113,6 +116,7 @@ export class TruckBreakDownController {
           beforeHistory,
           afterHistory,
           carNumber,
+          zone,
         );
       response.setHeader(
         'Content-Disposition',

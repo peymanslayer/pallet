@@ -58,6 +58,7 @@ export class TruckBreakDownService {
     beforeHistory: string,
     afterHistory: string,
     carNumber: string,
+    zone: string,
   ) {
     let filter = {}; // filter by "date" or "carNumber"
     let data = [];
@@ -80,6 +81,7 @@ export class TruckBreakDownService {
     if (carNumber) {
       filter['carNumber'] = carNumber;
     }
+    if (zone) filter['zone'] = zone;
     // console.log(filter); // #Debug
     // get list of  "Activity in Progress" // #Hint
     if (transportComment === 'true') {
@@ -178,6 +180,7 @@ export class TruckBreakDownService {
     beforeHistory: string,
     afterHistory: string,
     carNumber: string,
+    zone: string,
   ) {
     try {
       const book = new Workbook();
@@ -192,6 +195,7 @@ export class TruckBreakDownService {
         beforeHistory,
         afterHistory,
         carNumber,
+        zone,
       );
 
       // console.log('truckBreakDowns', truckBreakDowns.data);

@@ -81,7 +81,11 @@ export class TruckBreakDownService {
     if (carNumber) {
       filter['carNumber'] = carNumber;
     }
-    if (zone) filter['zone'] = zone;
+    if (zone) {
+      const driverInZone = await this.authService.userSameZone(zone,'',['id'])
+      filter['driverId'] = `{[Op.in]:${driverInZone}}`
+      
+    }
     // console.log(filter); // #Debug
     // get list of  "Activity in Progress" // #Hint
     if (transportComment === 'true') {

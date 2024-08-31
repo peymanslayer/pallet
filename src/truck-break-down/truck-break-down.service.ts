@@ -62,6 +62,7 @@ export class TruckBreakDownService {
   ) {
     let filter = {}; // filter by "date" or "carNumber"
     let data = [];
+    // const driversId = [];
     let countList: number;
     let breakDowns: {
       rows: TruckBreakDown[];
@@ -81,7 +82,12 @@ export class TruckBreakDownService {
     if (carNumber) {
       filter['carNumber'] = carNumber;
     }
-    if (zone) filter['zone'] = zone;
+    // if (zone) filter['zone'] = zone;
+    // const driversInZone = await this.getUsersSameZone(zone, 'companyDriver');
+    // driversInZone.forEach((driver) => {
+    //   driversId.push(driver.dataValues['id']);
+    // });
+    // console.log('DIIZ', driversId); // #Debug
     // console.log(filter); // #Debug
     // get list of  "Activity in Progress" // #Hint
     if (transportComment === 'true') {
@@ -91,6 +97,7 @@ export class TruckBreakDownService {
             transportComment: { [Op.ne]: null },
             historyReciveToRepair: { [Op.eq]: null },
             logisticConfirm: { [Op.ne]: false },
+            // driverId: { [Op.in]: driversId },
             ...filter,
           },
         },
@@ -226,6 +233,7 @@ export class TruckBreakDownService {
   // list of dashboard role "LogisticAdmin"
   async logisticUserGetAll(
     logisticComment: string,
+    repairDone: string,
     reciveToRepair: string,
     count: string,
     beforeHistory: string,
@@ -256,6 +264,7 @@ export class TruckBreakDownService {
     if (carNumber) {
       filterByDateOrCarNumber['carNumber'] = carNumber;
     }
+
     const driversInZone = await this.getUsersSameZone(zone, 'companyDriver');
     driversInZone.forEach((driver) => {
       driversId.push(driver.dataValues['id']);
@@ -286,6 +295,20 @@ export class TruckBreakDownService {
       //     },
       //     order: [['id', 'DESC']],
       //   });
+    } else if (repairDone === 'true') {
+      breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+        where: {
+          [Op.and]: {
+            logisticConfirm: { [Op.ne]: false },
+            transportComment: { [Op.in]: ['necessary', 'immediately'] },
+            historyDeliveryDriver: { [Op.ne]: null },
+            driverId: { [Op.in]: driversId },
+            ...filterByDateOrCarNumber,
+          },
+        },
+        order: [['id', 'DESC']],
+        limit: 20,
+      });
     }
     // get list of "Activity necessary to do"
     else {
@@ -346,6 +369,7 @@ export class TruckBreakDownService {
 
   async exportReportLogisticAdmin(
     logisticComment: string,
+    repairDone: string,
     reciveToRepair: string,
     count: string,
     beforeHistory: string,
@@ -361,6 +385,7 @@ export class TruckBreakDownService {
 
       const truckBreakDowns = await this.logisticUserGetAll(
         logisticComment,
+        repairDone,
         reciveToRepair,
         count,
         beforeHistory,

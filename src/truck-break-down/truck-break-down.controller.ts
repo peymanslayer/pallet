@@ -138,6 +138,7 @@ export class TruckBreakDownController {
     @Query('afterHistory') afterHistory: string,
     @Query('carNumber') carNumber: string,
     @Query('logisticComment') logisticComment: string,
+    @Query('repairDone') repairDone: string,
     @Query('historyReciveToRepair') reciveToRepair: string,
     @Query('zone') zone: string,
     @Query('count') count: string,
@@ -145,6 +146,7 @@ export class TruckBreakDownController {
     try {
       const res = await this.truckBreakDownService.logisticUserGetAll(
         logisticComment,
+        repairDone,
         reciveToRepair,
         count,
         beforeHistory,
@@ -170,6 +172,7 @@ export class TruckBreakDownController {
     @Query('afterHistory') afterHistory: string,
     @Query('carNumber') carNumber: string,
     @Query('logisticComment') logisticComment: string,
+    @Query('repairDone') repairDone: string,
     @Query('historyReciveToRepair') reciveToRepair: string,
     @Query('zone') zone: string,
     @Query('count') count: string,
@@ -178,6 +181,7 @@ export class TruckBreakDownController {
       const exportExcel =
         await this.truckBreakDownService.exportReportLogisticAdmin(
           logisticComment,
+          repairDone,
           reciveToRepair,
           count,
           beforeHistory,

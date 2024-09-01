@@ -746,7 +746,7 @@ export class AuthService {
    */
   async userSameZone(
     zone: string,
-    role: string,
+    role: string = '',
     attributes: Array<string> = [],
   ) {
     let attribute = {};

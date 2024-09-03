@@ -20,6 +20,8 @@ export class CheckListController {
     @Query('userId') userId: number,
     @Query('date') date: string,
     @Query('done') done: string,
+    @Query('beforeHistory') beforeHistory: string,
+    @Query('afterHistory') afterHistory: string,
     @Query('zone') zone: string,
     @Res() response: Response,
   ) {
@@ -28,6 +30,8 @@ export class CheckListController {
         userId,
         date,
         done,
+        beforeHistory,
+        afterHistory,
         zone,
       );
       response
@@ -79,7 +83,34 @@ export class CheckListController {
       response.status(500).json(err);
     }
   }
-
+  @Get('/api/checklist/export')
+  async exportReportLogisticAdmin(
+    @Res() response: Response,
+    @Query('beforeHistory') beforeHistory: string,
+    @Query('afterHistory') afterHistory: string,
+    @Query('zone') zone: string,
+    @Query('done') done: string,
+  ) {
+    try {
+      const exportExcel = await this.checkListService.exportReport(
+        beforeHistory,
+        afterHistory,
+        zone,
+        done,
+      );
+      response.setHeader(
+        'Content-Disposition',
+        'attachment; filename="گزارش-چک لیست روزانه رانندگان.xlsx"',
+      );
+      response.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+      response.send(exportExcel);
+    } catch (err) {
+      console.log(err);
+    }
+  }
   @Get('/api/checklist/answers/:id')
   async getAnswers(@Param('id') id: number, @Res() response: Response) {
     try {

@@ -3,8 +3,18 @@ import { CheckList } from './check-list.entity';
 import { CheckListComment } from 'src/check-list-comment/check-list-comment.entity';
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
 import { Op, json } from 'sequelize';
-import { CHECKLIST_ANSWERS } from 'src/static/enum';
+import {
+  CHECKLIST_ANSWERS,
+  FIELDS_OF_EXCEL_CHECKLIST_DONE,
+  FIELDS_OF_EXCEL_CHECKLIST_UNDONE,
+} from 'src/static/enum';
 import { Auth } from 'src/auth/auth.entity';
+import { Workbook } from 'exceljs';
+import {
+  COLUMNS_NAME_EXCEL_REPORT_CHECKLIST_DONE,
+  COLUMNS_NAME_EXCEL_REPORT_CHECKLIST_UNDONE,
+} from 'src/static/fields-excelFile';
+import { generateDataExcel } from 'src/utility/export_excel';
 @Injectable()
 export class CheckListService {
   constructor(
@@ -183,21 +193,41 @@ export class CheckListService {
     };
   }
 
-  async dailyCheck(userId: number, date: string, done: string, zone: string) {
+  async dailyCheck(
+    userId: number | undefined,
+    date: string | undefined,
+    done: string,
+    zone: string,
+    beforeHistory: string,
+    afterHistory: string,
+  ) {
     let check = false; // comment: default not register daily check
     // comment: variable's of daily check in repair panel
     const data = [];
     let driversDone = [];
-    let driversUndone = [];
+    // let driversUndone = []; //notused
     let idDriversUndone = [];
     let idDriversDone = [];
     let idDrivers = [];
     let message: string;
-    console.log(typeof done);
+    let filterByDate = {};
+    // console.log(typeof done);
+
+    if (beforeHistory || afterHistory) {
+      if (!afterHistory) {
+        afterHistory = '2400/0/0';
+      }
+      if (!beforeHistory) {
+        beforeHistory = '2023/0/0';
+      }
+      filterByDate['historyDriverRegister'] = {
+        [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
+      };
+    }
     // comment: daily check for driver register checklist
     if (done === undefined) {
       const checkList = await this.checkListRepository.count({
-        where: { [Op.and]: { userId: userId, history: date } },
+        where: { [Op.and]: { userId: userId, history: date }, ...filterByDate },
       });
 
       if (checkList === 1) {
@@ -311,6 +341,52 @@ export class CheckListService {
     }
   }
 
+  async exportReport(
+    beforeHistory: string,
+    afterHistory: string,
+    zone: string,
+    done: string,
+  ) {
+    try {
+      const book = new Workbook();
+      const workSheet = book.addWorksheet('LogisticAdmin_report');
+
+      let rows: Array<any> = [];
+      let data: any[];
+      const checkLists = await this.dailyCheck(
+        undefined,
+        undefined,
+        done,
+        zone,
+        beforeHistory,
+        afterHistory,
+      );
+
+      console.log('checkLists', checkLists.data);
+      if (typeof checkLists.data == 'object') {
+        rows.push(...checkLists.data);
+
+        if (done === 'true') {
+          workSheet.columns = COLUMNS_NAME_EXCEL_REPORT_CHECKLIST_DONE;
+          data = generateDataExcel(FIELDS_OF_EXCEL_CHECKLIST_DONE, rows);
+        } else {
+          workSheet.columns = COLUMNS_NAME_EXCEL_REPORT_CHECKLIST_UNDONE;
+          data = generateDataExcel(FIELDS_OF_EXCEL_CHECKLIST_UNDONE, rows);
+        }
+
+        data.forEach((x) => {
+          workSheet.addRow(Object.values(x));
+        });
+      } else {
+        workSheet.addRow('not have data');
+      }
+
+      const buffer = await book.xlsx.writeBuffer();
+      return buffer;
+    } catch (err) {
+      console.log(err);
+    }
+  }
   async removeCheckList(id: number) {
     const removeCheckList = await this.checkListRepository.destroy({
       where: {

@@ -211,19 +211,9 @@ export class CheckListService {
     let idDrivers = [];
     let message: string;
     let filterByDate = {};
+    let where = {};
     // console.log(typeof done);
 
-    if (beforeHistory || afterHistory) {
-      if (!afterHistory) {
-        afterHistory = '2400/0/0';
-      }
-      if (!beforeHistory) {
-        beforeHistory = '2023/0/0';
-      }
-      filterByDate['historyDriverRegister'] = {
-        [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
-      };
-    }
     // comment: daily check for driver register checklist
     if (done === undefined) {
       const checkList = await this.checkListRepository.count({
@@ -246,8 +236,22 @@ export class CheckListService {
         driverName, zone, carNumber, carLife, mobile, type, state, hours, history
        Driver undone field's return: 
         driverName, zone, carNumber, carLife, mobile, type`;
+
+      if (beforeHistory || afterHistory) {
+        if (!afterHistory) {
+          afterHistory = '2400/0/0';
+        }
+        if (!beforeHistory) {
+          beforeHistory = '2023/0/0';
+        }
+      }
+
+      where['history'] = {
+        [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
+      };
+
       const checkListRegisterByDriver = await this.checkListRepository.findAll({
-        where: { history: date },
+        where: { ...where },
         attributes: ['id', 'userId', 'history', 'hours'],
       });
 
@@ -362,7 +366,7 @@ export class CheckListService {
         afterHistory,
       );
 
-      console.log('checkLists', checkLists.data);
+      // console.log('checkLists', checkLists.data); // #DEBUG
       if (typeof checkLists.data == 'object') {
         rows.push(...checkLists.data);
 

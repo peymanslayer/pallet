@@ -12,7 +12,12 @@ export function generateDataExcel(
   rows: Array<any>,
 ) {
   const data = [];
-  const fieldMustReadable = ['logisticConfirm', 'transportComment'];
+  const fieldMustReadable = [
+    'logisticConfirm',
+    'transportComment',
+    'history',
+    'state',
+  ];
   for (let row of rows) {
     let recordExcel = {};
     for (let field of fieldsToExport) {
@@ -29,7 +34,7 @@ export function generateDataExcel(
 
 function convertToReadable(value: string) {
   let replaceValue: string;
-  console.log('value pass to convert', value);
+  // console.log('value pass to convert', value); // #DEBUG
   //hint; "'' + value "  convert boolean value to string
   switch ('' + value) {
     case 'false':
@@ -50,6 +55,22 @@ function convertToReadable(value: string) {
 
     case 'immediately':
       replaceValue = HUMANREADABLE_EXCEL_VALUE.immediately;
+      break;
+
+    case String(value.match(/.*\/.*\/.*/)):
+      replaceValue = new Date(`'${value}'`).toLocaleDateString('fa-IR');
+      break;
+
+    case 'weak':
+      replaceValue = 'بد';
+      break;
+
+    case 'medium':
+      replaceValue = 'متوسط';
+      break;
+
+    case 'good':
+      replaceValue = 'خوب';
       break;
 
     default:

@@ -1,10 +1,11 @@
-import { Column, Table, Model } from 'sequelize-typescript';
+import { Column, Table, Model, Index } from 'sequelize-typescript';
 
 @Table
 export class CheckList extends Model<CheckList> {
   @Column
   userId: number;
 
+  @Index
   @Column
   history: string;
 

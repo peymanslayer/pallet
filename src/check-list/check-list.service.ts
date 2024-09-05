@@ -244,11 +244,13 @@ export class CheckListService {
         if (!beforeHistory) {
           beforeHistory = '2023/0/0';
         }
+
+        where['history'] = {
+          [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
+        };
       }
 
-      where['history'] = {
-        [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
-      };
+      if (date) where['history'] = date;
 
       const checkListRegisterByDriver = await this.checkListRepository.findAll({
         where: { ...where },

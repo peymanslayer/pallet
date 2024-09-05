@@ -197,9 +197,9 @@ export class CheckListService {
     userId: number | undefined,
     date: string | undefined,
     done: string,
-    zone: string,
     beforeHistory: string,
     afterHistory: string,
+    zone: string,
   ) {
     let check = false; // comment: default not register daily check
     // comment: variable's of daily check in repair panel
@@ -236,27 +236,31 @@ export class CheckListService {
         driverName, zone, carNumber, carLife, mobile, type, state, hours, history
        Driver undone field's return: 
         driverName, zone, carNumber, carLife, mobile, type`;
-
+      console.log('before history: ', beforeHistory);
+      console.log('after history: ', afterHistory);
       if (beforeHistory || afterHistory) {
         if (!afterHistory) {
-          afterHistory = '2400/0/0';
+          afterHistory = '2023/0/0';
         }
         if (!beforeHistory) {
-          beforeHistory = '2023/0/0';
+          beforeHistory = '2400/0/0';
         }
 
         where['history'] = {
-          [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
+          [Op.between]: [`${afterHistory}`, `${beforeHistory}`],
         };
       }
 
       if (date) where['history'] = date;
-
+      console.log('where cluase : \n', where);
       const checkListRegisterByDriver = await this.checkListRepository.findAll({
         where: { ...where },
         attributes: ['id', 'userId', 'history', 'hours'],
       });
-
+      // console.log(
+      //   'check list register by driver : \n',
+      //   checkListRegisterByDriver,
+      // );
       // comment: fetch data of driver's register daily checkList
       checkListRegisterByDriver.forEach((element) => {
         idDriversDone.push(element.dataValues['userId']);

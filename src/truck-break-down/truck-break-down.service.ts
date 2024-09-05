@@ -70,13 +70,13 @@ export class TruckBreakDownService {
     };
     if (beforeHistory || afterHistory) {
       if (!afterHistory) {
-        afterHistory = '2023/0/0';
+        afterHistory = '2400/0/0';
       }
       if (!beforeHistory) {
-        beforeHistory = '2400/0/0';
+        beforeHistory = '2023/0/0';
       }
       filter['historyDriverRegister'] = {
-        [Op.between]: [`${afterHistory}`, `${beforeHistory}`],
+        [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
       };
     }
     if (carNumber) {

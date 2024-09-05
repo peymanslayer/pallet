@@ -236,38 +236,39 @@ export class CheckListService {
         driverName, zone, carNumber, carLife, mobile, type, state, hours, history
        Driver undone field's return: 
         driverName, zone, carNumber, carLife, mobile, type`;
-      console.log('before history: ', beforeHistory);
-      console.log('after history: ', afterHistory);
+
+      // console.log('before history: ', beforeHistory); // #DEBUG
+      // console.log('after history: ', afterHistory); // #DEBUG
+
       if (beforeHistory || afterHistory) {
         if (!afterHistory) {
-          afterHistory = '2023/0/0';
+          afterHistory = '2400/0/0';
         }
         if (!beforeHistory) {
-          beforeHistory = '2400/0/0';
+          beforeHistory = '2023/0/0';
         }
 
         where['history'] = {
-          [Op.between]: [`${afterHistory}`, `${beforeHistory}`],
+          [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
         };
       }
 
       if (date) where['history'] = date;
-      console.log('where cluase : \n', where);
+
+      console.log('where cluase : \n', where); // #DEBUG
+
       const checkListRegisterByDriver = await this.checkListRepository.findAll({
         where: { ...where },
         attributes: ['id', 'userId', 'history', 'hours'],
       });
-      // console.log(
-      //   'check list register by driver : \n',
-      //   checkListRegisterByDriver,
-      // );
+
       // comment: fetch data of driver's register daily checkList
       checkListRegisterByDriver.forEach((element) => {
         idDriversDone.push(element.dataValues['userId']);
         driversDone.push(element.dataValues);
       });
-      // console.log('res: ', idDriversDone); // debug
-      // console.log('driverDone: ', driversDone); // debug
+      // console.log('res: ', idDriversDone); // #DEBUG
+      // console.log('driverDone: ', driversDone); // #DEBUG
 
       // comment: fetch data of driver's unregister daily checkList
       if (done === 'true') {
@@ -367,9 +368,9 @@ export class CheckListService {
         undefined,
         undefined,
         done,
-        zone,
         beforeHistory,
         afterHistory,
+        zone,
       );
 
       // console.log('checkLists', checkLists.data); // #DEBUG

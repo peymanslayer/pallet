@@ -121,4 +121,5 @@ export enum HUMANREADABLE_EXCEL_VALUE {
   necessary = 'اعزام به تعمیرگاه', // transport admin comment
   notNecessary = 'موردی نیست ادامه فعالیت', // transport admin comment
   immediately = 'خودرو خاموش جهت اعزام به تعمیر گاه', // transport admin comment
+  notRegister = 'اطلاعاتی ثبت نشده است',
 }

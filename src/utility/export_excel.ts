@@ -63,7 +63,12 @@ function convertToReadable(value: string) {
       break;
 
     case String(valueStr.match(/.*\/.*\/.*/)):
-      replaceValue = new Date(`'${valueStr}'`).toLocaleDateString('fa-IR');
+      if (valueStr !== 'null') {
+        replaceValue = new Date(`'${valueStr}'`).toLocaleDateString('fa-IR');
+      } else {
+        replaceValue = HUMANREADABLE_EXCEL_VALUE.notRegister;
+      }
+
       break;
 
     case 'weak':
@@ -76,6 +81,10 @@ function convertToReadable(value: string) {
 
     case 'good':
       replaceValue = 'خوب';
+      break;
+
+    case 'null':
+      replaceValue = HUMANREADABLE_EXCEL_VALUE.notRegister;
       break;
 
     default:

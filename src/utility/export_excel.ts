@@ -36,7 +36,8 @@ function convertToReadable(value: string) {
   let replaceValue: string;
   // console.log('value pass to convert', value); // #DEBUG
   //hint; "'' + value "  convert boolean value to string
-  switch ('' + value) {
+  const valueStr = value.toString()
+  switch ( valueStr ) {
     case 'false':
       replaceValue = HUMANREADABLE_EXCEL_VALUE.FALSE;
       break;
@@ -57,8 +58,8 @@ function convertToReadable(value: string) {
       replaceValue = HUMANREADABLE_EXCEL_VALUE.immediately;
       break;
 
-    case String(value.match(/.*\/.*\/.*/)):
-      replaceValue = new Date(`'${value}'`).toLocaleDateString('fa-IR');
+    case String(valueStr.match(/.*\/.*\/.*/)):
+      replaceValue = new Date(`'${valueStr}'`).toLocaleDateString('fa-IR');
       break;
 
     case 'weak':

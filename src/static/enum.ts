@@ -116,8 +116,8 @@ export enum MESSAGE_ALERT {
 }
 
 export enum HUMANREADABLE_EXCEL_VALUE {
-  TRUE = 'تایید شده', // logistic comment conferm in excel
-  FALSE = 'رد شده', // logistic comment unconferm in excel
+  true = 'تایید شده', // logistic comment conferm in excel
+  false = 'رد شده', // logistic comment unconferm in excel
   necessary = 'اعزام به تعمیرگاه', // transport admin comment
   notNecessary = 'موردی نیست ادامه فعالیت', // transport admin comment
   immediately = 'خودرو خاموش جهت اعزام به تعمیر گاه', // transport admin comment

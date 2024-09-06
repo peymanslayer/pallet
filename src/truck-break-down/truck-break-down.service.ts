@@ -82,14 +82,7 @@ export class TruckBreakDownService {
     if (carNumber) {
       filter['carNumber'] = carNumber;
     }
-    // if (zone) filter['zone'] = zone;
-    // const driversInZone = await this.getUsersSameZone(zone, 'companyDriver');
-    // driversInZone.forEach((driver) => {
-    //   driversId.push(driver.dataValues['id']);
-    // });
-    // console.log('DIIZ', driversId); // #Debug
-    // console.log(filter); // #Debug
-    // get list of  "Activity in Progress" // #Hint
+
     if (transportComment === 'true') {
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {
@@ -165,9 +158,6 @@ export class TruckBreakDownService {
         row['answers'] = await this.getBreakDownItemsById(
           breakDown['truckBreakDownItemsId'],
         );
-        // row['carType'] = breakDown['type']; // depricated
-        // row['checkListStatus'] = breakDown['state']; // depricated
-        // row['breakDownStatus'] = breakDown['repairComment']; // depricated
 
         data.push(row);
       }
@@ -348,13 +338,10 @@ export class TruckBreakDownService {
         row['histroyDeliveryTruck'] = breakDown['histroyDeliveryTruck'];
         row['historyDeliveryDriver'] = breakDown['historyDeliveryDriver'];
         row['piece'] = breakDown['piece'];
-        // console.log('itemsId to fetch: ', breakDown['truckBreakDownItemsId']); // #Debug
+
         row['answers'] = await this.getBreakDownItemsById(
           breakDown['truckBreakDownItemsId'],
         );
-        // row['carType'] = breakDown['type']; // depricated
-        // row['checkListStatus'] = breakDown['state']; // depricated
-        // row['breakDownStatus'] = breakDown['repairComment']; // depricated
 
         data.push(row);
       }
@@ -394,7 +381,7 @@ export class TruckBreakDownService {
         zone,
       );
 
-      // console.log('truckBreakDowns', truckBreakDowns.data);
+      console.log('truckBreakDowns', truckBreakDowns.data);
       workSheet.columns =
         COLUMNS_NAME_EXCEL_REPORT_TRANSPORT_AND_LOGISTIC_ADMIN;
       if (typeof truckBreakDowns.data == 'object') {

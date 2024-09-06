@@ -15,10 +15,14 @@ export function generateDataExcel(
   const fieldMustReadable = [
     'logisticConfirm',
     'transportComment',
-    'history',
+    'history', // ~= "historyDriverRegister" in rows ( name of field in schema)
     'state',
+    'historySendToRepair',
+    'historyReciveToRepair',
+    'historyDeliveryDriver',
   ];
   for (let row of rows) {
+    console.log(row);
     let recordExcel = {};
     for (let field of fieldsToExport) {
       //console.log('row[key]:', field); // #debug
@@ -36,14 +40,14 @@ function convertToReadable(value: string) {
   let replaceValue: string;
   // console.log('value pass to convert', value); // #DEBUG
   //hint; "'' + value "  convert boolean value to string
-  const valueStr = value.toString()
-  switch ( valueStr ) {
+  const valueStr = '' + value;
+  switch (valueStr) {
     case 'false':
-      replaceValue = HUMANREADABLE_EXCEL_VALUE.FALSE;
+      replaceValue = HUMANREADABLE_EXCEL_VALUE.false;
       break;
 
-    case 'TRUE':
-      replaceValue = HUMANREADABLE_EXCEL_VALUE.TRUE;
+    case 'true':
+      replaceValue = HUMANREADABLE_EXCEL_VALUE.true;
       break;
 
     case 'necessary':

@@ -42,4 +42,6 @@ export const COLUMNS_NAME_EXCEL_REPORT_CHECKLIST_UNDONE = [
   { header: 'کیلومتر', width: 20 },
   { header: 'مبایل راننده', width: 20 },
   { header: 'نوع قرارداد راننده', width: 20 },
+  { header: 'ساعت ثبت راننده', width: 20 },
+  { header: 'تاریخ ثبت راننده', width: 20 },
 ];

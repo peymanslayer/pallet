@@ -61,6 +61,24 @@ export class CheckListController {
     }
   }
 
+  @Get('/api/checklist/dailycheck/count')
+  async checkListDailyCount(
+    @Query('date') date: string,
+    @Query('done') done: string,
+    @Query('zone') zone: string,
+    @Res() response: Response,
+  ) {
+    try {
+      const res = await this.checkListService.dailyCheckCount(date, done, zone);
+      response
+        .status(res.status)
+        .json({ data: res.data, message: res.message });
+    } catch (err) {
+      console.log(err);
+      response.status(500).json(err);
+    }
+  }
+
   @Get('/api/checklist/export')
   async exportReportLogisticAdmin(
     @Res() response: Response,

@@ -5,8 +5,10 @@ import { CheckListProviders } from './check-list.provider';
 import { CheckListCommentProviders } from 'src/check-list-comment/check-list-comment.provider';
 import { TruckInfoProviders } from 'src/truck-info/truck-info.provider';
 import { AuthProviders } from 'src/auth/auth.provider';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
+  imports: [AuthModule],
   controllers: [CheckListController],
   providers: [
     CheckListService,

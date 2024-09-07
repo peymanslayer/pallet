@@ -15,6 +15,7 @@ import {
   COLUMNS_NAME_EXCEL_REPORT_CHECKLIST_UNDONE,
 } from 'src/static/fields-excelFile';
 import { generateDataExcel } from 'src/utility/export_excel';
+import { AuthService } from 'src/auth/services/auth.service';
 @Injectable()
 export class CheckListService {
   constructor(
@@ -26,6 +27,8 @@ export class CheckListService {
     private readonly truckInfoRepository: typeof TruckInfo,
     @Inject('AUTH_REPOSITORY')
     private readonly authRepository: typeof Auth,
+
+    private readonly authService: AuthService,
   ) {}
   async insertCheckList(body: Object) {
     const checkList = {};
@@ -267,10 +270,10 @@ export class CheckListService {
         idDriversDone.push(element.dataValues['userId']);
         driversDone.push(element.dataValues);
       });
-      // console.log('res: ', idDriversDone); // #DEBUG
+      console.log('res: ', idDriversDone); // #DEBUG
       // console.log('driverDone: ', driversDone); // #DEBUG
 
-      // comment: fetch data of driver's unregister daily checkList
+      // comment: fetch data of driver's unregister || register daily checkList
       if (done === 'true') {
         idDrivers = idDriversDone;
         message = 'list of driver done check list today';
@@ -305,7 +308,7 @@ export class CheckListService {
         },
       });
       for (let item of drivers) {
-        // console.log('driver result: ', item.dataValues); // debug
+        console.log('driver result: ', item.dataValues); // debug
         let checkInfo = {};
         Object.assign(checkInfo, item.dataValues);
 
@@ -349,6 +352,67 @@ export class CheckListService {
         status: 200,
         message: message,
       };
+    }
+  }
+
+  async dailyCheckCount(date: string, done: string, zone: string) {
+    try {
+      let where = {};
+      let filterZone = {};
+      let idDriversDone = [];
+      let driversIdInSameZone: Auth[] = [];
+      let usersIdInSameZone = [];
+      let countCheckList: number;
+      let message: string;
+
+      if (date) where['history'] = date;
+
+      if (zone) {
+        driversIdInSameZone = await this.getUsersSameZone(
+          zone,
+          'companyDriver',
+          ['id'],
+        );
+        driversIdInSameZone.forEach((user) => {
+          usersIdInSameZone.push(user.dataValues['id']);
+        });
+        // console.log('userIdInSameZone  :', usersIdInSameZone); // #DEBUG
+        where['userId'] = { [Op.in]: usersIdInSameZone };
+        filterZone['zone'] = zone;
+      }
+      // console.log('where :', where); // #DEBUG
+
+      // all zone and unique zone; register check list in "date"
+      const { rows, count } = await this.checkListRepository.findAndCountAll({
+        where: { ...where },
+      });
+
+      countCheckList = count;
+      message = "count of register check list by driver's ";
+
+      // get id drivers register daily checklist for compute unregister driver
+      rows.forEach((element) => {
+        idDriversDone.push(element.dataValues['userId']);
+      });
+
+      if (done === 'false') {
+        const { rows, count } = await this.authRepository.findAndCountAll({
+          where: {
+            [Op.and]: {
+              role: 'companyDriver',
+              id: { [Op.notIn]: idDriversDone },
+              ...filterZone,
+            },
+          },
+        });
+
+        countCheckList = count;
+        message = 'count of unregister check list  ';
+      }
+
+      return { status: 200, data: countCheckList, message: message };
+    } catch (err) {
+      console.log(err);
     }
   }
 
@@ -412,5 +476,13 @@ export class CheckListService {
     });
 
     return { status: 200, message: 'reomve checkList successfully' };
+  }
+
+  async getUsersSameZone(
+    zone: string,
+    role: string,
+    attributes: Array<string> = [],
+  ) {
+    return await this.authService.userSameZone(zone, role, attributes);
   }
 }

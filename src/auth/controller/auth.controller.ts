@@ -20,6 +20,7 @@ import { diskStorage } from 'multer';
 import { DeleteUserDto } from '../dtos/deleteUser';
 import { UpdateDto } from '../dtos/update.dto';
 import { FindUserDto } from '../dtos/findUser';
+import { listOfZone } from 'src/static/enum';
 
 @Controller()
 export class AuthController {
@@ -49,6 +50,14 @@ export class AuthController {
     }
   }
 
+  @Get('/api/auth/zone') async listZone(@Res() response: Response) {
+    try {
+      response.status(200).json({ message: 'list of zone', data: listOfZone });
+    } catch (err) {
+      console.log(err);
+      response.status(500).json('internal server Error');
+    }
+  }
   @Post('/api/signup')
   async signUp(@Body() body: SignUpDto, @Res() response: Response) {
     try {

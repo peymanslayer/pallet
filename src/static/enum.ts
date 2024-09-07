@@ -123,3 +123,12 @@ export enum HUMANREADABLE_EXCEL_VALUE {
   immediately = 'خودرو خاموش جهت اعزام به تعمیر گاه', // transport admin comment
   notRegister = 'اطلاعاتی ثبت نشده است',
 }
+
+export const listOfZone = [
+  'تهران',
+  'گیلان',
+  'مازندران',
+  'همدان',
+  'خراسان',
+  'رفسنجان',
+];

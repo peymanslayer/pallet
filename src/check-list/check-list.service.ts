@@ -364,6 +364,7 @@ export class CheckListService {
       let usersIdInSameZone = [];
       let countCheckList: number;
       let message: string;
+      let data = {};
 
       if (date) where['history'] = date;
 
@@ -383,34 +384,32 @@ export class CheckListService {
       // console.log('where :', where); // #DEBUG
 
       // all zone and unique zone; register check list in "date"
-      const { rows, count } = await this.checkListRepository.findAndCountAll({
+      const userRegister = await this.checkListRepository.findAndCountAll({
         where: { ...where },
       });
 
-      countCheckList = count;
+      data['countRegister'] = userRegister.count;
       message = "count of register check list by driver's ";
 
       // get id drivers register daily checklist for compute unregister driver
-      rows.forEach((element) => {
+      userRegister.rows.forEach((element) => {
         idDriversDone.push(element.dataValues['userId']);
       });
 
-      if (done === 'false') {
-        const { rows, count } = await this.authRepository.findAndCountAll({
-          where: {
-            [Op.and]: {
-              role: 'companyDriver',
-              id: { [Op.notIn]: idDriversDone },
-              ...filterZone,
-            },
+      const userNotRegister = await this.authRepository.findAndCountAll({
+        where: {
+          [Op.and]: {
+            role: 'companyDriver',
+            id: { [Op.notIn]: idDriversDone },
+            ...filterZone,
           },
-        });
+        },
+      });
 
-        countCheckList = count;
-        message = 'count of unregister check list  ';
-      }
+      data['countUnRegister'] = userNotRegister.count;
+      message = 'count of unregister check list  ';
 
-      return { status: 200, data: countCheckList, message: message };
+      return { status: 200, data: data, message: message };
     } catch (err) {
       console.log(err);
     }

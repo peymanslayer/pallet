@@ -43,4 +43,7 @@ export class Auth extends Model {
 
   @Column
   zoneCode: string;
+
+  @Column
+  company: string;
 }

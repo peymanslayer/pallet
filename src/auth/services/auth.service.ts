@@ -43,6 +43,8 @@ export class AuthService {
           'mobile',
           'personelCode',
           'shopCode',
+          'zone',
+          'company',
         ],
         where: { role: { [Op.ne]: 'superAdmin' } },
         limit: 100,

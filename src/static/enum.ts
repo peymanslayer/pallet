@@ -52,18 +52,7 @@ export const FIELDS_OF_EXCEL_REPORT_TRANSPORT_AND_LOGISTIC_ADMIN = [
   'historyRepairComment',
   'logisticComment',
 ];
-//############################## response of checklist of done:
-//"name": "ميثم سميعي خطيباني ",
-// "role": "companyDriver",
-// "mobile": null,
-// "hours": "5:57",
-// "history": "2024/9/3",
-// "driverId": 326,
-// "lastCarLife": "316190",
-// "state": "medium",
-// "carNumber": "112ع88",
-// "type": null,
-// "zone": "گیلان",
+
 export const FIELDS_OF_EXCEL_CHECKLIST_DONE = [
   'name',
   'zone',
@@ -76,17 +65,6 @@ export const FIELDS_OF_EXCEL_CHECKLIST_DONE = [
   'history',
 ];
 
-//############################### response of chcecklist undone:
-// "name": "وحيد اسکندري خليلاني",
-//             "role": "companyDriver",
-//             "mobile": null,
-//             "driverId": 327,
-//             "lastCarLife": "404239",
-//             "state": "weak",
-//             "carNumber": "236ع66",
-//             "type": null,
-//             "zone": "گیلان",
-//             "zoneCode": null,
 export const FIELDS_OF_EXCEL_CHECKLIST_UNDONE = [
   'name',
   'zone',
@@ -131,4 +109,17 @@ export const listOfZone = [
   'همدان',
   'خراسان',
   'رفسنجان',
+  'اصفهان',
+  'اهواز',
+  'بندرعباس',
+  'بوشهر',
+  'تبريز',
+  'رشت',
+  'زاهدان',
+  'شيراز',
+  'كرمانشاه',
+  'کرمان',
+  'گرگان',
+  'مشهد',
+  'يزد',
 ];

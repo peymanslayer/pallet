@@ -294,9 +294,9 @@ export class CheckListService {
         idDrivers = idDriversUndone;
         message = 'list of driver undone check list today';
       }
-      // comment; driver target to response
       const filterZone = {};
       if (zone) filterZone['zone'] = zone;
+      //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% comment; driver target to response
       const drivers = await this.authRepository.findAll({
         attributes: ['id', 'name', 'role', 'mobile', 'company'],
         where: {
@@ -308,7 +308,7 @@ export class CheckListService {
         },
       });
       for (let item of drivers) {
-        console.log('driver result: ', item.dataValues); // debug
+        // console.log('driver result: ', item.dataValues); // debug/
         let checkInfo = {};
         Object.assign(checkInfo, item.dataValues);
 
@@ -316,6 +316,8 @@ export class CheckListService {
         if (done === 'true') {
           // console.log('driversDone : ', driversDone); // debug
           for (let done of driversDone) {
+            checkInfo['answers'] = (await this.getAnswers(done['id'])).data;
+
             if (done['userId'] === item['id']) {
               checkInfo['hours'] = done['hours'];
               checkInfo['history'] = done['history'];
@@ -337,11 +339,6 @@ export class CheckListService {
           checkInfo['state'] = null;
           checkInfo['hours'] = null;
           checkInfo['history'] = null;
-        }
-
-        // comment: add answer's of driver to response
-        for (let done of driversDone) {
-          checkInfo['answers'] = (await this.getAnswers(done['id'])).data;
         }
 
         data.push(checkInfo);

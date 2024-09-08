@@ -298,7 +298,7 @@ export class CheckListService {
       const filterZone = {};
       if (zone) filterZone['zone'] = zone;
       const drivers = await this.authRepository.findAll({
-        attributes: ['id', 'name', 'role', 'mobile'],
+        attributes: ['id', 'name', 'role', 'mobile', 'company'],
         where: {
           [Op.and]: {
             role: 'companyDriver',

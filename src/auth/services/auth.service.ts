@@ -47,6 +47,7 @@ export class AuthService {
           'company',
         ],
         where: { role: { [Op.ne]: 'superAdmin' } },
+        order: [['id', 'DESC']],
         limit: 100,
       });
 

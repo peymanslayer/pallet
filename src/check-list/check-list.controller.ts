@@ -23,6 +23,7 @@ export class CheckListController {
     @Query('beforeHistory') beforeHistory: string,
     @Query('afterHistory') afterHistory: string,
     @Query('zone') zone: string,
+    @Query('company') company: string,
     @Res() response: Response,
   ) {
     try {
@@ -33,6 +34,7 @@ export class CheckListController {
         beforeHistory,
         afterHistory,
         zone,
+        company,
       );
       response
         .status(res.status)
@@ -86,6 +88,7 @@ export class CheckListController {
     @Query('afterHistory') afterHistory: string,
     @Query('zone') zone: string,
     @Query('done') done: string,
+    @Query('company') company: string,
   ) {
     try {
       const exportExcel = await this.checkListService.exportReport(
@@ -93,6 +96,7 @@ export class CheckListController {
         afterHistory,
         zone,
         done,
+        company,
       );
       response.setHeader(
         'Content-Disposition',

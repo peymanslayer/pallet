@@ -203,6 +203,7 @@ export class CheckListService {
     beforeHistory: string,
     afterHistory: string,
     zone: string,
+    company: string,
   ) {
     let check = false; // comment: default not register daily check
     // comment: variable's of daily check in repair panel
@@ -295,15 +296,17 @@ export class CheckListService {
         message = 'list of driver undone check list today';
       }
       // comment; driver target to response
-      const filterZone = {};
-      if (zone) filterZone['zone'] = zone;
+      const filter = {};
+      if (zone) filter['zone'] = zone;
+      if (company) filter['company'] = company;
+
       const drivers = await this.authRepository.findAll({
         attributes: ['id', 'name', 'role', 'mobile', 'company'],
         where: {
           [Op.and]: {
             role: 'companyDriver',
             id: { [Op.in]: idDrivers },
-            ...filterZone,
+            ...filter,
           },
         },
       });
@@ -358,7 +361,7 @@ export class CheckListService {
   async dailyCheckCount(date: string, done: string, zone: string) {
     try {
       let where = {};
-      let filterZone = {};
+      let filter = {};
       let idDriversDone = [];
       let driversIdInSameZone: Auth[] = [];
       let usersIdInSameZone = [];
@@ -379,7 +382,7 @@ export class CheckListService {
         });
         // console.log('userIdInSameZone  :', usersIdInSameZone); // #DEBUG
         where['userId'] = { [Op.in]: usersIdInSameZone };
-        filterZone['zone'] = zone;
+        filter['zone'] = zone;
       }
       // console.log('where :', where); // #DEBUG
 
@@ -401,7 +404,7 @@ export class CheckListService {
           [Op.and]: {
             role: 'companyDriver',
             id: { [Op.notIn]: idDriversDone },
-            ...filterZone,
+            ...filter,
           },
         },
       });
@@ -420,6 +423,7 @@ export class CheckListService {
     afterHistory: string,
     zone: string,
     done: string,
+    company: string,
   ) {
     try {
       const book = new Workbook();
@@ -434,6 +438,7 @@ export class CheckListService {
         beforeHistory,
         afterHistory,
         zone,
+        company,
       );
 
       // console.log('checkLists', checkLists.data); // #DEBUG

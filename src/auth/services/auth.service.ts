@@ -609,6 +609,8 @@ export class AuthService {
             'mobile',
             'personelCode',
             'shopCode',
+            'zone',
+            'company'
           ],
           limit: 50,
         });

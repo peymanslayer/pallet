@@ -259,7 +259,7 @@ export class CheckListService {
 
       if (date) where['history'] = date;
 
-      console.log('where cluase : \n', where); // #DEBUG
+      // console.log('where cluase : \n', where); // #DEBUG
 
       const checkListRegisterByDriver = await this.checkListRepository.findAll({
         where: { ...where },
@@ -301,7 +301,7 @@ export class CheckListService {
       if (company) filter['company'] = company;
 
       const drivers = await this.authRepository.findAll({
-        attributes: ['id', 'name', 'role', 'mobile', 'company'],
+        attributes: ['id', 'name', 'role', 'mobile', 'company', 'zone'],
         where: {
           [Op.and]: {
             role: 'companyDriver',
@@ -330,6 +330,7 @@ export class CheckListService {
         }
         const truckInfo = await this.truckInfoRepository.findOne({
           where: { driverId: item.dataValues.id },
+          attributes: ['lastCarLife', 'carNumber', 'type', 'state'],
         });
         // comment:  handled ; if not exist companyDriver in truckInfo table
         if (truckInfo) {

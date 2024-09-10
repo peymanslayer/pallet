@@ -167,6 +167,7 @@ export class AuthService {
         truckInfo.carNumber = Body.carNumber;
         truckInfo['type'] = Body.type;
         truckInfo['driverId'] = createUser.id;
+        truckInfo['zone'] = Body.zone;
 
         await this.truckInfoService.add(truckInfo);
       }
@@ -610,7 +611,7 @@ export class AuthService {
             'personelCode',
             'shopCode',
             'zone',
-            'company'
+            'company',
           ],
           limit: 50,
         });

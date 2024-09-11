@@ -50,6 +50,8 @@ export class TruckBreakDownService {
       count: breakDowns.count,
     };
   }
+  // query: "repairDone" ---> list of "Activity in Done state" //#Hint
+  // query: "transportComment" ---> list of "Activity in Doing state" // #Hint
   // list of dashboard role "transportAdmin" // #Hint
   async transportUserGetAll(
     transportComment: string,
@@ -75,10 +77,18 @@ export class TruckBreakDownService {
       if (!beforeHistory) {
         beforeHistory = '2023/0/0';
       }
-      filter['historyDriverRegister'] = {
-        [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
-      };
+      // comment; handle filter date on "historyDeliveryDriver" instead "historyDriverRegister" in "ActivityDone" list
+      if (repairDone == undefined) {
+        filter['historyDriverRegister'] = {
+          [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
+        };
+      } else {
+        filter['historyDeliveryDriver'] = {
+          [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
+        };
+      }
     }
+
     if (carNumber) {
       filter['carNumber'] = carNumber;
     }
@@ -90,7 +100,6 @@ export class TruckBreakDownService {
             transportComment: { [Op.ne]: null },
             historyReciveToRepair: { [Op.eq]: null },
             logisticConfirm: { [Op.ne]: false },
-            // driverId: { [Op.in]: driversId },
             ...filter,
           },
         },
@@ -100,6 +109,7 @@ export class TruckBreakDownService {
     }
     // get list of "Activity done"
     else if (repairDone === 'true') {
+      // console.log('filter: ', filter); // #DEBUG
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {
           [Op.and]: {
@@ -274,17 +284,6 @@ export class TruckBreakDownService {
         order: [['id', 'DESC']],
         limit: 20,
       });
-      // get list of "Activity done"
-      // } else if (reciveToRepair === 'true') {
-      //   breakDowns = await this.truckBreakDownRepository.findAndCountAll({
-      //     where: {
-      //       [Op.and]: {
-      //         historyReciveToRepair: { [Op.ne]: null },
-      //         ...filter,
-      //       },
-      //     },
-      //     order: [['id', 'DESC']],
-      //   });
     } else if (repairDone === 'true') {
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {

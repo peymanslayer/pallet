@@ -257,9 +257,15 @@ export class TruckBreakDownService {
       if (!beforeHistory) {
         beforeHistory = '2023/0/0';
       }
-      filterByDateOrCarNumber['historyDriverRegister'] = {
-        [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
-      };
+      if (repairDone == undefined) {
+        filterByDateOrCarNumber['historyDriverRegister'] = {
+          [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
+        };
+      } else {
+        filterByDateOrCarNumber['historyDeliveryDriver'] = {
+          [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
+        };
+      }
     }
     if (carNumber) {
       filterByDateOrCarNumber['carNumber'] = carNumber;

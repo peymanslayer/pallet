@@ -465,19 +465,38 @@ export class CheckListService {
     }
   }
   async removeCheckList(id: number) {
-    const removeCheckList = await this.checkListRepository.destroy({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      const checklistToDelete = await this.checkListRepository.findOne({
+        where: { id: id },
+      });
+      const removeCheckList = await this.checkListRepository.destroy({
+        where: {
+          id: id,
+        },
+      });
 
-    const removeComment = await this.checkListCommentRepository.destroy({
-      where: {
-        checkListId: id,
-      },
-    });
+      const removeComment = await this.checkListCommentRepository.destroy({
+        where: {
+          checkListId: id,
+        },
+      });
 
-    return { status: 200, message: 'reomve checkList successfully' };
+      const perviousCheckListOfUser = await this.checkListRepository.findOne({
+        where: {
+          userId: checklistToDelete.userId,
+        },
+        order: [['id', 'DESC']],
+      });
+
+      const updateLastCarLife = await this.truckInfoRepository.update(
+        { lastCarLife: perviousCheckListOfUser.answer_0.toString() },
+        { where: { driverId: checklistToDelete.userId } },
+      );
+
+      return { status: 200, message: 'reomve checkList successfully' };
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   async getUsersSameZone(

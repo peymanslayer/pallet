@@ -15,9 +15,12 @@ import { TruckBreakDownModule } from './truck-break-down/truck-break-down.module
 import { TruckBreakDownItemsModule } from './truck-break-down-items/truck-break-down-items.module';
 import { ChatModule } from './chat/chat.module';
 import { TruckInfoModule } from './truck-info/truck-info.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
+    AppService,
     DatabaseModule,
     AuthModule,
     OrderModule,
@@ -31,7 +34,7 @@ import { TruckInfoModule } from './truck-info/truck-info.module';
     ChatModule,
     TruckInfoModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [],
 })
 export class AppModule {}

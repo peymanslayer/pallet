@@ -57,10 +57,10 @@ export class TruckBreakDownService {
     transportComment: string,
     repairDone: string,
     count: string,
-    beforeHistory: string,
-    afterHistory: string,
-    carNumber: string,
-    zone: string,
+    beforeHistory?: string,
+    afterHistory?: string,
+    carNumber?: string,
+    zone?: string,
   ) {
     let filter = {}; // filter by "date" or "carNumber"
     let data = [];

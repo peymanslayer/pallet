@@ -14,5 +14,6 @@ import { AuthModule } from 'src/auth/auth.module';
     ...TruckBreakDownItemsProviders,
     ...TruckInfoProviders,
   ],
+  exports: [TruckBreakDownService],
 })
 export class TruckBreakDownModule {}

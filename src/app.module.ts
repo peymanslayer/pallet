@@ -17,10 +17,11 @@ import { ChatModule } from './chat/chat.module';
 import { TruckInfoModule } from './truck-info/truck-info.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { CheckListService } from './check-list/check-list.service';
+import { TruckBreakDownService } from './truck-break-down/truck-break-down.service';
 
 @Module({
   imports: [
-    AppService,
     DatabaseModule,
     AuthModule,
     OrderModule,
@@ -35,6 +36,6 @@ import { AppService } from './app.service';
     TruckInfoModule,
   ],
   controllers: [AppController],
-  providers: [],
+  providers: [AppService],
 })
 export class AppModule {}

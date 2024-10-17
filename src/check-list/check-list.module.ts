@@ -17,5 +17,6 @@ import { AuthModule } from 'src/auth/auth.module';
     ...TruckInfoProviders,
     ...AuthProviders,
   ],
+  exports: [CheckListService],
 })
 export class CheckListModule {}

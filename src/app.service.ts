@@ -49,6 +49,13 @@ export class AppService {
           today,
           today,
         );
+
+      return {
+        checklist: checkListStatistic.data,
+        truckbreakdownNecessary: necessaryTruckBreakDownDaily.data,
+        truckbreakdownInprogress: inprogressTruckBreakDownDaily.data,
+        truckbreakdownDone: doneTruckBreakDownDaily.data,
+      };
       // PND: update result of calculates in "memcache"
       //PND: store last 7 days
     } catch (err) {

@@ -1,13 +1,16 @@
-import { HttpException, Injectable } from '@nestjs/common';
-import { HttpStatusCode } from 'axios';
+import { Controller, Get, Res } from '@nestjs/common';
 import { AppService } from './app.service';
+import { Response } from 'express';
 
-@Injectable()
+@Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
-  async Statistics() {
+
+  @Get('api/statistics')
+  async Statistics(@Res() response: Response) {
     try {
-      const res = await this.Statistics();
+      return response.send(await this.appService.calculateStatistics());
+
       //PND: return from memcache
     } catch (err) {
       console.log(err);

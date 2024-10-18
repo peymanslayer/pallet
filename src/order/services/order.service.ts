@@ -741,8 +741,8 @@ export class OrderService {
     }
   }
 
-  getTime() {
-    const date = new Date();
+  getTime(idealDate?: Date) {
+    const date = idealDate? idealDate : new Date();
     console.log('date in getTime: ', date);
     const time = date.getFullYear();
     // sample format of date: "2022/2/22"

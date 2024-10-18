@@ -2,6 +2,6 @@
   "highlight-matching-tag.customEmptyElements": null,
   "workbench.colorCustomizations": {},
   "editor.fontSize": 13,
-  "editor.fontFamily": "'Cascadia Code'",
-  "cSpell.words": ["finded", "hashpassword", "Requset", "truckbreakdown"]
+  "cSpell.words": ["finded", "hashpassword", "Requset", "truckbreakdown"],
+  "prettier.printWidth": 60
 }

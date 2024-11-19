@@ -60,6 +60,7 @@ export class TruckBreakDownService {
     beforeHistory?: string,
     afterHistory?: string,
     carNumber?: string,
+    company?: string,
     zone?: string,
   ) {
     let filter = {}; // filter by "date" or "carNumber"
@@ -91,6 +92,11 @@ export class TruckBreakDownService {
 
     if (carNumber) {
       filter['carNumber'] = carNumber;
+    }
+
+    if (company) {
+      const usersInCompany = await this.getUserIdListByCompanyName(company);
+      filter['driverId'] = { [Op.in]: usersInCompany };
     }
 
     if (transportComment === 'true') {
@@ -187,6 +193,7 @@ export class TruckBreakDownService {
     beforeHistory: string,
     afterHistory: string,
     carNumber: string,
+    company: string,
     zone: string,
   ) {
     try {
@@ -202,6 +209,7 @@ export class TruckBreakDownService {
         beforeHistory,
         afterHistory,
         carNumber,
+        company,
         zone,
       );
 
@@ -239,9 +247,10 @@ export class TruckBreakDownService {
     beforeHistory: string,
     afterHistory: string,
     carNumber: string,
+    company: string,
     zone: string,
   ) {
-    let filterByDateOrCarNumber = {}; // filter by "date" or "carNumber"
+    let filter = {}; // filter by "date" or "carNumber"
     let data = [];
     let countList: number;
     let breakDowns: {
@@ -258,17 +267,22 @@ export class TruckBreakDownService {
         beforeHistory = '2023/0/0';
       }
       if (repairDone == undefined) {
-        filterByDateOrCarNumber['historyDriverRegister'] = {
+        filter['historyDriverRegister'] = {
           [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
         };
       } else {
-        filterByDateOrCarNumber['historyDeliveryDriver'] = {
+        filter['historyDeliveryDriver'] = {
           [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
         };
       }
     }
     if (carNumber) {
-      filterByDateOrCarNumber['carNumber'] = carNumber;
+      filter['carNumber'] = carNumber;
+    }
+
+    if (company) {
+      const usersInCompany = await this.getUserIdListByCompanyName(company);
+      filter['driverId'] = { [Op.in]: usersInCompany };
     }
 
     const driversInZone = await this.getUsersSameZone(zone, 'companyDriver');
@@ -284,7 +298,7 @@ export class TruckBreakDownService {
             logisticConfirm: { [Op.eq]: true },
             historyReciveToRepair: { [Op.eq]: null },
             driverId: { [Op.in]: driversId },
-            ...filterByDateOrCarNumber,
+            ...filter,
           },
         },
         order: [['id', 'DESC']],
@@ -298,7 +312,7 @@ export class TruckBreakDownService {
             transportComment: { [Op.in]: ['necessary', 'immediately'] },
             historyDeliveryDriver: { [Op.ne]: null },
             driverId: { [Op.in]: driversId },
-            ...filterByDateOrCarNumber,
+            ...filter,
           },
         },
         order: [['id', 'DESC']],
@@ -312,7 +326,7 @@ export class TruckBreakDownService {
           [Op.and]: {
             logisticConfirm: { [Op.eq]: false },
             driverId: { [Op.in]: driversId },
-            ...filterByDateOrCarNumber,
+            ...filter,
           },
         },
         order: [['id', 'DESC']],
@@ -367,6 +381,7 @@ export class TruckBreakDownService {
     beforeHistory: string,
     afterHistory: string,
     carNumber: string,
+    company: string,
     zone: string,
   ) {
     try {
@@ -383,6 +398,7 @@ export class TruckBreakDownService {
         beforeHistory,
         afterHistory,
         carNumber,
+        company,
         zone,
       );
 
@@ -419,6 +435,7 @@ export class TruckBreakDownService {
     beforeHistory: string,
     afterHistory: string,
     carNumber: string,
+    company: string,
   ) {
     let filter = {}; // filter by "date" or "carNumber"
     let data = [];
@@ -440,6 +457,11 @@ export class TruckBreakDownService {
     }
     if (carNumber) {
       filter['carNumber'] = carNumber;
+    }
+
+    if (company) {
+      const usersInCompany = await this.getUserIdListByCompanyName(company);
+      filter['driverId'] = { [Op.in]: usersInCompany };
     }
 
     // get list of  "Delivery to repair"
@@ -749,5 +771,9 @@ export class TruckBreakDownService {
     attributes: Array<string> = [],
   ) {
     return await this.authService.userSameZone(zone, role, attributes);
+  }
+
+  async getUserIdListByCompanyName(companyName: string) {
+    return await this.authService.getUsersByCompanyName(companyName);
   }
 }

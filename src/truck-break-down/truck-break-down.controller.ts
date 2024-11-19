@@ -70,6 +70,7 @@ export class TruckBreakDownController {
     @Query('beforeHistory') beforeHistory: string,
     @Query('afterHistory') afterHistory: string,
     @Query('carNumber') carNumber: string,
+    @Query('company') company: string,
     @Query('transportComment') transportComment: string,
     @Query('repairDone') repairDone: string,
     @Query('count') count: string,
@@ -83,6 +84,7 @@ export class TruckBreakDownController {
         beforeHistory,
         afterHistory,
         carNumber,
+        company,
         zone,
       );
       if (count) {
@@ -102,6 +104,7 @@ export class TruckBreakDownController {
     @Query('beforeHistory') beforeHistory: string,
     @Query('afterHistory') afterHistory: string,
     @Query('carNumber') carNumber: string,
+    @Query('company') company: string,
     @Query('transportComment') transportComment: string,
     @Query('repairDone') repairDone: string,
     @Query('count') count: string,
@@ -116,6 +119,7 @@ export class TruckBreakDownController {
           beforeHistory,
           afterHistory,
           carNumber,
+          company,
           zone,
         );
       response.setHeader(
@@ -137,6 +141,7 @@ export class TruckBreakDownController {
     @Query('beforeHistory') beforeHistory: string,
     @Query('afterHistory') afterHistory: string,
     @Query('carNumber') carNumber: string,
+    @Query('company') company: string,
     @Query('logisticComment') logisticComment: string,
     @Query('repairDone') repairDone: string,
     @Query('historyReciveToRepair') reciveToRepair: string,
@@ -152,6 +157,7 @@ export class TruckBreakDownController {
         beforeHistory,
         afterHistory,
         carNumber,
+        company,
         zone,
       );
       if (count) {
@@ -171,6 +177,7 @@ export class TruckBreakDownController {
     @Query('beforeHistory') beforeHistory: string,
     @Query('afterHistory') afterHistory: string,
     @Query('carNumber') carNumber: string,
+    @Query('company') company: string,
     @Query('logisticComment') logisticComment: string,
     @Query('repairDone') repairDone: string,
     @Query('historyReciveToRepair') reciveToRepair: string,
@@ -187,6 +194,7 @@ export class TruckBreakDownController {
           beforeHistory,
           afterHistory,
           carNumber,
+          company,
           zone,
         );
       response.setHeader(
@@ -209,6 +217,7 @@ export class TruckBreakDownController {
     @Query('beforeHistory') beforeHistory: string,
     @Query('afterHistory') afterHistory: string,
     @Query('carNumber') carNumber: string,
+    @Query('company') company: string,
     @Query('transportComment') transportComment: string,
     // @Query('historyReciveToRepair') reciveToRepair: string, // not used
     @Query('deliveryDriver') deliveryDriver: string,
@@ -223,6 +232,7 @@ export class TruckBreakDownController {
         beforeHistory,
         afterHistory,
         carNumber,
+        company,
       );
       if (count) {
         response.status(res.status).json({ data: res.data });

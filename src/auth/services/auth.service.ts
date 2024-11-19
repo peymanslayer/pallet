@@ -4,7 +4,6 @@ import { JwtService } from '@nestjs/jwt';
 import { SignUpDto } from '../dtos/signUp.dto';
 import { Auth } from '../auth.entity';
 import { DriverService } from 'src/driver/services/driver.service';
-import { Driver } from 'src/driver/driver.entity';
 import { StockService } from 'src/ReceiveStock/services/stock.service';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Sequelize } from 'sequelize';
@@ -771,5 +770,18 @@ export class AuthService {
       },
       ...attribute,
     });
+  }
+
+  async getUsersByCompanyName(companyName: string) {
+    try {
+      return await this.authRepository.findAll({
+        attributes: ['id'],
+        where: {
+          company: companyName,
+        },
+      });
+    } catch (err) {
+      console.log(err);
+    }
   }
 }

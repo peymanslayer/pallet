@@ -257,8 +257,9 @@ export class TruckBreakDownService {
       rows: TruckBreakDown[];
       count: number;
     };
-    const driversId = [];
-
+    const usersIdInSameZone = [];
+    const usersIdInCompany = [];
+    let usersIdFilter = [];
     if (beforeHistory || afterHistory) {
       if (!afterHistory) {
         afterHistory = '2400/0/0';
@@ -280,15 +281,27 @@ export class TruckBreakDownService {
       filter['carNumber'] = carNumber;
     }
 
-    if (company) {
-      const usersInCompany = await this.getUserIdListByCompanyName(company);
-      filter['driverId'] = { [Op.in]: usersInCompany };
-    }
-
     const driversInZone = await this.getUsersSameZone(zone, 'companyDriver');
     driversInZone.forEach((driver) => {
-      driversId.push(driver.dataValues['id']);
+      usersIdInSameZone.push(driver.dataValues['id']);
     });
+
+    if (company) {
+      const filterUserByCompany =
+        await this.getUserIdListByCompanyName(company);
+
+      filterUserByCompany.forEach((driver) => {
+        usersIdInCompany.push(driver.dataValues['id']);
+      });
+      usersIdFilter = usersIdInSameZone.filter((item) => {
+        return usersIdInCompany.includes(item);
+      });
+    }
+
+    usersIdFilter.push(...usersIdInSameZone);
+
+    console.log('usersIdFilter in just same zone:', usersIdFilter);
+
     // console.log('DIIZ', driversId); // #Debug
     // get list of  "Activity in Progress"
     if (logisticComment === 'true') {
@@ -297,7 +310,7 @@ export class TruckBreakDownService {
           [Op.and]: {
             logisticConfirm: { [Op.eq]: true },
             historyReciveToRepair: { [Op.eq]: null },
-            driverId: { [Op.in]: driversId },
+            driverId: { [Op.in]: usersIdFilter },
             ...filter,
           },
         },
@@ -311,7 +324,7 @@ export class TruckBreakDownService {
             logisticConfirm: { [Op.ne]: false },
             transportComment: { [Op.in]: ['necessary', 'immediately'] },
             historyDeliveryDriver: { [Op.ne]: null },
-            driverId: { [Op.in]: driversId },
+            driverId: { [Op.in]: usersIdInSameZone },
             ...filter,
           },
         },
@@ -325,7 +338,7 @@ export class TruckBreakDownService {
         where: {
           [Op.and]: {
             logisticConfirm: { [Op.eq]: false },
-            driverId: { [Op.in]: driversId },
+            driverId: { [Op.in]: usersIdInSameZone },
             ...filter,
           },
         },

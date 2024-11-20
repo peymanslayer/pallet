@@ -775,7 +775,7 @@ export class AuthService {
   async getUsersByCompanyName(companyName: string) {
     try {
       return await this.authRepository.findAll({
-        attributes: ['id'],
+        // attributes: ['id'],
         where: {
           company: companyName,
         },

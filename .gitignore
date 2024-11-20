@@ -1,7 +1,9 @@
 # compiled output
 /dist
 /node_modules
-
+.vscode
+yarn.lock
+package-lock.json
 # Logs
 logs
 *.log

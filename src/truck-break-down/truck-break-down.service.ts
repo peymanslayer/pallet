@@ -286,6 +286,7 @@ export class TruckBreakDownService {
       usersIdInSameZone.push(driver.dataValues['id']);
     });
 
+    console.log('check set company: ', company);
     if (company) {
       const filterUserByCompany =
         await this.getUserIdListByCompanyName(company);
@@ -296,11 +297,12 @@ export class TruckBreakDownService {
       usersIdFilter = usersIdInSameZone.filter((item) => {
         return usersIdInCompany.includes(item);
       });
+    } else {
+      usersIdFilter.push(...usersIdInSameZone);
     }
-
-    usersIdFilter.push(...usersIdInSameZone);
-
-    console.log('usersIdFilter in just same zone:', usersIdFilter);
+    // console.log('userIdInCompany :', usersIdInCompany); // #DEBUG
+    // console.log('filterUserBy', driversInZone); // #DEBUG
+    // console.log('usersIdFilter in just same zone:', usersIdFilter); // #DEBUG
 
     // console.log('DIIZ', driversId); // #Debug
     // get list of  "Activity in Progress"
@@ -324,7 +326,7 @@ export class TruckBreakDownService {
             logisticConfirm: { [Op.ne]: false },
             transportComment: { [Op.in]: ['necessary', 'immediately'] },
             historyDeliveryDriver: { [Op.ne]: null },
-            driverId: { [Op.in]: usersIdInSameZone },
+            driverId: { [Op.in]: usersIdFilter },
             ...filter,
           },
         },
@@ -338,7 +340,7 @@ export class TruckBreakDownService {
         where: {
           [Op.and]: {
             logisticConfirm: { [Op.eq]: false },
-            driverId: { [Op.in]: usersIdInSameZone },
+            driverId: { [Op.in]: usersIdFilter },
             ...filter,
           },
         },

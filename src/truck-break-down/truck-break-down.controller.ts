@@ -160,6 +160,7 @@ export class TruckBreakDownController {
         company,
         zone,
       );
+
       if (count) {
         response.status(res.status).json({ data: res.data });
       } else {

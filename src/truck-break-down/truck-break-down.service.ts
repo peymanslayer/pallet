@@ -286,7 +286,6 @@ export class TruckBreakDownService {
       usersIdInSameZone.push(driver.dataValues['id']);
     });
 
-    console.log('check set company: ', company);
     if (company) {
       const filterUserByCompany =
         await this.getUserIdListByCompanyName(company);
@@ -454,6 +453,7 @@ export class TruckBreakDownService {
   ) {
     let filter = {}; // filter by "date" or "carNumber"
     let data = [];
+    const usersIdInCompany = [];
     let countList: number;
     let breakDowns: {
       rows: TruckBreakDown[];
@@ -476,7 +476,10 @@ export class TruckBreakDownService {
 
     if (company) {
       const usersInCompany = await this.getUserIdListByCompanyName(company);
-      filter['driverId'] = { [Op.in]: usersInCompany };
+      usersInCompany.forEach((driver) => {
+        usersIdInCompany.push(driver.dataValues['id']);
+      });
+      filter['driverId'] = { [Op.in]: usersIdInCompany };
     }
 
     // get list of  "Delivery to repair"

@@ -416,7 +416,7 @@ export class TruckBreakDownService {
         zone,
       );
 
-      console.log('truckBreakDowns', truckBreakDowns.data);
+      // console.log('truckBreakDowns', truckBreakDowns.data); // #DEBUG
       workSheet.columns =
         COLUMNS_NAME_EXCEL_REPORT_TRANSPORT_AND_LOGISTIC_ADMIN;
       if (typeof truckBreakDowns.data == 'object') {
@@ -576,7 +576,7 @@ export class TruckBreakDownService {
     const truckInfo = await this.truckInfoRepository.findOne({
       where: { driverId: breakDown.dataValues.driverId },
     });
-    console.log(Object.entries(truckInfo));
+    // console.log(Object.entries(truckInfo)); // #DEBUG
     data = breakDown.dataValues;
     data['dateDriver'] = breakDown.dataValues.historyDriverRegister;
     data['hoursDriver'] = breakDown.dataValues.hoursDriverRegister;

@@ -12,7 +12,6 @@ export class AppService {
     private readonly orderService: OrderService,
     private readonly truckBreakDownService: TruckBreakDownService,
   ) {}
-  //PND: cron implement for end of day test
 
   async calculateStatisticsOnDateCustomFormat(
     dateCustomFormat: string,
@@ -89,8 +88,6 @@ export class AppService {
       });
 
       statistics.lastDate = new Date();
-
-      // PND: update result of calculates in "memcache"
     } catch (err) {
       console.log(err);
       throw new HttpException(err, HttpStatusCode.InternalServerError);
@@ -129,10 +126,6 @@ export class AppService {
 
   shiftfirstestStatistics() {
     try {
-      //CHK: is correct this ?
-      // Object.keys(statistics).forEach((item) => {
-      //   statistics[item].shift();
-      // });
       statistics.checklistRegistered.shift();
       statistics.checklistUnRegistered.shift();
       statistics.requiredActivities.shift();

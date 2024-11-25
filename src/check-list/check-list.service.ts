@@ -114,10 +114,12 @@ export class CheckListService {
 
     return {
       status: 200,
-      data:
-        parseInt(res.dataValues.lastCarLife) < parseInt(newCarLife)
-          ? true
-          : false,
+      data: true,
+
+      // HIGH: bypass this check >>> handle after "carNumber" fixed <<<
+      // parseInt(res.dataValues.lastCarLife) < parseInt(newCarLife)
+      //   ? true
+      //   : false,
     };
   }
 

@@ -12,12 +12,6 @@ export class AppController {
       return response.send(
         await this.appService.calculateSevenLastDayStatistics(),
       );
-      //HIGH: 1.return direct "statisctics"
-      //HIGH: 2.calculate in first run
-      //HIGH: 3.update each count of event
-
-      //test
-      //PND: return from memcache
     } catch (err) {
       console.log(err);
     }

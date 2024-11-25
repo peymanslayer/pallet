@@ -104,7 +104,7 @@ export class CheckListService {
     }
     return lowest;
   }
-
+  // HIGH: checkCarLife , where -> carNumber
   async checkCarLifeMoreThanLast(driverId: number, newCarLife: string) {
     const res = await this.truckInfoRepository.findOne({
       where: {

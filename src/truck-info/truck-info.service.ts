@@ -1,11 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { TruckInfo } from './truck-info.entity';
 import { TruckInfoInsertDto } from './dto/truck-info.insert.dto';
+import { Auth } from 'src/auth/auth.entity';
+import { Sequelize, where } from 'sequelize';
+import { Equals } from 'sequelize-typescript';
 @Injectable()
 export class TruckInfoService {
   constructor(
     @Inject('TRUCKINFO_REPOSITORY')
     private truckInfoRepository: typeof TruckInfo,
+    @Inject('AUTH_REPOSITORY')
+    private authRepository: typeof Auth,
   ) {}
 
   async get(driverId: number) {
@@ -35,6 +40,47 @@ export class TruckInfoService {
           driverId: driverId,
         },
       });
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async getLogisticManagerDriverList(zone: string, company: string) {
+    try {
+      const result = [];
+      if (!zone) zone = '';
+      if (!company) company = '';
+
+      const truckInfos = await this.truckInfoRepository.findAll({
+        attributes: ['driverId', 'carNumber', 'zone'],
+        where: {
+          zone: zone,
+        },
+      });
+
+      for (let truckInfo of truckInfos) {
+        const data = {};
+        const auth = await this.authRepository.findOne({
+          attributes: ['personelCode', 'originalPassword', 'name', 'company'],
+          where: {
+            id: truckInfo.dataValues.driverId,
+          },
+        });
+
+        if (auth?.dataValues.company == company) {
+          Object.assign(data, truckInfo.dataValues);
+          Object.assign(data, auth.dataValues);
+        }
+
+        // if (auth) {
+        //   // console.log('data : ', auth.dataValues);
+        //   Object.assign(data, auth.dataValues);
+        // }
+        if (data['driverId']) result.push(data);
+      }
+
+      return { status: 200, data: result };
+      // return list include : "name", "pass", "personalCode", "carNumber", "zone", "company",
     } catch (err) {
       console.log(err);
     }

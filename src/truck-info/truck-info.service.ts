@@ -40,6 +40,8 @@ export class TruckInfoService {
           driverId: driverId,
         },
       });
+
+      return { status: 200, data: {}, message: 'update successfully' };
     } catch (err) {
       console.log(err);
     }
@@ -72,15 +74,10 @@ export class TruckInfoService {
           Object.assign(data, auth.dataValues);
         }
 
-        // if (auth) {
-        //   // console.log('data : ', auth.dataValues);
-        //   Object.assign(data, auth.dataValues);
-        // }
         if (data['driverId']) result.push(data);
       }
 
       return { status: 200, data: result };
-      // return list include : "name", "pass", "personalCode", "carNumber", "zone", "company",
     } catch (err) {
       console.log(err);
     }

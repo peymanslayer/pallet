@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Put, Query } from '@nestjs/common';
 import { TruckInfoService } from './truck-info.service';
 
 @Controller()
@@ -12,6 +12,19 @@ export class TruckInfoController {
         zone,
         company,
       );
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  @Put('/api/truckInfo/:driverId')
+  // MID: type for payload
+  async updateTruckInfo(
+    @Body() payload: any,
+    @Param('driverId') driverId: number,
+  ) {
+    try {
+      return await this.truckInfoService.update(driverId, payload);
     } catch (err) {
       console.log(err);
     }

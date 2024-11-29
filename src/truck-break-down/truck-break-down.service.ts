@@ -151,6 +151,11 @@ export class TruckBreakDownService {
         let row = {};
 
         breakDown = item.dataValues;
+
+        const carPiecesHistory = await this.getCarPiecesHistory(
+          breakDown['carNumber'],
+        );
+
         row['id'] = breakDown['id'];
         row['numberOfBreakDown'] = breakDown['numberOfBreakDown'];
         row['hours'] = breakDown['hoursDriverRegister'];
@@ -170,6 +175,7 @@ export class TruckBreakDownService {
         row['historyRepairComment'] = breakDown['historyRepairComment'];
 
         row['piece'] = breakDown['piece'];
+        row['piecesReplacementHistory'] = carPiecesHistory;
         // console.log('itemsId to fetch: ', breakDown['truckBreakDownItemsId']); // #Debug
         row['answers'] = await this.getBreakDownItemsById(
           breakDown['truckBreakDownItemsId'],
@@ -356,6 +362,11 @@ export class TruckBreakDownService {
         let row = {};
 
         breakDown = item.dataValues;
+
+        const carPiecesHistory = await this.getCarPiecesHistory(
+          breakDown['carNumber'],
+        );
+
         row['id'] = breakDown['id'];
         row['numberOfBreakDown'] = breakDown['numberOfBreakDown'];
         row['hours'] = breakDown['hoursDriverRegister'];
@@ -371,7 +382,7 @@ export class TruckBreakDownService {
         row['histroyDeliveryTruck'] = breakDown['histroyDeliveryTruck'];
         row['historyDeliveryDriver'] = breakDown['historyDeliveryDriver'];
         row['piece'] = breakDown['piece'];
-
+        row['piecesReplacementHistory'] = carPiecesHistory;
         row['answers'] = await this.getBreakDownItemsById(
           breakDown['truckBreakDownItemsId'],
         );
@@ -669,23 +680,22 @@ export class TruckBreakDownService {
 
   async getCarPiecesHistory(carNumber: string) {
     try {
-      const breakDownListByCarNumber =
-        await this.truckBreakDownRepository.findAll({
-          attributes: ['piece', 'carLife'],
-          where: {
-            logisticConfirm: { [Op.ne]: false },
-            transportComment: { [Op.in]: ['necessary', 'immediately'] },
-            historyDeliveryDriver: { [Op.ne]: null },
-            carNumber: carNumber,
-          },
-          order: [['id', 'DESC']],
-          // limit: 20,
-        });
-      return {
-        status: 200,
-        data: breakDownListByCarNumber,
-        count: breakDownListByCarNumber.length,
-      };
+      return await this.truckBreakDownRepository.findAll({
+        attributes: ['piece', 'carLife'],
+        where: {
+          // logisticConfirm: { [Op.ne]: false },
+          // transportComment: { [Op.in]: ['necessary', 'immediately'] },
+          // historyDeliveryDriver: { [Op.ne]: null },
+          carNumber: carNumber,
+        },
+        order: [['id', 'DESC']],
+        // limit: 20,
+      });
+      // return {
+      //   status: 200,
+      //   data: breakDownListByCarNumber,
+      //   count: breakDownListByCarNumber.length,
+      // };
     } catch (err) {
       console.log(err);
       throw new HttpException(

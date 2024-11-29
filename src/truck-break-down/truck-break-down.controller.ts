@@ -172,15 +172,16 @@ export class TruckBreakDownController {
     }
   }
 
-  @Get('/api/truckbreakdown/carPiecesHistory/:carNumber')
-  async getCarPiecesHistory(@Param('carNumber') carNumber: string) {
-    console.log('carNumber: ', carNumber);
-    try {
-      return await this.truckBreakDownService.getCarPiecesHistory(carNumber);
-    } catch (err) {
-      console.log(err);
-    }
-  }
+  // not use now - reserved
+  // @Get('/api/truckbreakdown/carPiecesHistory/:carNumber')
+  // async getCarPiecesHistory(@Param('carNumber') carNumber: string) {
+  //   console.log('carNumber: ', carNumber);
+  //   try {
+  //     return await this.truckBreakDownService.getCarPiecesHistory(carNumber);
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // }
 
   @Get('/api/truckbreakdown/logistic/export')
   async exportReportLogisticAdmin(

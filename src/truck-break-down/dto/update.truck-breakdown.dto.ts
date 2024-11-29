@@ -3,6 +3,8 @@ export class UpdateTruckBreakDownDto {
 
   transportComment: string;
 
+  transportCommentHistory?: string;
+
   historySendToRepair: string;
 
   historyReciveToRepair: string;

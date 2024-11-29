@@ -688,7 +688,7 @@ export class TruckBreakDownService {
   async getCarPiecesHistory(carNumber: string) {
     try {
       return await this.truckBreakDownRepository.findAll({
-        attributes: ['piece', 'carLife'],
+        attributes: ['piece', 'carLife', 'transportCommentHistory'],
         where: {
           // logisticConfirm: { [Op.ne]: false },
           // transportComment: { [Op.in]: ['necessary', 'immediately'] },
@@ -775,7 +775,10 @@ export class TruckBreakDownService {
   async update(id: number, body: UpdateTruckBreakDownDto) {
     //check and update notify state for driver
     const notify = {};
-    if (body.transportComment) notify['notifyTransportComment'] = true;
+    if (body.transportComment) {
+      notify['notifyTransportComment'] = true;
+      body.transportCommentHistory = this.getTime(new Date());
+    }
     if (body.repairmanComment) notify['notifyRepairmanComment'] = true;
 
     const res = await this.truckBreakDownRepository.update(
@@ -838,5 +841,17 @@ export class TruckBreakDownService {
 
   async getUserIdListByCompanyName(companyName: string) {
     return await this.authService.getUsersByCompanyName(companyName);
+  }
+  // it is copy from "order.service"
+  getTime(idealDate?: Date) {
+    const date = idealDate ? idealDate : new Date();
+    console.log('date in getTime: ', date);
+    const time = date.getFullYear();
+    // sample format of date: "2022/2/22"
+    // in first month of year return "0", therfor check and set "1" if "0"
+    // const month = date.getMonth() ? date.getMonth() : 1;
+    const month = date.getMonth() + 1; // TODO: check
+    const day = date.getDate();
+    return `${time}/${month}/${day}`;
   }
 }

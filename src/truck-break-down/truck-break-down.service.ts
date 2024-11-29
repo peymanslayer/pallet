@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { TruckBreakDownItems } from 'src/truck-break-down-items/truck-break-down-items.entity';
 import { TruckBreakDown } from 'src/truck-break-down/truck-break-down.entity';
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
@@ -665,6 +665,34 @@ export class TruckBreakDownService {
       data: data,
       count: data.length,
     };
+  }
+
+  async getCarPiecesHistory(carNumber: string) {
+    try {
+      const breakDownListByCarNumber =
+        await this.truckBreakDownRepository.findAll({
+          attributes: ['piece', 'carLife'],
+          where: {
+            logisticConfirm: { [Op.ne]: false },
+            transportComment: { [Op.in]: ['necessary', 'immediately'] },
+            historyDeliveryDriver: { [Op.ne]: null },
+            carNumber: carNumber,
+          },
+          order: [['id', 'DESC']],
+          // limit: 20,
+        });
+      return {
+        status: 200,
+        data: breakDownListByCarNumber,
+        count: breakDownListByCarNumber.length,
+      };
+    } catch (err) {
+      console.log(err);
+      throw new HttpException(
+        'wrong on server ...',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async driverNotifyReplay(driverId: any) {

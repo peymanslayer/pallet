@@ -1,4 +1,5 @@
 import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { TruckBreakDownStatus } from 'src/common/enum';
 
 @Table
 export class TruckBreakDown extends Model {
@@ -55,16 +56,8 @@ export class TruckBreakDown extends Model {
   @Column
   historyRepairComment: string;
 
-  //unused
-  // @Column
-  // hoursSendToRepair: string;
-
   @Column
   historySendToRepair: string;
-
-  //unused
-  // @Column
-  // hoursReciveToRepair: string;
 
   @Column
   historyReciveToRepair: string;
@@ -81,4 +74,8 @@ export class TruckBreakDown extends Model {
 
   @Column
   lastFetch: Date;
+
+  // MID: manage filter "TruckBreakDown"
+  // @Column
+  // status: TruckBreakDownStatus;
 }

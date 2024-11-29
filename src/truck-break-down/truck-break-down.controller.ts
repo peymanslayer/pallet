@@ -27,7 +27,7 @@ export class TruckBreakDownController {
   }
 
   @Get('/api/truckbreakdown/driver/notify')
-  async dirverNotifyReplay(
+  async driverNotifyReplay(
     @Query('userId') userId: any,
     @Res() response: Response,
   ) {
@@ -169,6 +169,16 @@ export class TruckBreakDownController {
     } catch (err) {
       console.log(err);
       response.status(500).json(err);
+    }
+  }
+
+  @Get('/api/truckbreakdown/carPiecesHistory/:carNumber')
+  async getCarPiecesHistory(@Param('carNumber') carNumber: string) {
+    console.log('carNumber: ', carNumber);
+    try {
+      return await this.truckBreakDownService.getCarPiecesHistory(carNumber);
+    } catch (err) {
+      console.log(err);
     }
   }
 

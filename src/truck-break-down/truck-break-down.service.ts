@@ -534,6 +534,11 @@ export class TruckBreakDownService {
         let row = {};
 
         breakDown = item.dataValues;
+
+        const carPiecesHistory = await this.getCarPiecesHistory(
+          breakDown['carNumber'],
+        );
+
         row['id'] = breakDown['id'];
         row['numberOfBreakDown'] = breakDown['numberOfBreakDown'];
         row['hours'] = breakDown['hoursDriverRegister'];
@@ -550,6 +555,8 @@ export class TruckBreakDownService {
         row['histroyDeliveryTruck'] = breakDown['histroyDeliveryTruck'];
         row['historyDeliveryDriver'] = breakDown['historyDeliveryDriver'];
         row['piece'] = breakDown['piece'];
+        row['piecesReplacementHistory'] = carPiecesHistory;
+
         // console.log('itemsId to fetch: ', breakDown['truckBreakDownItemsId']); // #Debug
         row['answers'] = await this.getBreakDownItemsById(
           breakDown['truckBreakDownItemsId'],

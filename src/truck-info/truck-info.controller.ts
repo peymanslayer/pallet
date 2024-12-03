@@ -27,7 +27,7 @@ export class TruckInfoController {
   }
 
   @Get('/api/truckInfo/id/:id')
-  async getById(@Query('id') id: number) {
+  async getById(@Param('id') id: number) {
     try {
       return await this.truckInfoService.getById(id);
     } catch (err) {

@@ -17,6 +17,24 @@ export class TruckInfoController {
     }
   }
 
+  @Get('/api/truckInfo/carNumber')
+  async getByCarNumber(@Query('carNumber') carNumber: string) {
+    try {
+      return await this.truckInfoService.getByCarNumber(carNumber);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  @Get('/api/truckInfo/id/:id')
+  async getById(@Query('id') id: number) {
+    try {
+      return await this.truckInfoService.getById(id);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   @Put('/api/truckInfo/:driverId')
   // MID: type for payload
   async updateTruckInfo(

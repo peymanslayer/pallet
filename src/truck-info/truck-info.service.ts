@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { TruckInfo } from './truck-info.entity';
 import { TruckInfoInsertDto } from './dto/truck-info.insert.dto';
 import { Auth } from 'src/auth/auth.entity';
-import { Sequelize, where } from 'sequelize';
+import { Op, Sequelize, where } from 'sequelize';
 import { Equals } from 'sequelize-typescript';
 @Injectable()
 export class TruckInfoService {
@@ -42,6 +42,43 @@ export class TruckInfoService {
       });
 
       return { status: 200, data: {}, message: 'update successfully' };
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async getByCarNumber(carNumber: string) {
+    try {
+      console.log('query carNumber:', carNumber);
+      const res = await this.truckInfoRepository.findAll({
+        attributes: ['id', 'carNumber'],
+        where: {
+          carNumber: { [Op.like]: `%${carNumber}%` },
+        },
+      });
+      if (res.length) {
+        return { data: res, status: 200, message: 'successfully operation' };
+      } else {
+        return {
+          data: res,
+          status: 200,
+          message: 'ماشین با این مشخصات یافت نشد',
+        };
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async getById(id: number) {
+    try {
+      const res = await this.truckInfoRepository.findOne({
+        where: {
+          id: id,
+        },
+      });
+      if (res.id) return { data: res, status: 200, message: 'successfully' };
+      else return { data: {}, status: 200, message: 'ماشین یافت نشد' };
     } catch (err) {
       console.log(err);
     }

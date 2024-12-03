@@ -13,6 +13,8 @@ import { TruckBreakDown } from 'src/truck-break-down/truck-break-down.entity';
 import { TruckBreakDownItems } from 'src/truck-break-down-items/truck-break-down-items.entity';
 // import { Chat } from 'src/chat/chat.entity';
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
+import { RepairInvoice } from 'src/repair-invoice/rapair-invoice.entity';
+import { PeriodicTruckCheck } from 'src/periodic-truck-check/periodic-truck-check.entity';
 
 export const databaseProviders = [
   {
@@ -56,6 +58,8 @@ export const databaseProviders = [
         TruckBreakDown,
         TruckBreakDownItems,
         TruckInfo,
+        RepairInvoice,
+        PeriodicTruckCheck,
         // Chat,
       ]);
       //{ alter: true }

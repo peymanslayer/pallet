@@ -1,4 +1,5 @@
-import { Column, Model, Table } from 'sequelize-typescript';
+import { Column, HasOne, Model, Table } from 'sequelize-typescript';
+import { PeriodicTruckCheck } from 'src/periodic-truck-check/periodic-truck-check.entity';
 
 @Table
 // comment: used for info truck in "truck-break-down"
@@ -24,6 +25,10 @@ export class TruckInfo extends Model<TruckInfo> {
   @Column
   zone: string;
 
-  @Column
-  zoneCode: string;
+  @HasOne(() => PeriodicTruckCheck)
+  periodicTruckCheck: PeriodicTruckCheck;
+
+  //deprecated
+  //   @Column
+  //   zoneCode: string;
 }

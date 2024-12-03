@@ -1,5 +1,6 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
 import { TruckBreakDownStatus } from 'src/common/enum';
+import { RepairInvoice } from 'src/repair-invoice/rapair-invoice.entity';
 
 @Table
 export class TruckBreakDown extends Model {
@@ -77,6 +78,15 @@ export class TruckBreakDown extends Model {
 
   @Column
   lastFetch: Date;
+
+  @Column({ defaultValue: false })
+  moveToCenter: boolean;
+
+  @Column({ defaultValue: false })
+  repairShopOutside: boolean;
+
+  @HasMany(() => RepairInvoice)
+  repairInvoice: RepairInvoice[];
 
   // MID: manage filter "TruckBreakDown"
   // @Column

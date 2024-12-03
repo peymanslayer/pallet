@@ -19,6 +19,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CheckListService } from './check-list/check-list.service';
 import { TruckBreakDownService } from './truck-break-down/truck-break-down.service';
+import { RepairInvoiceModule } from './repair-invoice/repair-invoice.module';
+import { PeriodicTruckCheckModule } from './periodic-truck-check/periodic-truck-check.module';
 
 @Module({
   imports: [
@@ -34,6 +36,8 @@ import { TruckBreakDownService } from './truck-break-down/truck-break-down.servi
     TruckBreakDownItemsModule,
     ChatModule,
     TruckInfoModule,
+    RepairInvoiceModule,
+    PeriodicTruckCheckModule,
   ],
   controllers: [AppController],
   providers: [AppService],

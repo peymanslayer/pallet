@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { CheckList } from './check-list.entity';
 import { CheckListComment } from 'src/check-list-comment/check-list-comment.entity';
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
@@ -16,6 +16,7 @@ import {
 } from 'src/static/fields-excelFile';
 import { generateDataExcel } from 'src/utility/export_excel';
 import { AuthService } from 'src/auth/services/auth.service';
+
 @Injectable()
 export class CheckListService {
   constructor(
@@ -39,6 +40,19 @@ export class CheckListService {
     checkList['name'] = body['name'];
     checkList['hours'] = body['hours'];
     checkList['history'] = body['date'];
+
+    // >>>>>>>>>>>>>>>>check user due to not have token<<<<<<<<<<<<
+    const user = await this.authRepository.findOne({
+      where: {
+        id: body['id'],
+      },
+    });
+    if (user) {
+      throw new HttpException(
+        'شما در سیستم ثبت نام نکرده اید یا کاربر شما پاک شده است لطفا به مدیر خود اطلاع دهید',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
     //check key name and generate new record
     for (let item of answers) {
       checkList['answer_' + item['number']] = item['question'];
@@ -273,7 +287,7 @@ export class CheckListService {
         idDriversDone.push(element.dataValues['userId']);
         driversDone.push(element.dataValues);
       });
-      console.log('res: ', idDriversDone); // #DEBUG
+      // console.log('res: ', idDriversDone.length); // #DEBUG
       // console.log('driverDone: ', driversDone); // #DEBUG
 
       // comment: fetch data of driver's unregister || register daily checkList

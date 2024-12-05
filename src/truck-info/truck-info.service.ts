@@ -67,10 +67,11 @@ export class TruckInfoService {
               id: item.dataValues.driverId,
             },
           });
-          Object.assign(itemData, item.dataValues);
-          Object.assign(itemData, user.dataValues);
-
-          data.push(itemData);
+          if (user) {
+            Object.assign(itemData, user.dataValues);
+            Object.assign(itemData, item.dataValues);
+            data.push(itemData);
+          }
         }
 
         return {

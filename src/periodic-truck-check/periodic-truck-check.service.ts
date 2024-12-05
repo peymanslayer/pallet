@@ -11,7 +11,7 @@ export class PeriodicTruckCheckService {
   async create(payload: any) {
     try {
       const result =
-        await this.periodicTruckRepository.create<PeriodicTruckCheck>(payload);
+        await this.periodicTruckRepository.upsert<PeriodicTruckCheck>(payload);
       if (result)
         return { status: 200, data: true, message: 'add successfully' };
       else return { status: 500, data: false, message: 'field operation' };

@@ -4,6 +4,7 @@ import {
   Column,
   ForeignKey,
   AllowNull,
+  Unique,
 } from 'sequelize-typescript';
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
 
@@ -70,6 +71,7 @@ export class PeriodicTruckCheck extends Model<PeriodicTruckCheck> {
   padBowlEndKilometer: number;
 
   @ForeignKey(() => TruckInfo)
-  @Column({ allowNull: false })
+  @Column({ allowNull: false, unique: true })
+  @Unique
   truckInfoId: number;
 }

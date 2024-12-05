@@ -71,5 +71,5 @@ export class PeriodicTruckCheck extends Model<PeriodicTruckCheck> {
 
   @ForeignKey(() => TruckInfo)
   @Column({ allowNull: false })
-  truckInfoId: number | null;
+  truckInfoId: number;
 }

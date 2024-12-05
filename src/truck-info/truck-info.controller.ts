@@ -17,8 +17,8 @@ export class TruckInfoController {
     }
   }
 
-  @Get('/api/truckInfo/carNumber')
-  async getByCarNumber(@Query('carNumber') carNumber: string) {
+  @Get('/api/truckInfo/carNumber/:carNumber')
+  async getByCarNumber(@Param('carNumber') carNumber: string) {
     try {
       return await this.truckInfoService.getByCarNumber(carNumber);
     } catch (err) {

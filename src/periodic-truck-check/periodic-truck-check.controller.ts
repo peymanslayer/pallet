@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   HttpStatus,
+  Param,
   Post,
   UsePipes,
   ValidationPipe,
@@ -26,4 +28,14 @@ export class PeriodicTruckCheckController {
       throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }
   }
+
+  // @Get('/:periodicId')
+  // async getOne(@Param('periodicId') periodicId: number) {
+  //   try {
+  //     return await this.periodicTruckCheckService.getOne(periodicId);
+  //   } catch (err) {
+  //     console.log(err);
+  //     throw new HttpException(err, HttpStatus.BAD_REQUEST);
+  //   }
+  // }
 }

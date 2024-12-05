@@ -2,8 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { TruckInfo } from './truck-info.entity';
 import { TruckInfoInsertDto } from './dto/truck-info.insert.dto';
 import { Auth } from 'src/auth/auth.entity';
-import { Op, Sequelize, where } from 'sequelize';
-import { Equals } from 'sequelize-typescript';
+import { Op } from 'sequelize';
+import { PeriodicTruckCheck } from 'src/periodic-truck-check/periodic-truck-check.entity';
 @Injectable()
 export class TruckInfoService {
   constructor(
@@ -49,18 +49,38 @@ export class TruckInfoService {
 
   async getByCarNumber(carNumber: string) {
     try {
-      console.log('query carNumber:', carNumber);
-      const res = await this.truckInfoRepository.findAll({
-        attributes: ['id', 'carNumber'],
+      const data = [];
+      const truckInfos = await this.truckInfoRepository.findAll({
+        attributes: ['id', 'carNumber', 'lastCarLife', 'driverId'],
         where: {
           carNumber: { [Op.like]: `%${carNumber}%` },
         },
       });
-      if (res.length) {
-        return { data: res, status: 200, message: 'successfully operation' };
+
+      if (truckInfos.length) {
+        for (let item of truckInfos) {
+          const itemData = {};
+
+          const user = await this.authRepository.findOne({
+            attributes: ['name', 'mobile'],
+            where: {
+              id: item.dataValues.driverId,
+            },
+          });
+          Object.assign(itemData, item.dataValues);
+          Object.assign(itemData, user.dataValues);
+
+          data.push(itemData);
+        }
+
+        return {
+          data: data,
+          status: 200,
+          message: 'successfully operation',
+        };
       } else {
         return {
-          data: res,
+          data: truckInfos,
           status: 200,
           message: 'ماشین با این مشخصات یافت نشد',
         };
@@ -76,6 +96,7 @@ export class TruckInfoService {
         where: {
           id: id,
         },
+        include: [PeriodicTruckCheck],
       });
       if (res.id) return { data: res, status: 200, message: 'successfully' };
       else return { data: {}, status: 200, message: 'ماشین یافت نشد' };

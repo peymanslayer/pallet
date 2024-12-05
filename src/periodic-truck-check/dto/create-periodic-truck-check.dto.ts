@@ -1,6 +1,6 @@
 import { IsDate, IsNumber, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
-
+// CHK: #DTO checked and pass
 export class CreatePeriodicTruckCheckDto {
   @Type(() => Date)
   @IsDate()

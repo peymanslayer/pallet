@@ -70,6 +70,6 @@ export class PeriodicTruckCheck extends Model<PeriodicTruckCheck> {
   padBowlEndKilometer: number;
 
   @ForeignKey(() => TruckInfo)
-  @Column({ allowNull: true })
+  @Column({ allowNull: false })
   truckInfoId: number | null;
 }

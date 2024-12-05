@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { PeriodicTruckCheck } from './periodic-truck-check.entity';
 
 @Injectable()
@@ -8,8 +8,6 @@ export class PeriodicTruckCheckService {
     private readonly periodicTruckRepository: typeof PeriodicTruckCheck,
   ) {}
 
-  // HIGH: 1.create service
-  // HIGH: 1.2.create dto
   async create(payload: any) {
     try {
       const result =
@@ -19,6 +17,7 @@ export class PeriodicTruckCheckService {
       else return { status: 500, data: false, message: 'field operation' };
     } catch (err) {
       console.log(err);
+      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

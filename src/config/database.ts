@@ -11,7 +11,6 @@ import { CheckList } from 'src/check-list/check-list.entity';
 import { CheckListComment } from 'src/check-list-comment/check-list-comment.entity';
 import { TruckBreakDown } from 'src/truck-break-down/truck-break-down.entity';
 import { TruckBreakDownItems } from 'src/truck-break-down-items/truck-break-down-items.entity';
-// import { Chat } from 'src/chat/chat.entity';
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
 import { RepairInvoice } from 'src/repair-invoice/rapair-invoice.entity';
 import { PeriodicTruckCheck } from 'src/periodic-truck-check/periodic-truck-check.entity';
@@ -63,7 +62,7 @@ export const databaseProviders = [
         // Chat,
       ]);
       //{ alter: true }
-      await sequelize.sync().then((e) => console.log(e));
+      await sequelize.sync({ alter: true }).then((e) => console.log(e));
       return sequelize;
     },
   },

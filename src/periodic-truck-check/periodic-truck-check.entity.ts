@@ -3,75 +3,26 @@ import {
   Model,
   Column,
   ForeignKey,
-  AllowNull,
-  Unique,
+  BelongsTo,
 } from 'sequelize-typescript';
+
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
 
 @Table
 export class PeriodicTruckCheck extends Model<PeriodicTruckCheck> {
   @Column
-  engineOilEndDate: Date;
+  endKilometer: number;
 
   @Column
-  engineOilEndKilometer: number;
+  endDate: Date;
 
   @Column
-  technicalInspectionEndDate: Date;
-
-  @Column
-  technicalInspectionEndKilometer: number;
-
-  @Column
-  tireEndKilometer: number;
-
-  @Column
-  tireEndDate: Date;
-
-  @Column
-  sparkPlugEndDate: Date;
-
-  @Column
-  sparkPlugEndKilometer: number;
-
-  @Column
-  padEndKilometer: number;
-
-  @Column
-  padEndDate: Date;
-
-  @Column
-  gearboxOilEndKilometer: number;
-
-  @Column
-  gearboxOilEndDate: Date;
-
-  @Column
-  brakeDiscEndKilometer: number;
-
-  @Column
-  brakeDiscEndDate: Date;
-
-  @Column
-  beltEndKilometer: number;
-
-  @Column
-  beltEndDate: Date;
-
-  @Column
-  clutchEndDate: Date;
-
-  @Column
-  clutchEndKilometer: number;
-
-  @Column
-  padBowlEndDate: Date;
-
-  @Column
-  padBowlEndKilometer: number;
+  type: string;
 
   @ForeignKey(() => TruckInfo)
-  @Column({ allowNull: false, unique: true })
-  @Unique
+  @Column({ allowNull: false })
   truckInfoId: number;
+
+  @BelongsTo(() => TruckInfo)
+  truckInfo: TruckInfo;
 }

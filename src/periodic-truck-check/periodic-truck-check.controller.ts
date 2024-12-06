@@ -29,13 +29,13 @@ export class PeriodicTruckCheckController {
     }
   }
 
-  // @Get('/:periodicId')
-  // async getOne(@Param('periodicId') periodicId: number) {
-  //   try {
-  //     return await this.periodicTruckCheckService.getOne(periodicId);
-  //   } catch (err) {
-  //     console.log(err);
-  //     throw new HttpException(err, HttpStatus.BAD_REQUEST);
-  //   }
-  // }
+  @Get('/types')
+  async getOne() {
+    try {
+      return await this.periodicTruckCheckService.getTypes();
+    } catch (err) {
+      console.log(err);
+      throw new HttpException(err, HttpStatus.BAD_REQUEST);
+    }
+  }
 }

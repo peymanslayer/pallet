@@ -19,3 +19,6 @@ export const PeriodicTruckCheckType = [
 
   { id: 10, name: 'لنت کاسه ای', type: 'padBowl' },
 ];
+
+export const offsetDaysEndDatePeriodicTruckCheck = 1;
+export const offsetKilometerPeriodicTruckCheck = 5000;

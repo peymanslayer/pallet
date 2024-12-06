@@ -30,7 +30,7 @@ export class PeriodicTruckCheckController {
   }
 
   @Get('/types')
-  async getOne() {
+  async getTypesCheck() {
     try {
       return await this.periodicTruckCheckService.getTypes();
     } catch (err) {
@@ -38,4 +38,23 @@ export class PeriodicTruckCheckController {
       throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }
   }
+
+  // @Get('/test/:id')
+  // async getOne(@Param('id') periodicId: number) {
+  //   try {
+  //     return await this.periodicTruckCheckService.getOne(periodicId);
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // }
+
+  // @Get('/alertlist')
+  // async getAlertList() {
+  //   try {
+  //     return await this.periodicTruckCheckService.getAlertList();
+  //   } catch (err) {
+  //     console.log(err);
+  //     throw new HttpException(err, HttpStatus.BAD_REQUEST);
+  //   }
+  // }
 }

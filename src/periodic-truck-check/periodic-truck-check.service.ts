@@ -1,6 +1,11 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { PeriodicTruckCheck } from './periodic-truck-check.entity';
-import { PeriodicTruckCheckType } from 'src/common/constants';
+import {
+  offsetDaysEndDatePeriodicTruckCheck,
+  offsetKilometerPeriodicTruckCheck,
+  PeriodicTruckCheckType,
+} from 'src/common/constants';
+import { TruckInfo } from 'src/truck-info/truck-info.entity';
 
 @Injectable()
 export class PeriodicTruckCheckService {
@@ -12,7 +17,7 @@ export class PeriodicTruckCheckService {
   async create(payload: any) {
     try {
       const result =
-        await this.periodicTruckRepository.create<PeriodicTruckCheck>(payload);
+        await this.periodicTruckRepository.upsert<PeriodicTruckCheck>(payload);
       if (result)
         return { status: 200, data: true, message: 'add successfully' };
       else return { status: 500, data: false, message: 'field operation' };
@@ -36,10 +41,19 @@ export class PeriodicTruckCheckService {
     }
   }
 
-  // findTypePeriodicFromValue (value: string){
-  //   return Object.keys(PeriodicTruckCheckType).find((key)=>{
-
-  //   })
+  // async getAlertList() {
+  //   try {
+  //     const x = offsetDaysEndDatePeriodicTruckCheck;
+  //     const y = offsetKilometerPeriodicTruckCheck;
+  //     const res = await this.periodicTruckRepository;
+  //     // 1. date: now + countDaysLimit === F: endDate
+  //     // 2.  kilometer: join "truckInfo" and "periodicTruckCheck" ->
+  //     //  truckInfo.carLastLife + countKilometerLimit === F: endKilometer
+  //     // find ( 1 or 2 and F: alertReview == false)
+  //   } catch (err) {
+  //     console.log(err);
+  //     throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+  //   }
   // }
 
   // async getOne(periodicId: number) {
@@ -48,7 +62,15 @@ export class PeriodicTruckCheckService {
   //       where: {
   //         id: periodicId,
   //       },
-  //    //   include: [{ model: TruckInfo }],  // BuG not relation with TruckInfo
+  //       include: [
+  //         {
+  //           model: TruckInfo,
+  //           attributes: ['zone'],
+  //           where: {
+  //             // lastCarLife:
+  //           },
+  //         },
+  //       ], // BuG not relation with TruckInfo
   //     });
 
   //     if (result)

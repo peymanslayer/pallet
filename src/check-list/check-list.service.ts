@@ -47,7 +47,8 @@ export class CheckListService {
         id: body['id'],
       },
     });
-    if (user) {
+    console.log('------------------------------------->', user.id);
+    if (!user.id) {
       throw new HttpException(
         'شما در سیستم ثبت نام نکرده اید یا کاربر شما پاک شده است لطفا به مدیر خود اطلاع دهید',
         HttpStatus.UNAUTHORIZED,

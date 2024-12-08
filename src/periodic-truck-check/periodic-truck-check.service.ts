@@ -57,6 +57,7 @@ export class PeriodicTruckCheckService {
   async getAll() {
     try {
       // trInfo:nameDriver , periodic:endDate, periodic:endKilometer, trInfo:carNumber , periodic:type, periodic:offsetToTarget
+      // auth.
       const data = [];
       const { rows, count } =
         await this.periodicTruckRepository.findAndCountAll({
@@ -76,6 +77,7 @@ export class PeriodicTruckCheckService {
         });
 
         itemData['driverName'] = user.name;
+        itemData['driverMobile'] = user.mobile;
         itemData['endDate'] = periodic.endDate;
         itemData['endKilometer'] = periodic.endKilometer;
         itemData['carNumber'] = periodic.truckInfo.carNumber;

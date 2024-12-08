@@ -83,6 +83,7 @@ export class CheckListService {
       {
         lastCarLife: checkList['answer_0'],
         state: this.lowestValueCheckList(Object.values(checkList)),
+        updateCarNumber: false,
       },
       {
         where: {
@@ -119,7 +120,6 @@ export class CheckListService {
     }
     return lowest;
   }
-  // HIGH: checkCarLife , where -> carNumber
   async checkCarLifeMoreThanLast(driverId: number, newCarLife: string) {
     const res = await this.truckInfoRepository.findOne({
       where: {
@@ -127,15 +127,16 @@ export class CheckListService {
       },
     });
 
-    return {
-      status: 200,
-      data: true,
-
-      // HIGH: bypass this check >>> handle after "carNumber" fixed <<<
-      // parseInt(res.dataValues.lastCarLife) < parseInt(newCarLife)
-      //   ? true
-      //   : false,
-    };
+    let data: boolean;
+    if (res.dataValues.updateCarNumber) {
+      data = true;
+    } else {
+      data =
+        parseInt(res.dataValues.lastCarLife) < parseInt(newCarLife)
+          ? true
+          : false;
+    }
+    return { data, status: 200 };
   }
 
   async getllByDriverId(

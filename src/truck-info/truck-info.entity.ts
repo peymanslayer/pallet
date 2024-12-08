@@ -25,10 +25,9 @@ export class TruckInfo extends Model<TruckInfo> {
   @Column
   zone: string;
 
+  @Column({ defaultValue: false })
+  updateCarNumber: boolean;
+
   @HasMany(() => PeriodicTruckCheck)
   periodicTruckCheck: PeriodicTruckCheck[];
-
-  //deprecated
-  //   @Column
-  //   zoneCode: string;
 }

@@ -35,6 +35,9 @@ export class TruckInfoService {
   }
   async update(driverId: number, body: any) {
     try {
+      if (body['carNumber']) {
+        body['updateCarNumber'] = true;
+      }
       const infoUpdate = await this.truckInfoRepository.update(body, {
         where: {
           driverId: driverId,

@@ -29,6 +29,16 @@ export class PeriodicTruckCheckController {
     }
   }
 
+  @Get()
+  async getAll() {
+    try {
+      return await this.periodicTruckCheckService.getAll();
+    } catch (err) {
+      console.log(err);
+      throw new HttpException(err, HttpStatus.BAD_REQUEST);
+    }
+  }
+
   @Get('/types')
   async getTypesCheck() {
     try {

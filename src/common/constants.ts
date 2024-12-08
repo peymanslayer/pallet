@@ -19,6 +19,27 @@ export const PeriodicTruckCheckType = [
 
   { id: 10, name: 'لنت کاسه ای', type: 'padBowl' },
 ];
-
+export enum PeriodicTruckCheckTypes {
+  enginOil = 'enginOil',
+  technicalInspection = 'technicalInspection',
+  tire = 'tire',
+  sparkPlug = 'sparkPlug',
+  pad = 'pad',
+  gearboxOil = 'gearboxOil',
+  brakeDisc = 'brakeDisc',
+  belt = 'belt',
+  clutch = 'clutch',
+  padBowl = 'padBowl',
+}
 export const offsetDaysEndDatePeriodicTruckCheck = 1;
-export const offsetKilometerPeriodicTruckCheck = 5000;
+export const alertKilometerPeriodicTruckCheck = 5000;
+// MID: check how to impact to a structure ? usefully?
+export const offsetKilometerPeriodicTargetTire = 80000;
+export const offsetKilometerPeriodicTargetSparkPlug = 20000;
+export const offsetKilometerPeriodicTargetEngineOil = 5000;
+export const offsetKilometerPeriodicTargetPad = 20000;
+export const offsetKilometerPeriodicTargetBrakeDisc = 60000;
+export const offsetKilometerPeriodicTargetGearboxOil = 60000;
+export const offsetKilometerPeriodicTargetBelt = 50000;
+export const offsetKilometerPeriodicTargetPadBowl = 80000;
+export const offsetKilometerPeriodicTargetClutch = 60000;

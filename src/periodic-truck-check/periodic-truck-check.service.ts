@@ -75,17 +75,18 @@ export class PeriodicTruckCheckService {
             id: periodic.dataValues.truckInfo.driverId,
           },
         });
+        if (user?.id) {
+          itemData['driverName'] = user.name;
+          itemData['driverMobile'] = user.mobile;
+          itemData['endDate'] = periodic.endDate;
+          itemData['endKilometer'] = periodic.endKilometer;
+          itemData['carNumber'] = periodic.truckInfo.carNumber;
+          itemData['type'] = periodic.type;
+          itemData['calculateKilometer'] =
+            +periodic.truckInfo.lastCarLife - periodic.endKilometer;
 
-        itemData['driverName'] = user.name;
-        itemData['driverMobile'] = user.mobile;
-        itemData['endDate'] = periodic.endDate;
-        itemData['endKilometer'] = periodic.endKilometer;
-        itemData['carNumber'] = periodic.truckInfo.carNumber;
-        itemData['type'] = periodic.type;
-        itemData['calculateKilometer'] =
-          +periodic.truckInfo.lastCarLife - periodic.endKilometer;
-
-        data.push(itemData);
+          data.push(itemData);
+        }
       }
 
       return { data: data, count, status: 200 };

@@ -1,28 +1,15 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { PeriodicTruckCheck } from './periodic-truck-check.entity';
-import {
-  offsetDaysEndDatePeriodicTruckCheck,
-  alertKilometerPeriodicTruckCheck,
-  PeriodicTruckCheckType,
-  offsetKilometerPeriodicTargetTire,
-  offsetKilometerPeriodicTargetSparkPlug,
-  offsetKilometerPeriodicTargetEngineOil,
-  offsetKilometerPeriodicTargetPad,
-  offsetKilometerPeriodicTargetBrakeDisc,
-  offsetKilometerPeriodicTargetGearboxOil,
-  offsetKilometerPeriodicTargetBelt,
-  offsetKilometerPeriodicTargetPadBowl,
-  offsetKilometerPeriodicTargetClutch,
-  PeriodicTruckCheckTypes,
-} from 'src/common/constants';
+import { PeriodicTruckCheckType } from 'src/common/constants';
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
 import { Auth } from 'src/auth/auth.entity';
+import { Sequelize, Op } from 'sequelize';
 
 @Injectable()
 export class PeriodicTruckCheckService {
   constructor(
     @Inject('PERIODIC_TRUCK_CHECK')
-    private readonly periodicTruckRepository: typeof PeriodicTruckCheck,
+    private readonly periodicTruckCheckRepository: typeof PeriodicTruckCheck,
     @Inject('AUTH_REPOSITORY')
     private readonly authRepository: typeof Auth,
   ) {}
@@ -30,7 +17,9 @@ export class PeriodicTruckCheckService {
   async create(payload: any) {
     try {
       const result =
-        await this.periodicTruckRepository.upsert<PeriodicTruckCheck>(payload);
+        await this.periodicTruckCheckRepository.upsert<PeriodicTruckCheck>(
+          payload,
+        );
       if (result)
         return { status: 200, data: true, message: 'add successfully' };
       else return { status: 500, data: false, message: 'field operation' };
@@ -60,7 +49,7 @@ export class PeriodicTruckCheckService {
       // auth.
       const data = [];
       const { rows, count } =
-        await this.periodicTruckRepository.findAndCountAll({
+        await this.periodicTruckCheckRepository.findAndCountAll({
           include: [
             {
               model: TruckInfo,
@@ -83,7 +72,7 @@ export class PeriodicTruckCheckService {
           itemData['carNumber'] = periodic.truckInfo.carNumber;
           itemData['type'] = periodic.type;
           itemData['calculateKilometer'] =
-            +periodic.truckInfo.lastCarLife - periodic.endKilometer;
+            periodic.endKilometer - Number(periodic.truckInfo.lastCarLife);
 
           data.push(itemData);
         }
@@ -94,6 +83,69 @@ export class PeriodicTruckCheckService {
       console.log(err);
       throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  async getAlertPeriodicTruckCheck() {
+    try {
+      const data = [];
+
+      //1.  join "periodicTruck" and "truckInfo"
+      const periodicInfo = await this.periodicTruckCheckRepository.findAll({
+        include: [
+          {
+            model: TruckInfo,
+          },
+        ],
+      });
+
+      for (let periodic of periodicInfo) {
+        //2.1 check "periodic.endKilometer"  - "tr.lastCarLife" <= 500  ==> alert
+        if (
+          periodic.endKilometer - Number(periodic.truckInfo.lastCarLife) <=
+            500 ||
+          this.checkDifferenceDaysBetweenTwoDate(
+            periodic.endDate,
+            new Date(),
+            5,
+          )
+        ) {
+          const itemData = {};
+          const user = await this.authRepository.findOne({
+            where: {
+              id: periodic.dataValues.truckInfo.driverId,
+            },
+          });
+          if (user?.id) {
+            itemData['driverName'] = user.name;
+            itemData['driverMobile'] = user.mobile;
+            itemData['endDate'] = periodic.endDate;
+            itemData['endKilometer'] = periodic.endKilometer;
+            itemData['carNumber'] = periodic.truckInfo.carNumber;
+            itemData['type'] = periodic.type;
+            itemData['calculateKilometer'] =
+              periodic.endKilometer - Number(periodic.truckInfo.lastCarLife);
+
+            data.push(itemData);
+          }
+        }
+      }
+
+      return { data: data, status: 200, message: 'successfully' };
+
+      //2.2 check  diff ("periodic.endDate" - "new date")  <= 5 ==> alert
+    } catch (err) {
+      console.log(err);
+      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  checkDifferenceDaysBetweenTwoDate(
+    date1: Date,
+    date2: Date,
+    diff: number,
+  ): boolean {
+    const difference = Math.abs(date1.valueOf() - date2.valueOf());
+    return difference / (1000 * 3600 * 24) <= diff ? true : false;
   }
 }
 // async getAlertList() {
@@ -140,3 +192,21 @@ export class PeriodicTruckCheckService {
 //     throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
 //   }
 // }
+
+//================================================ calculate alerts in query:
+// where: {
+//   [Op.or]: [
+//     Sequelize.where(
+//       Sequelize.literal(
+//         '`PeriodicTruckCheck`.`endKilometer` - `TruckInfo`.`lastCarLife`',
+//       ),
+//       { [Op.lte]: 500 },
+//     ),
+//     Sequelize.where(
+//       Sequelize.literal(
+//         `DATEDIFF(CURDATE(), \`PeriodicTruckChecks\`.\`endDate\`)`,
+//       ),
+//       { [Op.lte]: 5 },
+//     ),
+//   ],
+// },

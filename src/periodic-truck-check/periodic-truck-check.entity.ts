@@ -4,8 +4,6 @@ import {
   Column,
   ForeignKey,
   BelongsTo,
-  Unique,
-  DataType,
 } from 'sequelize-typescript';
 
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
@@ -31,6 +29,9 @@ export class PeriodicTruckCheck extends Model<PeriodicTruckCheck> {
 
   @Column({ defaultValue: false })
   alertReview: boolean;
+
+  @Column({ defaultValue: false })
+  alert: boolean; // #HINT: maybe use later
 
   @ForeignKey(() => TruckInfo)
   @Column({ allowNull: false })

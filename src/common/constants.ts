@@ -1,3 +1,5 @@
+export const alertKilometer  = 1000;
+
 export const PeriodicTruckCheckType = [
   { id: 1, name: 'روغن موتور', type: 'enginOil' },
 

@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { PeriodicTruckCheck } from './periodic-truck-check.entity';
-import { PeriodicTruckCheckType } from 'src/common/constants';
+import { alertKilometer, PeriodicTruckCheckType } from 'src/common/constants';
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
 import { Auth } from 'src/auth/auth.entity';
 import { Sequelize, Op } from 'sequelize';
@@ -65,6 +65,7 @@ export class PeriodicTruckCheckService {
           },
         });
         if (user?.id) {
+          itemData['id'] = periodic.id;
           itemData['driverName'] = user.name;
           itemData['driverMobile'] = user.mobile;
           itemData['endDate'] = periodic.endDate;
@@ -102,7 +103,7 @@ export class PeriodicTruckCheckService {
         //2.1 check "periodic.endKilometer"  - "tr.lastCarLife" <= 500  ==> alert
         if (
           periodic.endKilometer - Number(periodic.truckInfo.lastCarLife) <=
-            500 ||
+            alertKilometer ||
           this.checkDifferenceDaysBetweenTwoDate(
             periodic.endDate,
             new Date(),
@@ -116,6 +117,7 @@ export class PeriodicTruckCheckService {
             },
           });
           if (user?.id) {
+            itemData['id'] = periodic.id;
             itemData['driverName'] = user.name;
             itemData['driverMobile'] = user.mobile;
             itemData['endDate'] = periodic.endDate;
@@ -133,6 +135,23 @@ export class PeriodicTruckCheckService {
       return { data: data, status: 200, message: 'successfully' };
 
       //2.2 check  diff ("periodic.endDate" - "new date")  <= 5 ==> alert
+    } catch (err) {
+      console.log(err);
+      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async removePeriodicTruckCheck(periodicId: number) {
+    try {
+      const result = await this.periodicTruckCheckRepository.destroy({
+        where: {
+          id: periodicId,
+        },
+      });
+
+      if (result)
+        return { status: 200, data: true, message: 'delete successfully' };
+      else return { status: 500, data: false, message: 'field operation' };
     } catch (err) {
       console.log(err);
       throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
@@ -43,6 +44,18 @@ export class PeriodicTruckCheckController {
   async getAlerts() {
     try {
       return await this.periodicTruckCheckService.getAlertPeriodicTruckCheck();
+    } catch (err) {
+      console.log(err);
+      throw new HttpException(err, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Delete('/:id')
+  async removePeriodicTruckCheck(@Param('id') periodicId: number) {
+    try {
+      return await this.periodicTruckCheckService.removePeriodicTruckCheck(
+        periodicId,
+      );
     } catch (err) {
       console.log(err);
       throw new HttpException(err, HttpStatus.BAD_REQUEST);

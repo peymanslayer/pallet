@@ -1,5 +1,5 @@
-export const alertKilometer  = 1000;
-
+export const alertKilometer = 1000;
+// HIGH: 1. create table "PeriodicType" in db
 export const PeriodicTruckCheckType = [
   { id: 1, name: 'روغن موتور', type: 'enginOil' },
 

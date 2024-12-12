@@ -21,6 +21,7 @@ import { CheckListService } from './check-list/check-list.service';
 import { TruckBreakDownService } from './truck-break-down/truck-break-down.service';
 import { RepairInvoiceModule } from './repair-invoice/repair-invoice.module';
 import { PeriodicTruckCheckModule } from './periodic-truck-check/periodic-truck-check.module';
+import { PeriodicTypeModule } from './periodic-type/periodic-type.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { PeriodicTruckCheckModule } from './periodic-truck-check/periodic-truck-
     TruckInfoModule,
     RepairInvoiceModule,
     PeriodicTruckCheckModule,
+    PeriodicTypeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

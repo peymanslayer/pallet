@@ -3,19 +3,41 @@ import { PeriodicTruckCheck } from './periodic-truck-check.entity';
 import { alertKilometer, PeriodicTruckCheckType } from 'src/common/constants';
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
 import { Auth } from 'src/auth/auth.entity';
-import { Sequelize, Op } from 'sequelize';
+import { CreatePeriodicTruckCheckDto } from './dto/create-periodic-truck-check.dto';
+import { TruckInfoService } from 'src/truck-info/truck-info.service';
+import { PeriodicType } from 'src/periodic-type/periodic-type.entity';
 
 @Injectable()
 export class PeriodicTruckCheckService {
   constructor(
-    @Inject('PERIODIC_TRUCK_CHECK')
+    @Inject('PERIODIC_TRUCK_CHECK_REPOSITORY')
     private readonly periodicTruckCheckRepository: typeof PeriodicTruckCheck,
+    private readonly truckInfoService: TruckInfoService,
     @Inject('AUTH_REPOSITORY')
     private readonly authRepository: typeof Auth,
+    @Inject('PERIODIC_TYPE_REPOSITORY')
+    private readonly periodicTypeRepository: typeof PeriodicType,
   ) {}
-
-  async create(payload: any) {
+  // get all periodict types in a property of class
+  async create(payload: CreatePeriodicTruckCheckDto) {
     try {
+      // HIGH: 2.get type and set endKilometer based on "PeriodicType.periodicKilometer"
+
+      // get lastCarLife
+      const truckInfo = await this.truckInfoService.getById(
+        payload.truckInfoId,
+      );
+      // get periodicKilometer
+      const periodicKilometer = await this.periodicTypeRepository.findOne({
+        attributes: ['periodicKilometer'],
+        where: { type: payload.type },
+      });
+      // cal endKilometer
+      // console.log(truckInfo);
+      payload.endKilometer =
+        periodicKilometer.periodicKilometer +
+        Number(truckInfo.data['lastCarLife']);
+      console.log(periodicKilometer.periodicKilometer);
       const result =
         await this.periodicTruckCheckRepository.upsert<PeriodicTruckCheck>(
           payload,
@@ -56,9 +78,16 @@ export class PeriodicTruckCheckService {
             },
           ],
         });
+      const periodicTypes = await this.periodicTypeRepository.findAll({
+        attributes: ['name', 'type'],
+      });
 
       for (let periodic of rows) {
         const itemData = {};
+        periodic.type = periodicTypes.find(
+          (item) => item.type === periodic.type,
+        ).name;
+
         const user = await this.authRepository.findOne({
           where: {
             id: periodic.dataValues.truckInfo.driverId,
@@ -99,16 +128,19 @@ export class PeriodicTruckCheckService {
         ],
       });
 
+      const periodicTypes = await this.periodicTypeRepository.findAll({
+        attributes: ['name', 'type'],
+      });
+
       for (let periodic of periodicInfo) {
-        //2.1 check "periodic.endKilometer"  - "tr.lastCarLife" <= 500  ==> alert
+        //2.1 check "periodic.endKilometer"  - "tr.lastCarLife" <= 1000  ==> alert
+
+        periodic.type = periodicTypes.find(
+          (item) => item.type === periodic.type,
+        ).name;
         if (
           periodic.endKilometer - Number(periodic.truckInfo.lastCarLife) <=
-            alertKilometer ||
-          this.checkDifferenceDaysBetweenTwoDate(
-            periodic.endDate,
-            new Date(),
-            5,
-          )
+          alertKilometer
         ) {
           const itemData = {};
           const user = await this.authRepository.findOne({

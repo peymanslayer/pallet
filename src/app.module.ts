@@ -22,6 +22,7 @@ import { TruckBreakDownService } from './truck-break-down/truck-break-down.servi
 import { RepairInvoiceModule } from './repair-invoice/repair-invoice.module';
 import { PeriodicTruckCheckModule } from './periodic-truck-check/periodic-truck-check.module';
 import { PeriodicTypeModule } from './periodic-type/periodic-type.module';
+import { DriversIntoRepairShopModule } from './drivers-into-repair-shop/drivers-into-repair-shop.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { PeriodicTypeModule } from './periodic-type/periodic-type.module';
     RepairInvoiceModule,
     PeriodicTruckCheckModule,
     PeriodicTypeModule,
+    DriversIntoRepairShopModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -14,23 +14,12 @@ export class DriversIntoRepairShopService {
     private readonly authService: AuthService,
   ) {}
 
-  async getUndoneOrders(
-    repairDone: string,
-    count: string,
-  ) {
-
-    let data = [];
-    let countList: number;
-    let undoneOrders: {
-      rows: TruckBreakDown[];
-      count: number;
-    };
-
-    if(repairDone == 'false'){
-      undoneOrders = await this.truckBreakDownRepository.findAndCountAll({
+  async getUndoneOrders() {
+    try {
+      const undoneOrders = await this.truckBreakDownRepository.findAndCountAll({
         where: {
           [Op.or]: [
-            { logisticConfirm: false }, 
+            { logisticConfirm: false },
             { historyReciveToRepair: { [Op.ne]: null } },
             { historyDeliveryDriver: null }
           ],
@@ -38,53 +27,50 @@ export class DriversIntoRepairShopService {
         order: [['id', 'DESC']],
         limit: 20,
       });
-    }
-
-    if (count === 'true') {
-      countList = undoneOrders.count;
-    } else {
-      for (let item of undoneOrders.rows) {
-        let breakDown = {};
-        let row = {};
-
-        breakDown = item.dataValues;
-
-        const carPiecesHistory = await this.getCarPiecesHistory(
-          breakDown['carNumber'],
-        );
-
-        row['id'] = breakDown['id'];
-        row['numberOfBreakDown'] = breakDown['numberOfBreakDown'];
-        row['hours'] = breakDown['hoursDriverRegister'];
-        row['history'] = breakDown['historyDriverRegister'];
-        row['driverName'] = breakDown['driverName'];
-        row['driverMobile'] = breakDown['driverMobile'];
-        row['carNumber'] = breakDown['carNumber'];
-        row['kilometer'] = breakDown['carLife']; // carLife set value when driver register daily check list
-        row['transportComment'] = breakDown['transportComment'];
-        row['logisticConfirm'] = breakDown['logisticConfirm'];
-        row['repairmanComment'] = breakDown['repairmanComment'];
-        row['historySendToRepair'] = breakDown['historySendToRepair'];
-        row['historyReciveToRepair'] = breakDown['historyReciveToRepair'];
-        row['histroyDeliveryTruck'] = breakDown['histroyDeliveryTruck'];
-        row['historyDeliveryDriver'] = breakDown['historyDeliveryDriver'];
-        row['piece'] = breakDown['piece'];
-        row['piecesReplacementHistory'] = carPiecesHistory;
-
-        row['answers'] = await this.getBreakDownItemsById(
-          breakDown['truckBreakDownItemsId'],
-        );
+  
+      const data = [];
+  
+      for (const item of undoneOrders.rows) {
+        const breakDown = item.dataValues;
+        const carPieces = await this.getCarPiecesHistory(breakDown.carNumber);
+        const row = {
+          id: breakDown.id,
+          numberOfBreakDown: breakDown.numberOfBreakDown,
+          hours: breakDown.hoursDriverRegister,
+          history: breakDown.historyDriverRegister,
+          driverName: breakDown.driverName,
+          driverMobile: breakDown.driverMobile,
+          carNumber: breakDown.carNumber,
+          kilometer: breakDown.carLife,
+          transportComment: breakDown.transportComment,
+          logisticConfirm: breakDown.logisticConfirm,
+          repairmanComment: breakDown.repairmanComment,
+          historySendToRepair: breakDown.historySendToRepair,
+          historyReciveToRepair: breakDown.historyReciveToRepair,
+          histroyDeliveryTruck: breakDown.histroyDeliveryTruck,
+          historyDeliveryDriver: breakDown.historyDeliveryDriver,
+          piece: breakDown.piece,
+          piecesReplacementHistory: carPieces,
+          answers: await this.getBreakDownItemsById(breakDown.truckBreakDownItemsId),
+        };
+  
         data.push(row);
-    
       }
+  
+      return {
+        status: 200,
+        data,
+        count: undoneOrders.count,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        'An error occurred',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
-
-    return {
-      status: 200,
-      data: countList === 0 || countList ? countList : data,
-      count: undoneOrders.count,
-    };
   }
+  
 
 
   async getUserIdListByCompanyName(companyName: string) {

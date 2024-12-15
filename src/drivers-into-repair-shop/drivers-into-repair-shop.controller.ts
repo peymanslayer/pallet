@@ -7,9 +7,9 @@ export class DriversIntoRepairShopController {
   constructor(private readonly driversIntoRepairShopService: DriversIntoRepairShopService) {}
 
   @Get('/api/drivers-into-repair-shop/all')
-  async getUndoneOrders(@Query() repairDone: string , @Query() count : string , @Res() response: Response){
+  async getUndoneOrders(@Res() response: Response){
     try {
-      const res = await  this.driversIntoRepairShopService.getUndoneOrders(repairDone , count)
+      const res = await  this.driversIntoRepairShopService.getUndoneOrders()
       response.status(res.status).json(res.data);
     } catch (err) {
       console.log(err);

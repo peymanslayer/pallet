@@ -36,7 +36,16 @@ export class TruckInfoService {
   async update(driverId: number, body: any) {
     try {
       if (body['carNumber']) {
-        body['updateCarNumber'] = true;
+        body['updateCarNumber'] = true; // #HINT: it is used for logic "checkCarLifeMoreThanLast()" in "check-list.service"
+
+        const arrayCarNumber: Array<string> = body['carNumber'];
+        let convertCarNumberToString = '';
+
+        arrayCarNumber.forEach((item) => {
+          convertCarNumberToString += item;
+        });
+
+        body['carNumber'] = convertCarNumberToString;
       }
       const infoUpdate = await this.truckInfoRepository.update(body, {
         where: {

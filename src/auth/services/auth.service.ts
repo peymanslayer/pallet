@@ -1,4 +1,10 @@
-import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  forwardRef,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { SignUpDto } from '../dtos/signUp.dto';
@@ -419,6 +425,22 @@ export class AuthService {
         status: 400,
         message: 'user not exist',
       };
+    }
+  }
+
+  async getById(userId: number) {
+    try {
+      return await this.authRepository.findOne({
+        where: {
+          id: userId,
+        },
+      });
+    } catch (err) {
+      console.log(err);
+      throw new HttpException(
+        'internal service error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
   // check used in front?!!!

@@ -9,6 +9,7 @@ import { Workbook } from 'exceljs';
 import { generateDataExcel } from 'src/utility/export_excel';
 import { FIELDS_OF_EXCEL_REPORT_TRANSPORT_AND_LOGISTIC_ADMIN } from 'src/static/enum';
 import { COLUMNS_NAME_EXCEL_REPORT_TRANSPORT_AND_LOGISTIC_ADMIN } from 'src/static/fields-excelFile';
+import { Auth } from 'src/auth/auth.entity';
 @Injectable()
 export class TruckBreakDownService {
   constructor(
@@ -152,6 +153,8 @@ export class TruckBreakDownService {
 
         breakDown = item.dataValues;
 
+        const userInfo = await this.authService.getById(breakDown['driverId']);
+
         const carPiecesHistory = await this.getCarPiecesHistory(
           breakDown['carNumber'],
         );
@@ -174,9 +177,16 @@ export class TruckBreakDownService {
         row['hoursRepairComment'] = breakDown['hoursRepairComment'];
         row['historyRepairComment'] = breakDown['historyRepairComment'];
 
+        if (userInfo) {
+          row['personalCode'] = userInfo.personelCode;
+          row['company'] = userInfo.company;
+          row['zone'] = userInfo.zone;
+        }
+
         row['piece'] = breakDown['piece'];
         row['piecesReplacementHistory'] = carPiecesHistory;
         // console.log('itemsId to fetch: ', breakDown['truckBreakDownItemsId']); // #Debug
+
         row['answers'] = await this.getBreakDownItemsById(
           breakDown['truckBreakDownItemsId'],
         );

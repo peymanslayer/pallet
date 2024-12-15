@@ -41,7 +41,10 @@ export class TruckInfoService {
         const arrayCarNumber: Array<string> = body['carNumber'];
         let convertCarNumberToString = '';
 
-        arrayCarNumber.forEach((item) => {
+        arrayCarNumber.forEach((item, index) => {
+          if (index === 1) {
+            convertCarNumberToString += '-';
+          }
           convertCarNumberToString += item;
         });
 

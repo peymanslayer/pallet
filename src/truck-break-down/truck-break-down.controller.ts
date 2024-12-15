@@ -98,6 +98,11 @@ export class TruckBreakDownController {
     }
   }
 
+  @Get('/api/truckbreakdown/transport/countlist')
+  async transportUserCountListState() {
+    return await this.truckBreakDownService.transportUserCountListState();
+  }
+
   @Get('/api/truckbreakdown/transport/export')
   async exportReportTransportAdmin(
     @Res() response: Response,

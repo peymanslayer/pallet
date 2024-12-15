@@ -51,6 +51,48 @@ export class TruckBreakDownService {
       count: breakDowns.count,
     };
   }
+
+  async transportUserCountListState() {
+    // ==============================================#HINT: "transportComment" and "repairDone" not set in queryParams
+    const breakDownNecessaryToDo = await this.truckBreakDownRepository.count({
+      where: {
+        [Op.and]: {
+          transportComment: { [Op.eq]: null },
+          logisticConfirm: { [Op.ne]: false },
+        },
+      },
+    });
+    // ==============================================#HINT: "transportComment" === 'true' in "transportUserGetAll()"
+    const breakDownDoing = await this.truckBreakDownRepository.count({
+      where: {
+        [Op.and]: {
+          transportComment: { [Op.ne]: null },
+          historyReciveToRepair: { [Op.eq]: null },
+          logisticConfirm: { [Op.ne]: false },
+        },
+      },
+    });
+    // ==============================================#HINT: "repairDone" === 'true' in "transportUserGetAll()"
+    const breakDownDone = await this.truckBreakDownRepository.count({
+      where: {
+        [Op.and]: {
+          logisticConfirm: { [Op.ne]: false },
+          transportComment: { [Op.in]: ['necessary', 'immediately'] },
+          historyDeliveryDriver: { [Op.ne]: null },
+        },
+      },
+    });
+
+    return {
+      data: {
+        necessaryToDoCount: breakDownNecessaryToDo,
+        doingCount: breakDownDoing,
+        done: breakDownDone,
+      },
+      status: 200,
+      message: 'successfully operation',
+    };
+  }
   // query: "repairDone" ---> list of "Activity in Done state" //#Hint
   // query: "transportComment" ---> list of "Activity in Doing state" // #Hint
   // list of dashboard role "transportAdmin" // #Hint

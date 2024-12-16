@@ -64,7 +64,7 @@ export const databaseProviders = [
         // Chat,
       ]);
       //{ alter: true }
-      await sequelize.sync().then((e) => console.log(e));
+      await sequelize.sync({ alter: true }).then((e) => console.log(e));
       return sequelize;
     },
   },

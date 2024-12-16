@@ -702,7 +702,7 @@ export class TruckBreakDownService {
       if (item.lastFetch < item.updatedAt) report['notify'] = 1;
       else report['notify'] = 0;
       // due to keys of field have unique number , answer_1, answer_2, ..., answe_20
-      for (let item = 1; item <= 20; item++) {
+      for (let item = 1; item <= 34; item++) {
         // console.log(items[`answer_${item}`]);
         if (items[`answer_${item}`] != null) {
           report['type'] = items[`type_${item}`];
@@ -809,7 +809,7 @@ export class TruckBreakDownService {
     // console.log('items fetch: ', items);
 
     // due to keys of field have unique number , answer_1, answer_2, ..., answe_20
-    for (let item = 1; item <= 20; item++) {
+    for (let item = 1; item <= 34; item++) {
       let report = {};
       //  console.log(items[`answer_${item}`]); // #Debug
       if (items[`answer_${item}`] != null) {

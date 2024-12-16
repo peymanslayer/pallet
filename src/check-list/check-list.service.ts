@@ -79,9 +79,23 @@ export class CheckListService {
     // update lastCarLife  in "truck_info"
     // check answered kilometer ; "answer_0" is kilometer number of truck
     // console.log(CarNumber[`id${checkList['userId']}`]); // debug
+    let lastCarLifeBackup = checkList['answer_0'];
+    const truckInfo = await this.truckInfoRepository.findOne({
+      where: {
+        driverId: checkList['userId'],
+      },
+    });
+
+    const today = new Date().getDate();
+
+    if (today != truckInfo.updatedAt.getDate()) {
+      lastCarLifeBackup = truckInfo.lastCarLife;
+    }
+
     const updateTruckInfo = await this.truckInfoRepository.update(
       {
         lastCarLife: checkList['answer_0'],
+        lastCarLifeBackup: lastCarLifeBackup,
         state: this.lowestValueCheckList(Object.values(checkList)),
         updateCarNumber: false,
       },
@@ -132,7 +146,7 @@ export class CheckListService {
       data = true;
     } else {
       data =
-        parseInt(res.dataValues.lastCarLife) < parseInt(newCarLife)
+        parseInt(res.dataValues.lastCarLifeBackup) < parseInt(newCarLife)
           ? true
           : false;
     }
@@ -236,21 +250,26 @@ export class CheckListService {
     let where = {};
     // console.log(typeof done);
 
-    // comment: daily check for driver register checklist
     if (done === undefined) {
-      const checkList = await this.checkListRepository.count({
-        where: { [Op.and]: { userId: userId, history: date }, ...filterByDate },
-      });
+      //=============================================================[comment: logic; should more than one register in a day ]
+      return { data: true };
 
-      if (checkList === 1) {
-        check = true;
-      }
+      //==========================================================================[comment: daily check for driver register checklist] logic: driver should one checklist register in a day
 
-      return {
-        data: check,
-        status: 200,
-        message: `status of driver registered daily checklist, hint: false -> unregistered `,
-      };
+      // const checkList = await this.checkListRepository.count({
+      //   where: { [Op.and]: { userId: userId, history: date }, ...filterByDate },
+      // });
+
+      // if (checkList === 1) {
+      //   check = true;
+      // }
+
+      // return {
+      //   data: check,
+      //   status: 200,
+      //   message: `status of driver registered daily checklist, hint: false -> unregistered `,
+      // };
+      //===========================================================================
     }
     // comment: daily check in repair panel
     else {

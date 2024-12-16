@@ -12,6 +12,9 @@ export class TruckInfo extends Model<TruckInfo> {
   @Column({ defaultValue: '0' })
   lastCarLife: string;
 
+  @Column({ defaultValue: '0' })
+  lastCarLifeBackup: string;
+
   // comment: store last state of truck based on lowest answer's of checkList daily
   @Column
   state: string;

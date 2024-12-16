@@ -38,18 +38,21 @@ export class TruckInfoService {
       if (body['carNumber']) {
         body['updateCarNumber'] = true; // #HINT: it is used for logic "checkCarLifeMoreThanLast()" in "check-list.service"
 
-        const arrayCarNumber: Array<string> = body['carNumber'];
-        let convertCarNumberToString = '';
+        //======================================================================[solution solve carNumber by array]
+        // const arrayCarNumber: Array<string> = body['carNumber'];
+        // let convertCarNumberToString = '';
 
-        arrayCarNumber.forEach((item, index) => {
-          if (index === 1) {
-            convertCarNumberToString += '-';
-          }
-          convertCarNumberToString += item;
-        });
+        // arrayCarNumber.forEach((item, index) => {
+        //   if (index === 1) {
+        //     convertCarNumberToString += '-';
+        //   }
+        //   convertCarNumberToString += item;
+        // });
 
-        body['carNumber'] = convertCarNumberToString;
+        // body['carNumber'] = convertCarNumberToString;
+        //======================================================================
       }
+
       const infoUpdate = await this.truckInfoRepository.update(body, {
         where: {
           driverId: driverId,

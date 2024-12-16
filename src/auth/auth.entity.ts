@@ -1,6 +1,7 @@
-import { Table, Column, Model, Unique } from 'sequelize-typescript';
+import { Table, Column, Model, Unique, HasMany, Scopes } from 'sequelize-typescript';
 import { DataType } from 'sequelize-typescript';
 import { getEnumsString, ROLES } from 'src/static/enum';
+import { TruckBreakDown } from 'src/truck-break-down/truck-break-down.entity';
 @Table
 export class Auth extends Model {
   // @Unique // name not unique in data sample

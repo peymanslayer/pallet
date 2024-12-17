@@ -24,10 +24,10 @@ export const databaseProviders = [
         dialect: 'mysql',
         //---------------------------------------- production db
         host: 'himalayas.liara.cloud',
-        port: 32992,
+        port: 32679,
         username: 'root',
-        password: 'BS6DDKVRvog0oh8BZ7738DD6',
-        database: 'nifty_diffie',
+        password: 'XY9n0YoCwwTmjF7W6zZPYSSm',
+        database: 'fervent_wright',
         //---------------------------------------- test db
         // host: 'localhost',
         // port: 3306,

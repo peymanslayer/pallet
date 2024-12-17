@@ -22,28 +22,28 @@ export class DriversIntoRepairShopController {
       response.status(500).json(err);
     }
   }
-  @Get('/api/drivers-into-repair-shop/all/filter')
-  async getUndoneOrdersByFilter(
-    @Res() response: Response ,
-    @Query('company') company?: string,
-    @Query('zone') zone?: string){
-    try {
-      const filters = { zone, company };
+  // @Get('/api/drivers-into-repair-shop/all/filter')
+  // async getUndoneOrdersByFilter(
+  //   @Res() response: Response ,
+  //   @Query('company') company?: string,
+  //   @Query('zone') zone?: string){
+  //   try {
+  //     const filters = { zone, company };
     
-      try {
-        const res = await this.driversIntoRepairShopService.getUndoneOrdersByFilter(filters);
-        response.status(res.status).json({
-          status: res.status,
-          data: res.data,
-          count: res.count,
-        });
+  //     try {
+  //       const res = await this.driversIntoRepairShopService.getUndoneOrdersByFilter(filters);
+  //       response.status(res.status).json({
+  //         status: res.status,
+  //         data: res.data,
+  //         count: res.count,
+  //       });
         
-      } catch (error) {
-        throw error; 
-      }
-    } catch (err) {
-      console.log(err);
-      response.status(500).json(err);
-    }
-  }
+  //     } catch (error) {
+  //       throw error; 
+  //     }
+  //   } catch (err) {
+  //     console.log(err);
+  //     response.status(500).json(err);
+  //   }
+  // }
 }

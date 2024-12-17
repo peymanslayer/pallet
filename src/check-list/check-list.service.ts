@@ -208,7 +208,7 @@ export class CheckListService {
       },
     });
 
-    for (let item = 0; item <= 34; item++) {
+    for (let item = 0; item <= 20; item++) {
       let check = {};
       check['answer'] = checkList[`answer_${item}`];
       // for answer's not have record comment , user not set any comment when answered

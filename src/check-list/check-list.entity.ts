@@ -59,32 +59,4 @@ export class CheckList extends Model<CheckList> {
   answer_19: string;
   @Column({ type: DataType.TEXT })
   answer_20: string;
-  @Column({ type: DataType.TEXT })
-  answer_21: string;
-  @Column({ type: DataType.TEXT })
-  answer_22: string;
-  @Column({ type: DataType.TEXT })
-  answer_23: string;
-  @Column({ type: DataType.TEXT })
-  answer_24: string;
-  @Column({ type: DataType.TEXT })
-  answer_25: string;
-  @Column({ type: DataType.TEXT })
-  answer_26: string;
-  @Column({ type: DataType.TEXT })
-  answer_27: string;
-  @Column({ type: DataType.TEXT })
-  answer_28: string;
-  @Column({ type: DataType.TEXT })
-  answer_29: string;
-  @Column({ type: DataType.TEXT })
-  answer_30: string;
-  @Column({ type: DataType.TEXT })
-  answer_31: string;
-  @Column({ type: DataType.TEXT })
-  answer_32: string;
-  @Column({ type: DataType.TEXT })
-  answer_33: string;
-  @Column({ type: DataType.TEXT })
-  answer_34: string;
 }

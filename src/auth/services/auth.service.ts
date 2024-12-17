@@ -11,7 +11,7 @@ import { SignUpDto } from '../dtos/signUp.dto';
 import { Auth } from '../auth.entity';
 import { DriverService } from 'src/driver/services/driver.service';
 import { StockService } from 'src/ReceiveStock/services/stock.service';
-import { MailerService } from '@nestjs-modules/mailer';
+// import { MailerService } from '@nestjs-modules/mailer';
 import { Sequelize } from 'sequelize';
 import { Workbook } from 'exceljs';
 import * as path from 'path';
@@ -29,7 +29,7 @@ export class AuthService {
     private readonly driverService: DriverService,
     private readonly truckInfoService: TruckInfoService,
     private readonly stockService: StockService,
-    private readonly mailService: MailerService,
+    // private readonly mailService: MailerService,
     @Inject(forwardRef(() => OperatorService))
     private readonly operatorService: OperatorService,
   ) {}
@@ -249,28 +249,28 @@ export class AuthService {
       message: password,
     };
   }
-  async sendEmail(body: SignUpDto) {
-    const findUserByEmail = await this.authRepository.findOne({
-      where: { email: body.email },
-    });
-    if (!findUserByEmail) {
-      return {
-        status: 400,
-        message: 'user not exist',
-      };
-    }
-    this.mailService.sendMail({
-      from: 'Oshanak.palet@gmail.com',
-      to: body.email,
-      subject: 'is email',
-      text: findUserByEmail.originalPassword,
-      html: `<div>${findUserByEmail.name} کاربر محترم <br>${findUserByEmail.personelCode} کد پرسنلی  </br><br>${findUserByEmail.originalPassword} رمز عبور </br> </div>`,
-    });
-    return {
-      status: 200,
-      message: 'email send',
-    };
-  }
+  // async sendEmail(body: SignUpDto) {
+  //   const findUserByEmail = await this.authRepository.findOne({
+  //     where: { email: body.email },
+  //   });
+  //   if (!findUserByEmail) {
+  //     return {
+  //       status: 400,
+  //       message: 'user not exist',
+  //     };
+  //   }
+  //   this.mailService.sendMail({
+  //     from: 'Oshanak.palet@gmail.com',
+  //     to: body.email,
+  //     subject: 'is email',
+  //     text: findUserByEmail.originalPassword,
+  //     html: `<div>${findUserByEmail.name} کاربر محترم <br>${findUserByEmail.personelCode} کد پرسنلی  </br><br>${findUserByEmail.originalPassword} رمز عبور </br> </div>`,
+  //   });
+  //   return {
+  //     status: 200,
+  //     message: 'email send',
+  //   };
+  // }
 
   async resetPassword(body: any) {
     const user = await this.authRepository.findOne({

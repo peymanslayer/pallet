@@ -101,16 +101,16 @@ export class AuthController {
     }
   }
 
-  @Post('/api/sendEmail')
-  async sendEmail(@Body() body: SignUpDto, @Res() response: Response) {
-    try {
-      const sendEmail = await this.authService.sendEmail(body);
-      response.status(sendEmail.status).json(sendEmail.message);
-    } catch (err) {
-      console.log(err);
-      response.status(500).json('is internal');
-    }
-  }
+  // @Post('/api/sendEmail')
+  // async sendEmail(@Body() body: SignUpDto, @Res() response: Response) {
+  //   try {
+  //     const sendEmail = await this.authService.sendEmail(body);
+  //     response.status(sendEmail.status).json(sendEmail.message);
+  //   } catch (err) {
+  //     console.log(err);
+  //     response.status(500).json('is internal');
+  //   }
+  // }
 
   @Post('/api/resetPassword')
   async resetPassword(@Body() body: any, @Res() response: Response) {

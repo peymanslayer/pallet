@@ -252,7 +252,11 @@ export class CheckListService {
 
     if (done === undefined) {
       //=============================================================[comment: logic; should more than one register in a day ]
-      return { data: true };
+      return {
+        data: false,
+        status: 200,
+        message: `status of driver registered daily checklist, hint: false -> unregistered `,
+      };
 
       //==========================================================================[comment: daily check for driver register checklist] logic: driver should one checklist register in a day
 

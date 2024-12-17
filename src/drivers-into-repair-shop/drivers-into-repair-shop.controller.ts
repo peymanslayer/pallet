@@ -11,7 +11,12 @@ export class DriversIntoRepairShopController {
     @Res() response: Response){
     try {
       const res = await  this.driversIntoRepairShopService.getUndoneOrders()
-      response.status(res.status).json(res.data);
+      response.status(res.status).json({
+        status: res.status,
+        data: res.data,
+        count: res.count,
+      });
+      
     } catch (err) {
       console.log(err);
       response.status(500).json(err);
@@ -27,7 +32,12 @@ export class DriversIntoRepairShopController {
     
       try {
         const res = await this.driversIntoRepairShopService.getUndoneOrdersByFilter(filters);
-        response.status(res.status).json(res.data);
+        response.status(res.status).json({
+          status: res.status,
+          data: res.data,
+          count: res.count,
+        });
+        
       } catch (error) {
         throw error; 
       }

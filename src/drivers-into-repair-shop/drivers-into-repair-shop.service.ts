@@ -34,41 +34,48 @@ export class DriversIntoRepairShopService {
       const driverInfoPromises = driverIds.map(driverId => this.authService.getDriverInfo(driverId));
       const driverInfoResults = await Promise.all(driverInfoPromises);
   
-      const data = undoneOrders.rows.map((item, index) => {
-        const breakDown = item.dataValues;
-        const driverInfo = driverInfoResults[index];
-        const carPieces = this.getCarPiecesHistory(breakDown.carNumber);
-        
-        return {
-          id: breakDown.id,
-          numberOfBreakDown: breakDown.numberOfBreakDown,
-          hours: breakDown.hoursDriverRegister,
-          history: breakDown.historyDriverRegister,
-          driverName: breakDown.driverName,
-          driverMobile: breakDown.driverMobile,
-          carNumber: breakDown.carNumber,
-          kilometer: breakDown.carLife,
-          transportComment: breakDown.transportComment,
-          logisticConfirm: breakDown.logisticConfirm,
-          repairmanComment: breakDown.repairmanComment,
-          historySendToRepair: breakDown.historySendToRepair,
-          historyReciveToRepair: breakDown.historyReciveToRepair,
-          histroyDeliveryTruck: breakDown.histroyDeliveryTruck,
-          historyDeliveryDriver: breakDown.historyDeliveryDriver,
-          piece: breakDown.piece,
-          piecesReplacementHistory: carPieces,
-          answers: this.getBreakDownItemsById(breakDown.truckBreakDownItemsId),
-          personelCode: driverInfo ? driverInfo.personelCode : null,
-          company: driverInfo ? driverInfo.company : null,
-          zone: driverInfo ? driverInfo.zone : null,
-        };
-      });
+      const data = await Promise.allSettled(
+        undoneOrders.rows.map(async (item, index) => {
+          const breakDown = item.dataValues;
+          const driverInfo = driverInfoResults[index];
+          const carPieces = this.getCarPiecesHistory(breakDown.carNumber);
+      
+          // فراخوانی متد getBreakDownItemsById به صورت async/await
+          const answers = await this.getBreakDownItemsById(breakDown.truckBreakDownItemsId);
+      
+          return {
+            id: breakDown.id,
+            numberOfBreakDown: breakDown.numberOfBreakDown,
+            hours: breakDown.hoursDriverRegister,
+            history: breakDown.historyDriverRegister,
+            driverName: breakDown.driverName,
+            driverMobile: breakDown.driverMobile,
+            carNumber: breakDown.carNumber,
+            kilometer: breakDown.carLife,
+            transportComment: breakDown.transportComment,
+            logisticConfirm: breakDown.logisticConfirm,
+            repairmanComment: breakDown.repairmanComment,
+            historySendToRepair: breakDown.historySendToRepair,
+            historyReciveToRepair: breakDown.historyReciveToRepair,
+            histroyDeliveryTruck: breakDown.histroyDeliveryTruck,
+            historyDeliveryDriver: breakDown.historyDeliveryDriver,
+            piece: breakDown.piece,
+            piecesReplacementHistory: carPieces,
+            answers: answers, // مقدار نهایی answers بازگردانده می‌شود
+            personelCode: driverInfo ? driverInfo.personelCode : null,
+            company: driverInfo ? driverInfo.company : null,
+            zone: driverInfo ? driverInfo.zone : null,
+          };
+        })
+      );
+      
   
       return {
         status: 200,
-        data,
-        count: undoneOrders.count,
+        data: data,
+        count: data.length,
       };
+      
     } catch (error) {
       console.error(error);
       throw new HttpException(
@@ -203,28 +210,34 @@ export class DriversIntoRepairShopService {
   async getBreakDownItemsById(id: number) {
     let data = [];
 
+    if (!id) {
+      console.warn('Invalid id provided to getBreakDownItemsById:', id);
+      return [];
+    }
+  
     const res = await this.truckBreakDownItemsRepository.findOne({
-      where: {
-        id: id,
-      },
+      where: { id: id },
     });
+  
+    if (!res) {
+      console.warn(`No record found for truckBreakDownItems with id: ${id}`);
+      return [];
+    }
+  
     const items = res.dataValues;
-    // console.log('items fetch: ', items);
-
-    // due to keys of field have unique number , answer_1, answer_2, ..., answe_20
+  
     for (let item = 1; item <= 20; item++) {
-      let report = {};
-      //  console.log(items[`answer_${item}`]); // #Debug
       if (items[`answer_${item}`] != null) {
-        report['type'] = items[`type_${item}`];
-        report['comment'] = items[`answer_${item}`];
-        report['number'] = item;
-        // console.log('reoprt: ', report); // #Debug
-        data.push(report);
+        data.push({
+          type: items[`type_${item}`],
+          comment: items[`answer_${item}`],
+          number: item,
+        });
       }
     }
-
+  
     return data;
   }
+  
 
 }

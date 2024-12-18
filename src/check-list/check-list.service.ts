@@ -16,6 +16,7 @@ import {
 } from 'src/static/fields-excelFile';
 import { generateDataExcel } from 'src/utility/export_excel';
 import { AuthService } from 'src/auth/services/auth.service';
+import { TruckBreakDown } from 'src/truck-break-down/truck-break-down.entity';
 
 @Injectable()
 export class CheckListService {
@@ -28,6 +29,8 @@ export class CheckListService {
     private readonly truckInfoRepository: typeof TruckInfo,
     @Inject('AUTH_REPOSITORY')
     private readonly authRepository: typeof Auth,
+    @Inject('TRUCKBREAKDOWN_REPOSITORY')
+    private readonly truckBreakDownRepository: typeof TruckBreakDown,
 
     private readonly authService: AuthService,
   ) {}
@@ -389,6 +392,8 @@ export class CheckListService {
         data.push(checkInfo);
       }
 
+      
+
       return {
         data: data,
         status: 200,
@@ -451,7 +456,15 @@ export class CheckListService {
       data['countUnRegister'] = userNotRegister.count;
       message = 'count of unregister check list  ';
 
-      return { status: 200, data: data, message: message };
+      const count = await this.truckBreakDownRepository.findAndCountAll({
+        where : {
+            logisticConfirm: { [Op.ne]: false },
+            transportComment: { [Op.in]: ['necessary', 'immediately'] },
+            historyDeliveryDriver: { [Op.ne]: null },
+        }
+      })
+
+      return { status: 200, data: data, message: message , count: count.count };
     } catch (err) {
       console.log(err);
     }

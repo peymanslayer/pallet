@@ -6,6 +6,7 @@ import { CheckListCommentProviders } from 'src/check-list-comment/check-list-com
 import { TruckInfoProviders } from 'src/truck-info/truck-info.provider';
 import { AuthProviders } from 'src/auth/auth.provider';
 import { AuthModule } from 'src/auth/auth.module';
+import { TruckBreakDownProviders } from 'src/truck-break-down/truck-break-down.provider';
 
 @Module({
   imports: [AuthModule],
@@ -16,6 +17,7 @@ import { AuthModule } from 'src/auth/auth.module';
     ...CheckListCommentProviders,
     ...TruckInfoProviders,
     ...AuthProviders,
+    ...TruckBreakDownProviders
   ],
   exports: [CheckListService],
 })

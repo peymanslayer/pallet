@@ -38,7 +38,7 @@ export class CheckListController {
       );
       response
         .status(res.status)
-        .json({ data: res.data, message: res.message });
+        .json({ data: res.data, message: res.message});
     } catch (err) {
       console.log(err);
       response.status(500).json(err);
@@ -74,7 +74,7 @@ export class CheckListController {
       const res = await this.checkListService.dailyCheckCount(date, done, zone);
       response
         .status(res.status)
-        .json({ data: res.data, message: res.message });
+        .json({ data: res.data, message: res.message , count : res.count});
     } catch (err) {
       console.log(err);
       response.status(500).json(err);

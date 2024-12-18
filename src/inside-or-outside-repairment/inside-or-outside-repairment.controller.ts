@@ -8,7 +8,7 @@ export class InternalOrExternalRepairmentController {
   constructor(private readonly insideOrOutsideRepairmenttService: InsideOrOutsideRepairmenttService) {}
 
   @Patch('api/cartex-type/add/:breakDownId')
-  async addCartexType(@Param('breakDownId') breakDownId: number , @Body() cartexDto : string , @Res() response: Response){
+  async addCartexType(@Param('breakDownId') breakDownId: number , @Body() cartexDto : CartexDto , @Res() response: Response){
     const res = await this.insideOrOutsideRepairmenttService.setInOrOurRepairment(breakDownId , cartexDto)
     response.status(res.status).json({
       status: res.status,
@@ -17,7 +17,7 @@ export class InternalOrExternalRepairmentController {
   }
 
   @Get('api/cartex-type')
-  async getInsideOrOutsideCartexType(@Query() cartexDto : string ,  @Res() response: Response ){
+  async getInsideOrOutsideCartexType(@Query() cartexDto : CartexDto ,  @Res() response: Response ){
     const res = await this.insideOrOutsideRepairmenttService.getInsideOrOutsideCompanyRepairments(cartexDto)
     response.status(res.status).json({
       status: res.status,

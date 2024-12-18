@@ -88,7 +88,7 @@ export class TruckBreakDownController {
         zone,
       );
       if (count) {
-        response.status(res.status).json({ data: res.data });
+        response.status(res.status).json({ data: res.data , count: res.count});
       } else {
         response.status(res.status).json({ data: res.data, count: res.count });
       }

@@ -1,7 +1,6 @@
 import { Sequelize } from 'sequelize-typescript';
 import { Auth } from 'src/auth/auth.entity';
 import { Order } from 'src/order/order.entity';
-import { Comment } from 'src/comment/comment..entity';
 import { Driver } from 'src/driver/driver.entity';
 import { OrderDriver } from 'src/order/orderDriver.entity';
 import { Stock } from 'src/ReceiveStock/stock.entity';
@@ -15,6 +14,8 @@ import { TruckInfo } from 'src/truck-info/truck-info.entity';
 import { RepairInvoice } from 'src/repair-invoice/rapair-invoice.entity';
 import { PeriodicTruckCheck } from 'src/periodic-truck-check/periodic-truck-check.entity';
 import { PeriodicType } from 'src/periodic-type/periodic-type.entity';
+import { Op } from 'sequelize';
+import { Comment } from 'src/comment/comment..entity';
 
 export const databaseProviders = [
   {
@@ -22,19 +23,11 @@ export const databaseProviders = [
     useFactory: async () => {
       const sequelize = new Sequelize({
         dialect: 'mysql',
-        //---------------------------------------- production db
-        // host: 'himalayas.liara.cloud',
-        // port: 32992,
-        // username: 'root',
-        // password: 'BS6DDKVRvog0oh8BZ7738DD6',
-        // database: 'nifty_diffie',
-        //---------------------------------------- test db
         host: 'localhost',
         port: 3306,
         username: 'root',
         password: '001Zein@b',
         database: 'test',
-
         logging: false,
         pool: {
           max: 15,
@@ -44,6 +37,8 @@ export const databaseProviders = [
           acquire: 30000,
         },
       });
+
+      // افزودن مدل‌ها به Sequelize
       sequelize.addModels([
         Auth,
         Order,
@@ -61,10 +56,25 @@ export const databaseProviders = [
         RepairInvoice,
         PeriodicTruckCheck,
         PeriodicType,
-        // Chat,
       ]);
-      //{ alter: true }
+
+      // حذف ایندکس‌های اضافی
+      const queryInterface = sequelize.getQueryInterface();
+
+      // فهرست کردن ایندکس‌ها
+      const indexes = await queryInterface.showIndex('PeriodicTypes') as Array<{ name: string, primary: boolean }>;
+
+      // حذف ایندکس‌ها
+      for (const index of indexes) {
+        if (index.primary === false) {
+          await queryInterface.removeIndex('PeriodicTypes', index.name);
+          console.log(`Index ${index.name} removed.`);
+        }
+      }
+
+      // همگام‌سازی مدل‌ها با دیتابیس
       await sequelize.sync({ alter: true }).then((e) => console.log(e));
+
       return sequelize;
     },
   },

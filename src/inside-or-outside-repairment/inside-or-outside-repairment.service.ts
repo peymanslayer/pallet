@@ -10,9 +10,9 @@ export class InsideOrOutsideRepairmenttService {
         private readonly truckBreakDownRepository: typeof TruckBreakDown,
     ){}
 
-    async setInOrOurRepairment(breakDownId: number, cartexDto: string) {    
+    async setInOrOurRepairment(breakDownId: number, cartexDto: CartexDto) {    
         const validCartexTypes = ['insideCompany', 'outsideCompany'];
-        if (!validCartexTypes.includes(cartexDto)) {
+        if (!validCartexTypes.includes(cartexDto.cartexType)) {
             return {
                 status: 400,
                 message: "مقدار کارتکس نامعتبر است",
@@ -28,7 +28,7 @@ export class InsideOrOutsideRepairmenttService {
         }
     
         await this.truckBreakDownRepository.update(
-            { cartexType: cartexDto }, 
+            { cartexType: cartexDto.cartexType }, 
             { where: { id: breakDownId } }
         );
     
@@ -41,9 +41,9 @@ export class InsideOrOutsideRepairmenttService {
         };
     }
     
-    async getInsideOrOutsideCompanyRepairments(cartexDto: string) {
+    async getInsideOrOutsideCompanyRepairments(cartexDto: CartexDto) {
         const getRepairments = await this.truckBreakDownRepository.findAndCountAll({
-            where: { cartexType: cartexDto },
+            where: { cartexType: cartexDto.cartexType },
             order: [['id', 'DESC']],
             limit: 20,
         });

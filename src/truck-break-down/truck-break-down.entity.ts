@@ -1,14 +1,17 @@
-import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
+import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from 'sequelize-typescript';
+import { Auth } from 'src/auth/auth.entity';
 import { TruckBreakDownStatus } from 'src/common/enum';
 import { RepairInvoice } from 'src/repair-invoice/rapair-invoice.entity';
+import { ROLES } from 'src/static/enum';
 
 @Table
 export class TruckBreakDown extends Model {
   @Column
   truckBreakDownItemsId: number;
 
+  @ForeignKey(() => Auth)
   @Column
-  driverId: string;
+  driverId: number;
 
   @Column
   driverName: string;

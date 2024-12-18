@@ -806,4 +806,18 @@ export class AuthService {
       console.log(err);
     }
   }
+
+
+
+ async getDriverInfo(driverId : number){
+  const driver =await this.authRepository.findOne({
+    where: {
+      id: driverId, 
+      role : ROLES.COMPANYDRIVER
+    },
+    attributes: ['personelCode', 'company', 'zone'], // فیلدهای موردنیاز از Auth
+  });
+  return driver
+ }
+  
 }

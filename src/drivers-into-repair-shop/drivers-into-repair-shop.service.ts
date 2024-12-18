@@ -88,52 +88,69 @@ export class DriversIntoRepairShopService {
 
   
 
-  async getUndoneOrdersByFilter(filters: { zone?: string, company?: string }) {
-    try {
-      const undoneOrders = await this.truckBreakDownRepository.findAndCountAll({
-        where: {
-          [Op.or]: [
-            { logisticConfirm: false },
-            { historyReciveToRepair: { [Op.ne]: null } },
-            { historyDeliveryDriver: null },
-          ],
-        },
-        order: [['id', 'DESC']],
-        limit: 20
-      });
-  
-      const driverIds = undoneOrders.rows.map(item => item.dataValues.driverId);
-  
-      const driverInfoPromises = driverIds.map(driverId => this.authService.getDriverInfo(driverId));
-      const driverInfoResults = await Promise.all(driverInfoPromises);
-  
-      const filteredDriverInfo = driverInfoResults.filter(driverInfo => {
-        let match = true;
-  
-        if (driverInfo) {
-          if (filters.zone) {
-            match = match && driverInfo.zone === filters.zone;
-          }
-          if (filters.company) {
-            match = match && driverInfo.company === filters.company;
-          }
-        } else {
-          match = false;
-        }
-  
-        return match;
-      });
-  
-      const data = undoneOrders.rows.map((item, index) => {
-        const breakDown = item.dataValues;
-        const driverInfo = filteredDriverInfo[index];
-  
-        if (!driverInfo) {
-          return null;
-        }
-  
+async getUndoneOrdersByFilter(filters: { zone?: string, company?: string }) {
+  try {
+    const undoneOrders = await this.truckBreakDownRepository.findAndCountAll({
+      where: {
+        [Op.or]: [
+          { logisticConfirm: false },
+          { historyReciveToRepair: { [Op.ne]: null } },
+          { historyDeliveryDriver: null },
+        ],
+      },
+      order: [['id', 'DESC']],
+      limit: 20,
+    });
+
+
+    const driverIds = undoneOrders.rows.map((item) => item.dataValues.driverId);
+
+
+    const driverInfoPromises = driverIds.map((driverId) =>
+      this.authService.getDriverInfo(driverId),
+    );
+    const driverInfoResults = await Promise.all(driverInfoPromises);
+
+
+    const combinedData = undoneOrders.rows.map((item, index) => {
+      const breakDown = item.dataValues;
+      const driverInfo = driverInfoResults[index];
+
+
+      if (!driverInfo) {
+        return null;
+      }
+
+      return {
+        breakDown,
+        driverInfo,
+      };
+    });
+
+
+
+    const filteredData = combinedData.filter((item) => {
+      if (!item) return false; 
+
+      const { driverInfo } = item;
+      let match = true;
+
+      if (filters.zone) {
+        match = match && driverInfo.zone === filters.zone;
+      }
+      if (filters.company) {
+        match = match && driverInfo.company === filters.company;
+      }
+
+      return match;
+    });
+
+
+    const data = await Promise.all(
+      filteredData.map(async ({ breakDown, driverInfo }) => {
         const carPieces = this.getCarPiecesHistory(breakDown.carNumber);
-  
+        const answers = await this.getBreakDownItemsById(breakDown.truckBreakDownItemsId);
+
         return {
           id: breakDown.id,
           numberOfBreakDown: breakDown.numberOfBreakDown,
@@ -152,27 +169,28 @@ export class DriversIntoRepairShopService {
           historyDeliveryDriver: breakDown.historyDeliveryDriver,
           piece: breakDown.piece,
           piecesReplacementHistory: carPieces,
-          answers: this.getBreakDownItemsById(breakDown.truckBreakDownItemsId),
-          personelCode: driverInfo ? driverInfo.personelCode : null,
-          company: driverInfo ? driverInfo.company : null,
-          zone: driverInfo ? driverInfo.zone : null,
+          answers,
+          personelCode: driverInfo.personelCode,
+          company: driverInfo.company,
+          zone: driverInfo.zone,
         };
-      }).filter(row => row !== null); 
-  
-      return {
-        status: 200,
-        data,
-        count: undoneOrders.count,
-      };
-    } catch (error) {
-      console.error(error);
-      throw new HttpException(
-        'An error occurred',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+      }),
+    );
+
+    return {
+      status: 200,
+      data,
+      count: data.length,
+    };
+  } catch (error) {
+    console.error("Error Occurred:", error); // لاگ خطا
+    throw new HttpException(
+      'An error occurred',
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
   }
-  
+}
+
 
   async getUserIdListByCompanyName(companyName: string) {
     return await this.authService.getUsersByCompanyName(companyName);

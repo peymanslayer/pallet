@@ -17,66 +17,75 @@ export class DriversIntoRepairShopService {
 
   async getUndoneOrders() {
     try {
-      const undoneOrders = await this.truckBreakDownRepository.findAndCountAll({
-        where: {
-          [Op.or]: [
-            { logisticConfirm: false },
-            { historyReciveToRepair: { [Op.ne]: null } },
-            { historyDeliveryDriver: null },
-          ],
-        },
-        order: [['id', 'DESC']],
-        limit: 20
-      });
-  
-      const driverIds = undoneOrders.rows.map(item => item.dataValues.driverId);
-  
-      const driverInfoPromises = driverIds.map(driverId => this.authService.getDriverInfo(driverId));
-      const driverInfoResults = await Promise.all(driverInfoPromises);
-  
-      const data = undoneOrders.rows.map((item, index) => {
-        const breakDown = item.dataValues;
-        const driverInfo = driverInfoResults[index];
-        const carPieces = this.getCarPiecesHistory(breakDown.carNumber);
-        
+        const undoneOrders = await this.truckBreakDownRepository.findAndCountAll({
+            where: {
+                [Op.or]: [
+                    { logisticConfirm: false },
+                    { historyReciveToRepair: { [Op.ne]: null } },
+                    { historyDeliveryDriver: null },
+                ],
+            },
+            order: [['id', 'DESC']],
+            limit: 20
+        });
+
+        const driverIds = undoneOrders.rows.map(item => item.dataValues.driverId);
+        const driverInfoPromises = driverIds.map(driverId => this.authService.getDriverInfo(driverId));
+        const driverInfoResults = await Promise.all(driverInfoPromises);
+
+        const data = await Promise.all(
+            undoneOrders.rows.map(async (item, index) => {
+                const breakDown = item.dataValues;
+                const driverInfo = driverInfoResults[index];
+                const carPieces = this.getCarPiecesHistory(breakDown.carNumber);
+
+                let answers;
+                try {
+                    answers = await this.getBreakDownItemsById(breakDown.truckBreakDownItemsId);
+                } catch (err) {
+                    answers = []; 
+                }
+
+                return {
+                    id: breakDown.id,
+                    numberOfBreakDown: breakDown.numberOfBreakDown,
+                    hours: breakDown.hoursDriverRegister,
+                    history: breakDown.historyDriverRegister,
+                    driverName: breakDown.driverName,
+                    driverMobile: breakDown.driverMobile,
+                    carNumber: breakDown.carNumber,
+                    kilometer: breakDown.carLife,
+                    transportComment: breakDown.transportComment,
+                    logisticConfirm: breakDown.logisticConfirm,
+                    repairmanComment: breakDown.repairmanComment,
+                    historySendToRepair: breakDown.historySendToRepair,
+                    historyReciveToRepair: breakDown.historyReciveToRepair,
+                    histroyDeliveryTruck: breakDown.histroyDeliveryTruck,
+                    historyDeliveryDriver: breakDown.historyDeliveryDriver,
+                    piece: breakDown.piece,
+                    piecesReplacementHistory: carPieces,
+                    answers: answers,
+                    personelCode: driverInfo ? driverInfo.personelCode : null,
+                    company: driverInfo ? driverInfo.company : null,
+                    zone: driverInfo ? driverInfo.zone : null,
+                };
+            })
+        );
+
         return {
-          id: breakDown.id,
-          numberOfBreakDown: breakDown.numberOfBreakDown,
-          hours: breakDown.hoursDriverRegister,
-          history: breakDown.historyDriverRegister,
-          driverName: breakDown.driverName,
-          driverMobile: breakDown.driverMobile,
-          carNumber: breakDown.carNumber,
-          kilometer: breakDown.carLife,
-          transportComment: breakDown.transportComment,
-          logisticConfirm: breakDown.logisticConfirm,
-          repairmanComment: breakDown.repairmanComment,
-          historySendToRepair: breakDown.historySendToRepair,
-          historyReciveToRepair: breakDown.historyReciveToRepair,
-          histroyDeliveryTruck: breakDown.histroyDeliveryTruck,
-          historyDeliveryDriver: breakDown.historyDeliveryDriver,
-          piece: breakDown.piece,
-          piecesReplacementHistory: carPieces,
-          personelCode: driverInfo ? driverInfo.personelCode : null,
-          answers: this.getBreakDownItemsById(breakDown.truckBreakDownItemsId),
-          company: driverInfo ? driverInfo.company : null,
-          zone: driverInfo ? driverInfo.zone : null,
+            status: 200,
+            data: data,
+            count: data.length,
         };
-      });
-  
-      return {
-        status: 200,
-        data : data,
-        count: data.length,
-      };
     } catch (error) {
-      console.error(error);
-      throw new HttpException(
-        'An error occurred',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+        console.error('Error in getUndoneOrders:', error);
+        throw new HttpException(
+            'An error occurred',
+            HttpStatus.INTERNAL_SERVER_ERROR,
+        );
     }
-  }
+}
+
   
 
   async getUndoneOrdersByFilter(filters: { zone?: string, company?: string }) {
@@ -164,10 +173,6 @@ export class DriversIntoRepairShopService {
     }
   }
   
-  
-  
-  
-
 
   async getUserIdListByCompanyName(companyName: string) {
     return await this.authService.getUsersByCompanyName(companyName);
@@ -203,7 +208,6 @@ export class DriversIntoRepairShopService {
   async getBreakDownItemsById(id: number) {
     let data = [];
   
-    // بررسی مقدار id
     if (!id) {
       console.warn('Invalid id provided to getBreakDownItemsById:', id);
       return [];
@@ -213,7 +217,6 @@ export class DriversIntoRepairShopService {
       where: { id: id },
     });
   
-    // بررسی عدم وجود رکورد
     if (!res) {
       console.warn(`No record found for truckBreakDownItems with id: ${id}`);
       return [];
@@ -221,10 +224,6 @@ export class DriversIntoRepairShopService {
   
     const items = res.dataValues;
   
-    // بررسی وجود داده و مقادیر
-    console.log('Fetched truckBreakDownItems:', items);
-  
-    // استخراج مقادیر answer_X و type_X
     for (let item = 1; item <= 20; item++) {
       if (items[`answer_${item}`] != null) {
         data.push({

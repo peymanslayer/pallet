@@ -23,6 +23,7 @@ import { RepairInvoiceModule } from './repair-invoice/repair-invoice.module';
 import { PeriodicTruckCheckModule } from './periodic-truck-check/periodic-truck-check.module';
 import { PeriodicTypeModule } from './periodic-type/periodic-type.module';
 import { DriversIntoRepairShopModule } from './drivers-into-repair-shop/drivers-into-repair-shop.module';
+import { InternalOrExternalRepairmentModule } from './inside-or-outside-repairment/inside-or-outside-repairment.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { DriversIntoRepairShopModule } from './drivers-into-repair-shop/drivers-
     PeriodicTruckCheckModule,
     PeriodicTypeModule,
     DriversIntoRepairShopModule,
+    InternalOrExternalRepairmentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

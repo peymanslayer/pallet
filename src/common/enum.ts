@@ -27,6 +27,11 @@ export enum PeriodicTruckCheckType {
   padBowl = 'padBowl',
 }
 
+export enum CartexType {
+  insideCompany = 'insideCompany' ,
+  outsideCompany = 'outsideCompany' ,
+}
+
 // export enum PeriodicTruckCheckType {
 //   engineOil = 'روغن موتور',
 

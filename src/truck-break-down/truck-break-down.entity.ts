@@ -82,6 +82,9 @@ export class TruckBreakDown extends Model {
   @Column
   lastFetch: Date;
 
+  @Column(DataType.ENUM('insideCompany', 'outsideCompany'))
+  cartexType: string
+
   @Column({ defaultValue: false })
   moveToCenter: boolean;
 

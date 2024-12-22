@@ -15,6 +15,7 @@ export class InsideOrOutsideRepairmenttService {
         if (!validCartexTypes.includes(cartexDto.cartexType)) {
             return {
                 status: 400,
+                data : [] ,
                 message: "مقدار کارتکس نامعتبر است",
             };
         }
@@ -23,6 +24,7 @@ export class InsideOrOutsideRepairmenttService {
         if (!breakDown) {
             return {
                 status: 404,
+                data : [] ,
                 message: "خرابی مورد نظر یافت نشد",
             };
         }
@@ -42,6 +44,15 @@ export class InsideOrOutsideRepairmenttService {
     }
     
     async getInsideOrOutsideCompanyRepairments(cartexDto: CartexDto) {
+        const validCartexTypes = ['insideCompany', 'outsideCompany'];
+        if (!validCartexTypes.includes(cartexDto.cartexType)) {
+            return {
+                status: 400,
+                data : [] ,
+                message: "مقدار کارتکس نامعتبر است",
+            };
+        }
+
         const getRepairments = await this.truckBreakDownRepository.findAndCountAll({
             where: { cartexType: cartexDto.cartexType },
             order: [['id', 'DESC']],
@@ -51,6 +62,7 @@ export class InsideOrOutsideRepairmenttService {
         if (getRepairments.count === 0) {
             return {
                 status: 404,
+                data : [] ,
                 message: "هیچ خرابی با این نوع کارتکس یافت نشد",
             };
         }

@@ -22,7 +22,8 @@ export class InternalOrExternalRepairmentController {
     response.status(res.status).json({
       status: res.status,
       data: res.data,
-      count : res.count
+      message: res.message,
+      count : res.count,
     });
 
   }

@@ -19,6 +19,7 @@ export class InternalOrExternalRepairmentController {
   @Get('api/cartex-type')
   async getInsideOrOutsideCartexType(@Query() cartexDto : CartexDto ,  @Res() response: Response ){
     const res = await this.insideOrOutsideRepairmenttService.getInsideOrOutsideCompanyRepairments(cartexDto)
+
     response.status(res.status).json({
       status: res.status,
       data: res.data,

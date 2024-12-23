@@ -25,17 +25,17 @@ export const databaseProviders = [
         dialect: 'mysql',
 
         //-------------------------------db-chstseven/liara
-        // host: 'himalayas.liara.cloud',
-        // port: 32679,
-        // username: 'root',
-        // password: 'XY9n0YoCwwTmjF7W6zZPYSSm',
-        // database: 'nifty_diffie',
-        //---------------------------------------db local
-        host: 'localhost',
-        port: 3306,
+        host: 'himalayas.liara.cloud',
+        port: 32679,
         username: 'root',
-        password: '001Zein@b',
-        database: 'test',
+        password: 'XY9n0YoCwwTmjF7W6zZPYSSm',
+        database: 'nifty_diffie',
+        //---------------------------------------db local
+        // host: 'localhost',
+        // port: 3306,
+        // username: 'root',
+        // password: '001Zein@b',
+        // database: 'test',
 
         logging: false,
         pool: {
@@ -66,27 +66,6 @@ export const databaseProviders = [
         PeriodicTruckCheck,
         PeriodicType,
       ]);
-
-      // حذف ایندکس‌های اضافی
-      const queryInterface = sequelize.getQueryInterface();
-
-      // فهرست کردن ایندکس‌ها
-      const indexes = (await queryInterface.showIndex(
-        'PeriodicTypes',
-      )) as Array<{ name: string; primary: boolean }>;
-
-      // حذف ایندکس‌ها
-      for (const index of indexes) {
-        if (index.primary === false) {
-          await queryInterface.removeIndex('PeriodicTypes', index.name);
-          console.log(`Index ${index.name} removed.`);
-        }
-      }
-
-      // همگام‌سازی مدل‌ها با دیتابیس
-      await sequelize.sync({ alter: true }).then((e) => console.log(e));
-
-      return sequelize;
     },
   },
 ];

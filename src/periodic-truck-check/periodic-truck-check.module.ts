@@ -17,5 +17,6 @@ import { PeriodicTypeProvider } from 'src/periodic-type/periodic-type.provider';
     ...AuthProviders,
     ...PeriodicTypeProvider,
   ],
+  exports : [PeriodicTruckCheckService]
 })
 export class PeriodicTruckCheckModule {}

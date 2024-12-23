@@ -33,4 +33,7 @@ export class TruckInfo extends Model<TruckInfo> {
 
   @HasMany(() => PeriodicTruckCheck)
   periodicTruckCheck: PeriodicTruckCheck[];
+    truckInfo: any;
+    endKilometer: number;
+    endDate: any;
 }

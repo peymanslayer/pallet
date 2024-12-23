@@ -17,18 +17,22 @@ export class DriversIntoRepairShopService {
 
   async getUndoneOrders() {
     try {
-        const undoneOrders = await this.truckBreakDownRepository.findAndCountAll({
-            where: {
-                [Op.or]: [
-                    { logisticConfirm: false },
-                    { historyReciveToRepair: { [Op.ne]: null } },
-                    { historyDeliveryDriver: null },
-                ],
-            },
-            order: [['id', 'DESC']],
-            limit: 20
-        });
-
+      const undoneOrders = await this.truckBreakDownRepository.findAndCountAll({
+        where: {
+            [Op.or]: [
+                { logisticConfirm: false }, 
+                { 
+                    [Op.or]: [
+                        { historyDeliveryDriver: null }, 
+                        { historyDeliveryDriver: "" }
+                    ] 
+                }
+            ],
+        },
+        order: [['id', 'DESC']],
+        limit: 20
+    });
+    
         const driverIds = undoneOrders.rows.map(item => item.dataValues.driverId);
         const driverInfoPromises = driverIds.map(driverId => this.authService.getDriverInfo(driverId));
         const driverInfoResults = await Promise.all(driverInfoPromises);
@@ -94,9 +98,19 @@ async getUndoneOrdersByFilter(filters: { zone?: string, company?: string }) {
       where: {
         [Op.or]: [
           { logisticConfirm: false },
-          { historyReciveToRepair: { [Op.ne]: null } },
-          { historyDeliveryDriver: null },
-        ],
+          {
+              [Op.or]: [
+                  { historySendToRepair: { [Op.is]: null } },
+                  { historySendToRepair: '' },
+              ],
+          },
+          {
+              [Op.or]: [
+                  { historyDeliveryDriver: { [Op.is]: null } },
+                  { historyDeliveryDriver: '' },
+              ],
+          },
+      ],
       },
       order: [['id', 'DESC']],
       limit: 20,

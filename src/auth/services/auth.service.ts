@@ -775,6 +775,7 @@ export class AuthService {
     zone: string,
     role: string = '',
     attributes: Array<string> = [],
+    company?: string,
   ) {
     let attribute = {};
 
@@ -782,6 +783,7 @@ export class AuthService {
     else attribute['attributes'] = attributes;
     if (!zone) zone = '%';
     if (!role) role = '%';
+    if (!company) company = '%';
     console.log('attributes: ', attributes);
     console.log('role', role);
     console.log('zone', zone);
@@ -789,6 +791,7 @@ export class AuthService {
       where: {
         zone: { [Op.like]: zone },
         role: { [Op.like]: role },
+        company: { [Op.like]: company },
       },
       ...attribute,
     });
@@ -807,17 +810,14 @@ export class AuthService {
     }
   }
 
-
-
- async getDriverInfo(driverId : number){
-  const driver =await this.authRepository.findOne({
-    where: {
-      id: driverId, 
-      role : ROLES.COMPANYDRIVER
-    },
-    attributes: ['personelCode', 'company', 'zone'], // فیلدهای موردنیاز از Auth
-  });
-  return driver
- }
-  
+  async getDriverInfo(driverId: number) {
+    const driver = await this.authRepository.findOne({
+      where: {
+        id: driverId,
+        role: ROLES.COMPANYDRIVER,
+      },
+      attributes: ['personelCode', 'company', 'zone'], // فیلدهای موردنیاز از Auth
+    });
+    return driver;
+  }
 }

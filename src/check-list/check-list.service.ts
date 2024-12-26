@@ -392,8 +392,6 @@ export class CheckListService {
         data.push(checkInfo);
       }
 
-      
-
       return {
         data: data,
         status: 200,
@@ -402,7 +400,12 @@ export class CheckListService {
     }
   }
 
-  async dailyCheckCount(date: string, done: string, zone: string) {
+  async dailyCheckCount(
+    date: string,
+    done: string,
+    zone: string,
+    company?: string,
+  ) {
     try {
       let where = {};
       let filter = {};
@@ -415,19 +418,22 @@ export class CheckListService {
 
       if (date) where['history'] = date;
 
-      if (zone) {
+      if (zone || company) {
         driversIdInSameZone = await this.getUsersSameZone(
           zone,
           'companyDriver',
           ['id'],
+          company,
         );
         driversIdInSameZone.forEach((user) => {
           usersIdInSameZone.push(user.dataValues['id']);
         });
         // console.log('userIdInSameZone  :', usersIdInSameZone); // #DEBUG
         where['userId'] = { [Op.in]: usersIdInSameZone };
-        filter['zone'] = zone;
+        if (zone) filter['zone'] = zone;
+        if (company) filter['company'] = company;
       }
+
       // console.log('where :', where); // #DEBUG
 
       // all zone and unique zone; register check list in "date"
@@ -457,14 +463,14 @@ export class CheckListService {
       message = 'count of unregister check list  ';
 
       const count = await this.truckBreakDownRepository.findAndCountAll({
-        where : {
-            logisticConfirm: { [Op.ne]: false },
-            transportComment: { [Op.in]: ['necessary', 'immediately'] },
-            historyDeliveryDriver: { [Op.ne]: null },
-        }
-      })
+        where: {
+          logisticConfirm: { [Op.ne]: false },
+          transportComment: { [Op.in]: ['necessary', 'immediately'] },
+          historyDeliveryDriver: { [Op.ne]: null },
+        },
+      });
 
-      return { status: 200, data: data, message: message , count: count.count };
+      return { status: 200, data: data, message: message, count: count.count };
     } catch (err) {
       console.log(err);
     }
@@ -557,7 +563,8 @@ export class CheckListService {
     zone: string,
     role: string,
     attributes: Array<string> = [],
+    company?: string,
   ) {
-    return await this.authService.userSameZone(zone, role, attributes);
+    return await this.authService.userSameZone(zone, role, attributes, company);
   }
 }

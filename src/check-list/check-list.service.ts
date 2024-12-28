@@ -434,182 +434,8 @@ export class CheckListService {
       let message: string;
       let data = {};
 
-  //     if (date) where['history'] = date;
+      if (date) where['history'] = date;
 
-  //     if (zone || company) {
-  //       driversIdInSameZone = await this.getUsersSameZone(
-  //         zone,
-  //         'companyDriver',
-  //         ['id'],
-  //         company,
-  //       );
-  //       driversIdInSameZone.forEach((user) => {
-  //         usersIdInSameZone.push(user.dataValues['id']);
-  //       });
-  //       // console.log('userIdInSameZone  :', usersIdInSameZone); // #DEBUG
-  //       where['userId'] = { [Op.in]: usersIdInSameZone };
-  //       if (zone) filter['zone'] = zone;
-  //       if (company) filter['company'] = company;
-  //     }
-  //     // console.log('where :', where); // #DEBUG
-
-  //     // all zone and unique zone; register check list in "date"
-  //     const userRegister = await this.checkListRepository.findAndCountAll({
-  //       where: { ...where },
-  //     });
-
-  //     data['countRegister'] = userRegister.count;
-  //     message = "count of register check list by driver's ";
-
-  //     // get id drivers register daily checklist for compute unregister driver
-  //     userRegister.rows.forEach((element) => {
-  //       idDriversDone.push(element.dataValues['userId']);
-  //     });
-
-  //     const userNotRegister = await this.authRepository.findAndCountAll({
-  //       where: {
-  //         [Op.and]: {
-  //           role: 'companyDriver',
-  //           id: { [Op.notIn]: idDriversDone },
-  //           ...filter,
-  //         },
-  //       },
-  //     });
-
-  //     data['countUnRegister'] = userNotRegister.count;
-  //     message = 'count of registered and unregister check list  ';
-
-  //     const underRepairCarDrivers = await this.getUsersSameZone(zone, 'companyDriver', ['id'], company);
-  //     const underRepairDriverIds = underRepairCarDrivers.map((driver) => driver.dataValues['id']);
-  //     console.log('Drivers in Same Zone for underRepairCars:', underRepairDriverIds);
-  
-  //     const underRepairCarsCount = await this.truckBreakDownRepository.findAndCountAll({
-  //       where: {
-  //         [Op.or]: [
-  //           { logisticConfirm: false },
-  //           {
-  //             [Op.or]: [
-  //               { historyDeliveryDriver: null },
-  //               { historyDeliveryDriver: "" },
-  //             ],
-  //           },
-  //         ],
-  //         ...(underRepairDriverIds.length > 0 && {
-  //           driverId: { [Op.in]: underRepairDriverIds },
-  //         }),
-  //       },
-  //     });
-
-  //     return { status: 200, data: data, message: message , underRepairCarsCount: underRepairCarsCount.count };
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // }
-
-
-  async dailyCheckCount(date: string, done: string, zone: string, company: string = "") {
-    try {
-      const data: any = {};
-  
-      // 1. استخراج driverIds بر اساس فیلتر zone و company از authRepository
-      const authWhere: any = {};
-      if (zone) authWhere['zone'] = zone;
-      if (company) authWhere['company'] = company;
-  
-      const drivers = await this.authRepository.findAll({
-        where: authWhere,
-        attributes: ['id'], // فقط شناسه راننده‌ها را نیاز داریم
-      });
-      
-  
-      const driverIds = drivers.map((driver) => driver.id);
-  
-      // اگر هیچ راننده‌ای با فیلترهای داده شده پیدا نشد، مقادیر پیش‌فرض 0 بازگردانده می‌شود.
-      if (driverIds.length === 0) {
-        return {
-          status: 200,
-          data: {
-            registeredCount: 0,
-            unregisteredCount: 0,
-            breakdownCount: 0,
-          },
-          underRepairCarsCount: 0,
-          message: 'No drivers found for the given filters.',
-        };
-      }
-  
-      // 2. شمارش کاربران ثبت‌شده در checkListRepository با استفاده از driverIds
-      const registeredWhere: any = { userId: { [Op.in]: driverIds } };
-      
-      if (date) registeredWhere['history'] = date;
-      
-      const registeredUsers = await this.checkListRepository.findAndCountAll({
-        where: registeredWhere,
-      });
-  
-      // 3. شمارش کاربران ثبت‌نشده
-      const unregisteredUsers = await this.authRepository.findAndCountAll({
-        where: {
-          role: 'companyDriver',
-          id: { [Op.in]: driverIds, [Op.notIn]: registeredUsers.rows.map((row) => row.userId) },
-        },
-      });
-
-      data['registeredCount'] = registeredUsers.count;
-      data['unregisteredCount'] = unregisteredUsers.count;
-  
-      // 4. عملیات مرتبط با Breakdown با فیلترهای zone و company
-      const breakdownWhere: any = {
-        // [Op.or]: [
-        //   { logisticConfirm: false },
-          // {
-            [Op.or]: [
-              { historyDeliveryDriver: null },
-              { historyDeliveryDriver: "" },
-            ],
-          // },
-        // ],
-        driverId: { [Op.in]: driverIds },
-      };
-  
-      const breakdownCount = await this.truckBreakDownRepository.findAndCountAll({
-        where: breakdownWhere,
-      });
-  
-      data['underRepairCarsCount'] = breakdownCount.count
-  
-      return {
-        status: 200,
-        data, // افزودن شمارش برای خودروهای در تعمیر (قابل افزودن)
-        message: 'Data fetched successfully with all filters applied.',
-      };
-    } catch (err) {
-      console.error(err);
-      throw new HttpException(err.message || 'Internal Server Error', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-  
-  
-  
-
-  
-  async dailyCheckCountTest(date: string, done: string, zone: string, company: string) {
-    try {
-      const where: any = {};
-      const filter: any = {};
-      const idDriversDone: number[] = [];
-      const usersIdInSameZone: number[] = [];
-      const data: any = {};
-  
-      // فیلتر تاریخ
-      if (date) {
-        where['history'] = date;
-      }
-  
-      // فیلتر منطقه
-      if (zone) {
-        const driversInZone = await this.getUsersSameZone(zone, 'companyDriver', ['id']);
-        driversInZone.forEach((user) => usersIdInSameZone.push(user.dataValues['id']));
       if (zone || company) {
         driversIdInSameZone = await this.getUsersSameZone(
           zone,
@@ -625,97 +451,145 @@ export class CheckListService {
         if (zone) filter['zone'] = zone;
         if (company) filter['company'] = company;
       }
-  
-      // فیلتر شرکت
-      if (company) {
-        const driversInCompany = await this.authRepository.findAll({
-          where: {
-            company,
-            role: 'companyDriver',
-          },
-          attributes: ['id'],
-        });
-        const companyDriverIds = driversInCompany.map((driver) => driver.id);
-        where['userId'] = { [Op.in]: companyDriverIds };
-        filter['company'] = company;
-      }
-  
-      // شمارش رانندگان ثبت‌نام‌شده
-
       // console.log('where :', where); // #DEBUG
 
       // all zone and unique zone; register check list in "date"
       const userRegister = await this.checkListRepository.findAndCountAll({
         where: { ...where },
       });
+
       data['countRegister'] = userRegister.count;
-  
-      // جمع‌آوری آی‌دی رانندگان ثبت‌شده
-      userRegister.rows.forEach((row) => {
-        if (row.dataValues['userId']) {
-          idDriversDone.push(row.dataValues['userId']);
-        }
+      message = "count of register check list by driver's ";
+
+      // get id drivers register daily checklist for compute unregister driver
+      userRegister.rows.forEach((element) => {
+        idDriversDone.push(element.dataValues['userId']);
       });
-  
-      // شمارش رانندگانی که ثبت‌نام نکرده‌اند
+
       const userNotRegister = await this.authRepository.findAndCountAll({
         where: {
-          role: 'companyDriver',
-          ...filter,
-          id: { [Op.notIn]: idDriversDone },
+          [Op.and]: {
+            role: 'companyDriver',
+            id: { [Op.notIn]: idDriversDone },
+            ...filter,
+          },
         },
       });
+
       data['countUnRegister'] = userNotRegister.count;
-  
-      // شمارش خرابی‌ها
-      let breakdownCount: number = 0;
-      if (done) {
-        const breakdownWhere: any = {
-          logisticConfirm: { [Op.ne]: false },
-          transportComment: { [Op.in]: ['necessary', 'immediately'] },
-          historyDeliveryDriver: { [Op.ne]: null },
-        };
-  
-        // breakdownWhere['status'] = done === 'completed' ? 'completed' : { [Op.ne]: 'completed' };
-  
-        if (zone) {
-          breakdownWhere['zone'] = zone;
-        }
-  
-        if (company) {
-          breakdownWhere['company'] = company;
-        }
-  
-        const breakdownResult = await this.truckBreakDownRepository.findAndCountAll({
-          where: breakdownWhere,
-        });
-  
-        breakdownCount = breakdownResult.count;
-      }
-  
-      // بازگشت داده‌ها
-      return {
-        status: 200,
-        data: { ...data },
-        count: breakdownCount,
-        message: `Data fetched successfully based on filters.`,
-      };
-      message = 'count of unregister check list  ';
+      message = 'count of registered and unregister check list  ';
 
-      const count = await this.truckBreakDownRepository.findAndCountAll({
+      const underRepairCarDrivers = await this.getUsersSameZone(zone, 'companyDriver', ['id'], company);
+      const underRepairDriverIds = underRepairCarDrivers.map((driver) => driver.dataValues['id']);
+      console.log('Drivers in Same Zone for underRepairCars:', underRepairDriverIds);
+  
+      const underRepairCarsCount = await this.truckBreakDownRepository.findAndCountAll({
         where: {
-          logisticConfirm: { [Op.ne]: false },
-          transportComment: { [Op.in]: ['necessary', 'immediately'] },
-          historyDeliveryDriver: { [Op.ne]: null },
+          [Op.or]: [
+            { logisticConfirm: false },
+            {
+              [Op.or]: [
+                { historyDeliveryDriver: null },
+                { historyDeliveryDriver: "" },
+              ],
+            },
+          ],
+          ...(underRepairDriverIds.length > 0 && {
+            driverId: { [Op.in]: underRepairDriverIds },
+          }),
         },
       });
+      data['underRepairCarsCount'] = underRepairCarsCount.count
 
-      return { status: 200, data: data, message: message, count: count.count };
+      return { status: 200, data: data, message: message };
     } catch (err) {
-      console.error(err);
-      throw new HttpException(err.message || 'Internal Server Error', HttpStatus.INTERNAL_SERVER_ERROR);
+      console.log(err);
     }
   }
+
+
+  // async dailyCheckCount(date: string, done: string, zone: string, company: string = "") {
+  //   try {
+  //     const data: any = {};
+  
+  //     // 1. استخراج driverIds بر اساس فیلتر zone و company از authRepository
+  //     const authWhere: any = {};
+  //     if (zone) authWhere['zone'] = zone;
+  //     if (company) authWhere['company'] = company;
+  
+  //     const drivers = await this.authRepository.findAll({
+  //       where: authWhere,
+  //       attributes: ['id'], // فقط شناسه راننده‌ها را نیاز داریم
+  //     });
+      
+  
+  //     const driverIds = drivers.map((driver) => driver.id);
+  
+  //     // اگر هیچ راننده‌ای با فیلترهای داده شده پیدا نشد، مقادیر پیش‌فرض 0 بازگردانده می‌شود.
+  //     if (driverIds.length === 0) {
+  //       return {
+  //         status: 200,
+  //         data: {
+  //           registeredCount: 0,
+  //           unregisteredCount: 0,
+  //           breakdownCount: 0,
+  //         },
+  //         underRepairCarsCount: 0,
+  //         message: 'No drivers found for the given filters.',
+  //       };
+  //     }
+  
+  //     // 2. شمارش کاربران ثبت‌شده در checkListRepository با استفاده از driverIds
+  //     const registeredWhere: any = { userId: { [Op.in]: driverIds } };
+      
+  //     if (date) registeredWhere['history'] = date;
+      
+  //     const registeredUsers = await this.checkListRepository.findAndCountAll({
+  //       where: registeredWhere,
+  //     });
+  
+  //     // 3. شمارش کاربران ثبت‌نشده
+  //     const unregisteredUsers = await this.authRepository.findAndCountAll({
+  //       where: {
+  //         role: 'companyDriver',
+  //         id: { [Op.in]: driverIds, [Op.notIn]: registeredUsers.rows.map((row) => row.userId) },
+  //       },
+  //     });
+
+  //     data['registeredCount'] = registeredUsers.count;
+  //     data['unregisteredCount'] = unregisteredUsers.count;
+  
+  //     // 4. عملیات مرتبط با Breakdown با فیلترهای zone و company
+  //     const breakdownWhere: any = {
+  //       // [Op.or]: [
+  //       //   { logisticConfirm: false },
+  //         // {
+  //           [Op.or]: [
+  //             { historyDeliveryDriver: null },
+  //             { historyDeliveryDriver: "" },
+  //           ],
+  //         // },
+  //       // ],
+  //       driverId: { [Op.in]: driverIds },
+  //     };
+  
+  //     const breakdownCount = await this.truckBreakDownRepository.findAndCountAll({
+  //       where: breakdownWhere,
+  //     });
+  
+  //     data['underRepairCarsCount'] = breakdownCount.count
+  
+  //     return {
+  //       status: 200,
+  //       data, // افزودن شمارش برای خودروهای در تعمیر (قابل افزودن)
+  //       message: 'Data fetched successfully with all filters applied.',
+  //     };
+  //   } catch (err) {
+  //     console.error(err);
+  //     throw new HttpException(err.message || 'Internal Server Error', HttpStatus.INTERNAL_SERVER_ERROR);
+  //   }
+  // }
+  
   
 
 
@@ -772,11 +646,6 @@ export class CheckListService {
       const checklistToDelete = await this.checkListRepository.findOne({
         where: { id: id },
       });
-      const removeCheckList = await this.checkListRepository.destroy({
-        where: {
-          id: id,
-        },
-      });
 
       const removeComment = await this.checkListCommentRepository.destroy({
         where: {
@@ -807,9 +676,9 @@ export class CheckListService {
     zone?: string,
     attributes: Array<string> = [],
     company?: string,
-    company?: string,
   ) {
-    return await this.authService.userSameZone(zone, role, attributes, company);
     return await this.authService.userSameZone(zone, role, attributes, company);
   }
 }
+
+

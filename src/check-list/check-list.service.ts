@@ -400,8 +400,6 @@ export class CheckListService {
         data.push(checkInfo);
       }
 
-      
-
       return {
         data: data,
         status: 200,
@@ -420,6 +418,21 @@ export class CheckListService {
   //     let countCheckList: number;
   //     let message: string;
   //     let data = {};
+  async dailyCheckCount(
+    date: string,
+    done: string,
+    zone: string,
+    company?: string,
+  ) {
+    try {
+      let where = {};
+      let filter = {};
+      let idDriversDone = [];
+      let driversIdInSameZone: Auth[] = [];
+      let usersIdInSameZone = [];
+      let countCheckList: number;
+      let message: string;
+      let data = {};
 
   //     if (date) where['history'] = date;
 
@@ -597,8 +610,20 @@ export class CheckListService {
       if (zone) {
         const driversInZone = await this.getUsersSameZone(zone, 'companyDriver', ['id']);
         driversInZone.forEach((user) => usersIdInSameZone.push(user.dataValues['id']));
+      if (zone || company) {
+        driversIdInSameZone = await this.getUsersSameZone(
+          zone,
+          'companyDriver',
+          ['id'],
+          company,
+        );
+        driversIdInSameZone.forEach((user) => {
+          usersIdInSameZone.push(user.dataValues['id']);
+        });
+        // console.log('userIdInSameZone  :', usersIdInSameZone); // #DEBUG
         where['userId'] = { [Op.in]: usersIdInSameZone };
-        filter['zone'] = zone;
+        if (zone) filter['zone'] = zone;
+        if (company) filter['company'] = company;
       }
   
       // فیلتر شرکت
@@ -616,6 +641,10 @@ export class CheckListService {
       }
   
       // شمارش رانندگان ثبت‌نام‌شده
+
+      // console.log('where :', where); // #DEBUG
+
+      // all zone and unique zone; register check list in "date"
       const userRegister = await this.checkListRepository.findAndCountAll({
         where: { ...where },
       });
@@ -671,6 +700,17 @@ export class CheckListService {
         count: breakdownCount,
         message: `Data fetched successfully based on filters.`,
       };
+      message = 'count of unregister check list  ';
+
+      const count = await this.truckBreakDownRepository.findAndCountAll({
+        where: {
+          logisticConfirm: { [Op.ne]: false },
+          transportComment: { [Op.in]: ['necessary', 'immediately'] },
+          historyDeliveryDriver: { [Op.ne]: null },
+        },
+      });
+
+      return { status: 200, data: data, message: message, count: count.count };
     } catch (err) {
       console.error(err);
       throw new HttpException(err.message || 'Internal Server Error', HttpStatus.INTERNAL_SERVER_ERROR);
@@ -767,7 +807,9 @@ export class CheckListService {
     zone?: string,
     attributes: Array<string> = [],
     company?: string,
+    company?: string,
   ) {
+    return await this.authService.userSameZone(zone, role, attributes, company);
     return await this.authService.userSameZone(zone, role, attributes, company);
   }
 }

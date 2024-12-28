@@ -809,17 +809,14 @@ export class AuthService {
     }
   }
 
-
-
- async getDriverInfo(driverId : number){
-  const driver =await this.authRepository.findOne({
-    where: {
-      id: driverId, 
-      role : ROLES.COMPANYDRIVER
-    },
-    attributes: ['personelCode', 'company', 'zone'], // فیلدهای موردنیاز از Auth
-  });
-  return driver
- }
-  
+  async getDriverInfo(driverId: number) {
+    const driver = await this.authRepository.findOne({
+      where: {
+        id: driverId,
+        role: ROLES.COMPANYDRIVER,
+      },
+      attributes: ['personelCode', 'company', 'zone'], // فیلدهای موردنیاز از Auth
+    });
+    return driver;
+  }
 }

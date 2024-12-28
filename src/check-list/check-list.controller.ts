@@ -38,7 +38,7 @@ export class CheckListController {
       );
       response
         .status(res.status)
-        .json({ data: res.data, message: res.message});
+        .json({ data: res.data, message: res.message });
     } catch (err) {
       console.log(err);
       response.status(500).json(err);
@@ -69,13 +69,21 @@ export class CheckListController {
     @Query('done') done: string,
     @Query('zone') zone: string,
     @Query('company') company: string,
+    @Query('company') company: string,
     @Res() response: Response,
   ) {
     try {
       const res = await this.checkListService.dailyCheckCount(date, done, zone , company);
+      const res = await this.checkListService.dailyCheckCount(
+        date,
+        done,
+        zone,
+        company,
+      );
       response
         .status(res.status)
         .json({ data: res.data, message: res.message});
+        .json({ data: res.data, message: res.message, count: res.count });
     } catch (err) {
       console.log(err);
       response.status(500).json(err);

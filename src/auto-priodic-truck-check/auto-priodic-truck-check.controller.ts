@@ -12,9 +12,4 @@ export class AutoPriodicTruckCheckController {
     return this.autoPriodicTruckCheckService.autoAdd(breakdownId , autoAdd)
   }
 
-
-  @Get('/api/auto-priodic-truck-check/alerts')
-  async getAlerts() {
-      return await this.autoPriodicTruckCheckService.getAlertPeriodicTruckCheck();
-  }
 }

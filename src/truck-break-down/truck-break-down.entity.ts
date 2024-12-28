@@ -39,11 +39,28 @@ export class TruckBreakDown extends Model {
   @Column({ defaultValue: false })
   logisticConfirm: boolean;
 
+  @Column({
+    type: DataType.VIRTUAL,
+    get() {
+      const confirm = this.getDataValue('logisticConfirm') ?? false;
+      return confirm === true;
+    },
+  })
+  isLogisticConfirmed: boolean;
+
   @Column
   logisticComment: string;
 
   @Column(DataType.ENUM('necessary', 'notNecessary', 'immediately'))
   transportComment: string;
+
+  @Column({
+    type: DataType.VIRTUAL,
+    get() {
+      return this.getDataValue('transportComment') !== null;
+    },
+  })
+  isTransportCommentValid: boolean;
 
   @Column
   transportCommentHistory: string;

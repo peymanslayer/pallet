@@ -12,6 +12,9 @@ export class CheckList extends Model<CheckList> {
   @Column
   hours: string;
 
+  @Column({ type: DataType.BOOLEAN , defaultValue : false})
+  isDeleted: boolean;
+
   @Column
   name: string;
 

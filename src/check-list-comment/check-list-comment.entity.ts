@@ -4,6 +4,10 @@ import { Column, DataType, Model, Table } from 'sequelize-typescript';
 export class CheckListComment extends Model<CheckListComment> {
   @Column
   checkListId: number;
+
+  @Column({type: DataType.BOOLEAN ,defaultValue : false})
+  isDeleted: boolean;
+
   @Column
   comment_0: string;
 

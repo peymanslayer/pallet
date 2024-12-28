@@ -68,18 +68,41 @@ export class CheckListController {
     @Query('date') date: string,
     @Query('done') done: string,
     @Query('zone') zone: string,
+    @Query('company') company: string,
     @Res() response: Response,
   ) {
     try {
-      const res = await this.checkListService.dailyCheckCount(date, done, zone);
+      const res = await this.checkListService.dailyCheckCount(date, done, zone , company);
       response
         .status(res.status)
-        .json({ data: res.data, message: res.message , count : res.count});
+        .json({ data: res.data, message: res.message});
     } catch (err) {
       console.log(err);
       response.status(500).json(err);
     }
   }
+  
+
+  // @Get('/api/checklist/dailycheck/count/test')
+  // async checkListDailyCountTest(
+  //   @Query('date') date: string,
+  //   @Query('done') done: string,
+  //   @Query('zone') zone: string,
+  //   @Query('company') company: string,
+  //   @Res() response: Response,
+  // ) {
+  //   try {
+  //     const res = await this.checkListService.dailyCheckCountTest(date, done, zone , company);
+  //     response
+  //       .status(res.status)
+  //       .json({ data: res.data, message: res.message , count : res.count});
+  //   } catch (err) {
+  //     console.log(err);
+  //     response.status(500).json(err);
+  //   }
+  // }
+
+
 
   @Get('/api/checklist/export')
   async exportReportLogisticAdmin(

@@ -25,6 +25,7 @@ import { PeriodicTypeModule } from './periodic-type/periodic-type.module';
 import { DriversIntoRepairShopModule } from './drivers-into-repair-shop/drivers-into-repair-shop.module';
 import { InternalOrExternalRepairmentModule } from './inside-or-outside-repairment/inside-or-outside-repairment.module';
 import { AutoPriodicTruckCheckModule } from './auto-priodic-truck-check/auto-priodic-truck-check.module';
+import { ExcelReportsModule } from './excel-reports/excel-reports.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { AutoPriodicTruckCheckModule } from './auto-priodic-truck-check/auto-pri
     DriversIntoRepairShopModule,
     InternalOrExternalRepairmentModule,
     AutoPriodicTruckCheckModule,
+    ExcelReportsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

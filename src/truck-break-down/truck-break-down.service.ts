@@ -637,6 +637,13 @@ export class TruckBreakDownService {
         id: id,
       },
     });
+    const status = {
+      logisticConfirm: !!breakDown?.isLogisticConfirmed,
+      transportComment: !!breakDown?.isTransportCommentValid,
+      repairComment: !!breakDown?.historyRepairComment,
+      deliveryDriver: !!breakDown?.historyDeliveryDriver,
+    };
+    
     // create report for each breakdwon
     const res = await this.truckBreakDownItemsRepository.findOne({
       where: {
@@ -667,6 +674,7 @@ export class TruckBreakDownService {
       }
     }
     data['answers'] = arrAns;
+    data['status'] = status
     //   console.log(data);
     return {
       status: 200,

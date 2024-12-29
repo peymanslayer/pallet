@@ -7,7 +7,6 @@ import {
   CHECKLIST_ANSWERS,
   FIELDS_OF_EXCEL_CHECKLIST_DONE,
   FIELDS_OF_EXCEL_CHECKLIST_UNDONE,
-  ROLES,
 } from 'src/static/enum';
 import { Auth } from 'src/auth/auth.entity';
 import { Workbook } from 'exceljs';
@@ -34,7 +33,7 @@ export class CheckListService {
     private readonly truckBreakDownRepository: typeof TruckBreakDown,
 
     private readonly authService: AuthService,
-  ) { }
+  ) {}
   async insertCheckList(body: Object) {
     const checkList = {};
     const checkListComment = {};
@@ -141,13 +140,12 @@ export class CheckListService {
   async checkCarLifeMoreThanLast(driverId: number, newCarLife: string) {
     const newCarLifeValue = parseInt(newCarLife);
 
-    if (newCarLifeValue < 50 || newCarLifeValue > 800) {
-      return {
-        status: 200,
-        data: [],
-        message: "مقدار وارد شده باید بیشتر از 50 و کمتر از 800 باشد"
-      };
-    }
+  if (newCarLifeValue < 50 || newCarLifeValue > 800) {
+    return { status: 200 ,
+             data: [] ,
+             message : "مقدار وارد شده باید بیشتر از 50 و کمتر از 800 باشد"
+     };
+  }
     const res = await this.truckInfoRepository.findOne({
       where: {
         driverId: driverId,
@@ -179,12 +177,6 @@ export class CheckListService {
         [Op.between]: [`${beforHistory}`, `${afterHistory}`],
       };
     if (userId) where['userId'] = userId;
-
-    // check role for not showing deleted items
-    const user = await this.authRepository.findByPk(userId);
-    if (user.role == ROLES.COMPANYDRIVER) {
-      where["isDeleted"] = false
-    }
     //get all of checklist of user checklists
     const res = await this.checkListRepository.findAndCountAll({
       where: where,
@@ -318,7 +310,6 @@ export class CheckListService {
       }
 
       if (date) where['history'] = date;
-
 
       // console.log('where cluase : \n', where); // #DEBUG
 
@@ -491,7 +482,7 @@ export class CheckListService {
       const underRepairCarDrivers = await this.getUsersSameZone(zone, 'companyDriver', ['id'], company);
       const underRepairDriverIds = underRepairCarDrivers.map((driver) => driver.dataValues['id']);
       console.log('Drivers in Same Zone for underRepairCars:', underRepairDriverIds);
-
+  
       const underRepairCarsCount = await this.truckBreakDownRepository.findAndCountAll({
         where: {
           [Op.or]: [
@@ -520,20 +511,20 @@ export class CheckListService {
   // async dailyCheckCount(date: string, done: string, zone: string, company: string = "") {
   //   try {
   //     const data: any = {};
-
+  
   //     // 1. استخراج driverIds بر اساس فیلتر zone و company از authRepository
   //     const authWhere: any = {};
   //     if (zone) authWhere['zone'] = zone;
   //     if (company) authWhere['company'] = company;
-
+  
   //     const drivers = await this.authRepository.findAll({
   //       where: authWhere,
   //       attributes: ['id'], // فقط شناسه راننده‌ها را نیاز داریم
   //     });
-
-
+      
+  
   //     const driverIds = drivers.map((driver) => driver.id);
-
+  
   //     // اگر هیچ راننده‌ای با فیلترهای داده شده پیدا نشد، مقادیر پیش‌فرض 0 بازگردانده می‌شود.
   //     if (driverIds.length === 0) {
   //       return {
@@ -547,16 +538,16 @@ export class CheckListService {
   //         message: 'No drivers found for the given filters.',
   //       };
   //     }
-
+  
   //     // 2. شمارش کاربران ثبت‌شده در checkListRepository با استفاده از driverIds
   //     const registeredWhere: any = { userId: { [Op.in]: driverIds } };
-
+      
   //     if (date) registeredWhere['history'] = date;
-
+      
   //     const registeredUsers = await this.checkListRepository.findAndCountAll({
   //       where: registeredWhere,
   //     });
-
+  
   //     // 3. شمارش کاربران ثبت‌نشده
   //     const unregisteredUsers = await this.authRepository.findAndCountAll({
   //       where: {
@@ -567,7 +558,7 @@ export class CheckListService {
 
   //     data['registeredCount'] = registeredUsers.count;
   //     data['unregisteredCount'] = unregisteredUsers.count;
-
+  
   //     // 4. عملیات مرتبط با Breakdown با فیلترهای zone و company
   //     const breakdownWhere: any = {
   //       // [Op.or]: [
@@ -581,13 +572,13 @@ export class CheckListService {
   //       // ],
   //       driverId: { [Op.in]: driverIds },
   //     };
-
+  
   //     const breakdownCount = await this.truckBreakDownRepository.findAndCountAll({
   //       where: breakdownWhere,
   //     });
-
+  
   //     data['underRepairCarsCount'] = breakdownCount.count
-
+  
   //     return {
   //       status: 200,
   //       data, // افزودن شمارش برای خودروهای در تعمیر (قابل افزودن)
@@ -598,8 +589,8 @@ export class CheckListService {
   //     throw new HttpException(err.message || 'Internal Server Error', HttpStatus.INTERNAL_SERVER_ERROR);
   //   }
   // }
-
-
+  
+  
 
 
   async exportReport(
@@ -656,11 +647,11 @@ export class CheckListService {
         where: { id: id },
       });
 
-      // const removeComment = await this.checkListCommentRepository.destroy({
-      //   where: {
-      //     checkListId: id,
-      //   },
-      // });
+      const removeComment = await this.checkListCommentRepository.destroy({
+        where: {
+          checkListId: id,
+        },
+      });
 
       const perviousCheckListOfUser = await this.checkListRepository.findOne({
         where: {
@@ -668,10 +659,8 @@ export class CheckListService {
         },
         order: [['id', 'DESC']],
       });
-      perviousCheckListOfUser.isDeleted = true
-      perviousCheckListOfUser.save()
 
-      await this.truckInfoRepository.update(
+      const updateLastCarLife = await this.truckInfoRepository.update(
         { lastCarLife: perviousCheckListOfUser.answer_0.toString() },
         { where: { driverId: checklistToDelete.userId } },
       );

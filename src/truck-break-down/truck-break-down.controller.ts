@@ -26,6 +26,16 @@ export class TruckBreakDownController {
     }
   }
 
+  @Get('/api/truckbreakdown/pieces')
+  async getAllCarNumbers(
+    @Res() response: Response
+  ){
+    const res = await this.truckBreakDownService.getAllPieces()
+    response
+        .status(res.status)
+        .json({ data: res.data, message: res.message});
+  }
+
   @Get('/api/truckbreakdown/driver/notify')
   async driverNotifyReplay(
     @Query('userId') userId: any,

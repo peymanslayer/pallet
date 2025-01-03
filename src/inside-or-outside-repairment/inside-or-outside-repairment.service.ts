@@ -17,15 +17,7 @@ export class InsideOrOutsideRepairmenttService {
     ){}
 
     async setInOrOurRepairment(breakDownId: number, cartexDto: CartexDto) {    
-        const validCartexTypes = ['insideCompany', 'outsideCompany'];
-        if (!validCartexTypes.includes(cartexDto.cartexType)) {
-            return {
-                status: 200,
-                data : [] ,
-                message: "مقدار کارتکس نامعتبر است",
-            };
-        }
-    
+       
         const breakDown = await this.truckBreakDownRepository.findByPk(breakDownId);
         if (!breakDown) {
             return {
@@ -50,15 +42,7 @@ export class InsideOrOutsideRepairmenttService {
     }
     
     async getInsideOrOutsideCompanyRepairments(cartexDto: CartexDto) {
-        const validCartexTypes = ['insideCompany', 'outsideCompany'];
-        if (!validCartexTypes.includes(cartexDto.cartexType)) {
-            return {
-                status: 200,
-                data: [],
-                message: "مقدار کارتکس نامعتبر است",
-            };
-        }
-    
+     
         const getRepairments = await this.truckBreakDownRepository.findAndCountAll({
             where: {
                 cartexType: cartexDto.cartexType,

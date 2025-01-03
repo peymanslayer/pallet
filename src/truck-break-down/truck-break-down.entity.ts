@@ -1,3 +1,4 @@
+
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from 'sequelize-typescript';
 import { Auth } from 'src/auth/auth.entity';
 import { TruckBreakDownStatus } from 'src/common/enum';
@@ -93,14 +94,22 @@ export class TruckBreakDown extends Model {
   @Column
   historyDeliveryDriver: string;
 
-  @Column
-  piece: string;
+  @Column({
+    type: DataType.JSON,
+    allowNull: false,
+    defaultValue: {},
+  })
+  piece: Record<string, any>;
+
 
   @Column
   lastFetch: Date;
 
   @Column(DataType.ENUM('insideCompany', 'outsideCompany'))
   cartexType: string
+
+  @Column({type : DataType.BOOLEAN , defaultValue: false} )
+  driverDeliveryConfirm: boolean
 
   @Column({ defaultValue: false })
   moveToCenter: boolean;

@@ -30,6 +30,8 @@ export enum PeriodicTruckCheckType {
 export enum CartexType {
   insideCompany = 'insideCompany' ,
   outsideCompany = 'outsideCompany' ,
+  insideZone = 'insideZone' ,
+  inTehran = 'inTehran'
 }
 
 // export enum PeriodicTruckCheckType {

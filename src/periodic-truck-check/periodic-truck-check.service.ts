@@ -137,95 +137,181 @@ export class PeriodicTruckCheckService {
   }
   
 
+  // async getAlertPeriodicTruckCheck() {
+  //   try {
+  //     const data = [];
+
+  //     const periodicInfo = await this.periodicTruckCheckRepository.findAll({
+  //       include: [
+  //         {
+  //           model: TruckInfo,
+  //         },
+  //       ],
+  //     });
+
+  //     const periodicTypes = await this.periodicTypeRepository.findAll({
+  //       attributes: ['name', 'type'],
+  //     });
+
+  //     for (let periodic of periodicInfo) {
+
+  //       periodic.type = periodicTypes.find(
+  //         (item) => item.type === periodic.type,
+  //       ).type
+  //       if (
+  //         periodic.endKilometer - Number(periodic.truckInfo.lastCarLife) <=
+  //         alertKilometer
+  //       ) {
+  //         const itemData = {};
+  //         const user = await this.authRepository.findOne({
+  //           where: {
+  //             id: periodic.dataValues.truckInfo.driverId,
+  //           },
+  //         });
+  //         if (user?.id) {
+  //           itemData['id'] = periodic.id;
+  //           itemData['driverName'] = user.name;
+  //           itemData['driverMobile'] = user.mobile;
+  //           itemData['endDate'] = periodic.endDate;
+  //           itemData['endKilometer'] = periodic.endKilometer;
+  //           itemData['carNumber'] = periodic.truckInfo.carNumber;
+  //           itemData['type'] = periodic.type;
+  //           itemData['calculateKilometer'] =
+  //             periodic.endKilometer - Number(periodic.truckInfo.lastCarLife);
+
+  //           data.push(itemData);
+  //         }
+  //       }
+  //       if (periodic.type === 'technicalInspection' || periodic.type === 'tire' ) {
+  //         const now = new Date();
+  //         const endDate = new Date(periodic.endDate);
+  //         const differenceInDays =
+  //           (endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
+        
+        
+  //         if (differenceInDays <= 7) {
+  //           const user = await this.authRepository.findOne({
+  //             where: {
+  //               id: periodic.dataValues.truckInfo.driverId,
+  //             },
+  //           });
+        
+  //           if (user?.id) {
+  //             const itemData = {
+  //               id: periodic.id,
+  //               driverName: user.name,
+  //               driverMobile: user.mobile,
+  //               endDate: periodic.endDate,
+  //               endKilometer: periodic.endKilometer,
+  //               carNumber: periodic.truckInfo.carNumber,
+  //               type: periodic.type,
+  //               alertMessage: 'معاینه قنی شما تا 15 روز دیگر منقضی میشود',
+  //               daysRemaining: Math.floor(differenceInDays), 
+  //             };
+        
+  //             data.push(itemData);
+  //           } 
+  //         }
+  //       }
+  //     }
+        
+  //     return { data: data, status: 200, message: 'successfully' };
+
+
+  //   } catch (err) {
+  //     console.log(err);
+  //     throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+  //   }
+  // }
+
   async getAlertPeriodicTruckCheck() {
     try {
-      const data = [];
+        const data = [];
 
-      const periodicInfo = await this.periodicTruckCheckRepository.findAll({
-        include: [
-          {
-            model: TruckInfo,
-          },
-        ],
-      });
+        const periodicInfo = await this.periodicTruckCheckRepository.findAll({
+            include: [{ model: TruckInfo }],
+        });
 
-      const periodicTypes = await this.periodicTypeRepository.findAll({
-        attributes: ['name', 'type'],
-      });
+        const periodicTypes = await this.periodicTypeRepository.findAll({
+            attributes: ['name', 'type'],
+        });
 
-      for (let periodic of periodicInfo) {
+        for (let periodic of periodicInfo) {
+            periodic.type = periodicTypes.find(
+                (item) => item.type === periodic.type,
+            ).type;
 
-        periodic.type = periodicTypes.find(
-          (item) => item.type === periodic.type,
-        ).type
-        if (
-          periodic.endKilometer - Number(periodic.truckInfo.lastCarLife) <=
-          alertKilometer
-        ) {
-          const itemData = {};
-          const user = await this.authRepository.findOne({
-            where: {
-              id: periodic.dataValues.truckInfo.driverId,
-            },
-          });
-          if (user?.id) {
-            itemData['id'] = periodic.id;
-            itemData['driverName'] = user.name;
-            itemData['driverMobile'] = user.mobile;
-            itemData['endDate'] = periodic.endDate;
-            itemData['endKilometer'] = periodic.endKilometer;
-            itemData['carNumber'] = periodic.truckInfo.carNumber;
-            itemData['type'] = periodic.type;
-            itemData['calculateKilometer'] =
-              periodic.endKilometer - Number(periodic.truckInfo.lastCarLife);
-
-            data.push(itemData);
-          }
-        }
-        if (periodic.type === 'technicalInspection') {
-          const now = new Date();
-          const endDate = new Date(periodic.endDate);
-          const differenceInDays =
-            (endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
-        
-        
-          if (differenceInDays <= 15) {
             const user = await this.authRepository.findOne({
-              where: {
-                id: periodic.dataValues.truckInfo.driverId,
-              },
+                where: { id: periodic.dataValues.truckInfo.driverId },
             });
-        
-            if (user?.id) {
-              const itemData = {
-                id: periodic.id,
-                driverName: user.name,
-                driverMobile: user.mobile,
-                endDate: periodic.endDate,
-                endKilometer: periodic.endKilometer,
-                carNumber: periodic.truckInfo.carNumber,
-                type: periodic.type,
-                alertMessage: 'معاینه قنی شما تا 15 روز دیگر منقضی میشود',
-                daysRemaining: Math.floor(differenceInDays), 
-              };
-        
-              data.push(itemData);
-            } 
-          }
+
+            if (!user?.id) continue;
+
+            const now = new Date();
+            const endDate = new Date(periodic.endDate);
+            const differenceInDays = (endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
+
+            const truckInfo = periodic.truckInfo;
+            const lastCarLife = Number(truckInfo.lastCarLife);
+
+
+            if (periodic.type === 'tire') {
+                if (periodic.endKilometer - lastCarLife <= alertKilometer) {
+                    const itemData = {
+                        id: periodic.id,
+                        driverName: user.name,
+                        driverMobile: user.mobile,
+                        endDate: periodic.endDate,
+                        endKilometer: periodic.endKilometer,
+                        carNumber: truckInfo.carNumber,
+                        type: periodic.type,
+                        alertMessage: `تایر شما به کیلومتر ${periodic.endKilometer} نزدیک است.`,
+                        daysRemaining: Math.floor(differenceInDays),
+                    };
+                    data.push(itemData);
+                }
+
+                if (differenceInDays <= 7) {
+                    const itemData = {
+                        id: periodic.id,
+                        driverName: user.name,
+                        driverMobile: user.mobile,
+                        endDate: periodic.endDate,
+                        endKilometer: periodic.endKilometer,
+                        carNumber: truckInfo.carNumber,
+                        type: periodic.type,
+                        alertMessage: `تایر شما تا 7 روز دیگر منقضی می‌شود`,
+                        daysRemaining: Math.floor(differenceInDays),
+                    };
+                    data.push(itemData);
+                }
+            }
+
+            if (periodic.type === 'technicalInspection') {
+                if (differenceInDays <= 7) {
+                    const itemData = {
+                        id: periodic.id,
+                        driverName: user.name,
+                        driverMobile: user.mobile,
+                        endDate: periodic.endDate,
+                        endKilometer: periodic.endKilometer,
+                        carNumber: truckInfo.carNumber,
+                        type: periodic.type,
+                        alertMessage: `معاینه فنی شما تا 7 روز دیگر منقضی می‌شود`,
+                        daysRemaining: Math.floor(differenceInDays),
+                    };
+                    data.push(itemData);
+                }
+            }
         }
-      }
-        
-      return { data: data, status: 200, message: 'successfully' };
 
-
+        return { data, status: 200, message: 'successfully' };
     } catch (err) {
-      console.log(err);
-      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+        console.log(err);
+        throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-  }
+}
 
-
-  
 
 
   async removePeriodicTruckCheck(periodicId: number) {

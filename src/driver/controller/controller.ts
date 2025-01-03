@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { DriverService } from '../services/driver.service';
 import { Post, Body, Res } from '@nestjs/common';
 import { Response } from 'express';
@@ -39,5 +39,13 @@ export class DriverController {
       console.log(err);
       response.status(500).json('inetrnal server error');
     }
+  }
+
+  @Get('/api/driverNames')
+  async getDriversName(
+    @Res() response: Response,
+  ){
+    const res = await this.driverService.getDriversName()
+    response.status(res.status).json({ data: res.data, message: res.message});
   }
 }

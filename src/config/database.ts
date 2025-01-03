@@ -25,17 +25,17 @@ export const databaseProviders = [
         dialect: 'mysql',
 
         //-------------------------------db-chstseven/liara
-        // host: 'himalayas.liara.cloud',
-        // port: 32679,
-        // username: 'root',
-        // password: 'XY9n0YoCwwTmjF7W6zZPYSSm',
-        // database: 'nifty_diffie',
-        //---------------------------------------db local
-        host: 'localhost',
-        port: 3306,
+        host: 'himalayas.liara.cloud',
+        port: 32679,
         username: 'root',
-        password: '001Zein@b',
-        database: 'test',
+        password: 'XY9n0YoCwwTmjF7W6zZPYSSm',
+        database: 'nifty_diffie',
+        //---------------------------------------db local
+        // host: 'localhost',
+        // port: 3306,
+        // username: 'root',
+        // password: '001Zein@b',
+        // database: 'test',
 
         logging: false,
         pool: {

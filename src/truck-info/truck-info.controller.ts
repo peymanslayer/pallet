@@ -1,5 +1,6 @@
-import { Body, Controller, Get, Param, Put, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Put, Query, Res } from '@nestjs/common';
 import { TruckInfoService } from './truck-info.service';
+import { Response } from 'express';
 
 @Controller()
 export class TruckInfoController {
@@ -15,6 +16,16 @@ export class TruckInfoController {
     } catch (err) {
       console.log(err);
     }
+  }
+
+  @Get('/api/truckInfo/carNumbers')
+  async getAllCarNumbers(
+    @Res() response: Response
+  ){
+    const res = await this.truckInfoService.getAllCarNumbers()
+    response
+        .status(res.status)
+        .json({ data: res.data, message: res.message});
   }
 
   @Get('/api/truckInfo/carNumber/:carNumber')

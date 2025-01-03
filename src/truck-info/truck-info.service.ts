@@ -159,4 +159,26 @@ export class TruckInfoService {
       console.log(err);
     }
   }
+
+  async getAllCarNumbers(){
+    try {
+      const carNumbers = await this.truckInfoRepository.findAll({
+        attributes: ['carNumber'],
+      })
+      if(!carNumbers) {
+        return {
+          status : 200 ,
+          data : [] ,
+          message: "پلاکی یافت نشد"
+        }
+      }
+      return {
+        status : 200 ,
+        data : carNumbers ,
+        message: "پلاک ها یا موفقیت یافت شدند"
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }

@@ -100,4 +100,24 @@ export class DriverService {
     );
     return updateDriver;
   }
+
+  async getDriversName(){
+    const drivers = await this.driverRepository.findAll({
+      attributes: ['driverName'],
+    })
+
+    if(!drivers) {
+      return {
+        status : 200 ,
+        data : [] ,
+        message : "راننده ای یافت نشد"
+      }
+    }
+
+    return {
+      status : 200 ,
+      data : drivers ,
+      message : "نام رانندگان با موفقیت بازیابی شدند"
+    }
+  }
 }

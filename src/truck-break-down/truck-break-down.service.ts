@@ -426,7 +426,7 @@ export class TruckBreakDownService {
         row['driverName'] = breakDown['driverName'];
         row['driverMobile'] = breakDown['driverMobile'];
         row['carNumber'] = breakDown['carNumber'];
-        row['kilometer'] = breakDown['carLife']; // carLife set value when driver register daily check list
+        row['kilometer'] = breakDown['carLife'];
         row['logisticConfirm'] = breakDown['logisticConfirm'];
         row['transportComment'] = breakDown['transportComment'];
         row['historySendToRepair'] = breakDown['historySendToRepair'];
@@ -913,5 +913,27 @@ export class TruckBreakDownService {
     const month = date.getMonth() + 1; // TODO: check
     const day = date.getDate();
     return `${time}/${month}/${day}`;
+  }
+
+  async getAllPieces(){
+    try {
+      const pieces = await this.truckBreakDownRepository.findAll({
+        attributes: ['piece'],
+      });
+      if(!pieces) {
+        return {
+          status : 200 ,
+          data : [] ,
+          message: "قطعه ای یافت نشد"
+        }
+      }
+      return {
+        status : 200 ,
+        data : pieces ,
+        message: "قطعه ها یا موفقیت یافت شدند"
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

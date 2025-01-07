@@ -24,6 +24,7 @@ export class CheckListController {
     @Query('afterHistory') afterHistory: string,
     @Query('zone') zone: string,
     @Query('company') company: string,
+    @Query('isDeleted') isDeleted: boolean,
     @Res() response: Response,
   ) {
     try {
@@ -35,6 +36,7 @@ export class CheckListController {
         afterHistory,
         zone,
         company,
+        isDeleted
       );
       response
         .status(res.status)
@@ -44,6 +46,7 @@ export class CheckListController {
       response.status(500).json(err);
     }
   }
+
 
   @Get('/api/checklist/checknewcarlife')
   async checkCarLifeMoreThanLast(
@@ -62,6 +65,15 @@ export class CheckListController {
       response.status(500).json(err);
     }
   }
+
+  @Get('/api/checklist/:carNumber')
+  async getTotalKilometerByCarNumber(@Param('carNumber') carNumber: string , @Res() response: Response){
+    const res = await this.checkListService.getTotalKilometerOfChecklist(carNumber)
+    response
+        .status(res.status)
+        .json({ data: res.data, message: res.message});
+  }
+
 
   @Get('/api/checklist/dailycheck/count')
   async checkListDailyCount(
@@ -117,6 +129,7 @@ export class CheckListController {
     @Query('zone') zone: string,
     @Query('done') done: string,
     @Query('company') company: string,
+    @Query('isDeleted') isDeleted: boolean,
   ) {
     try {
       const exportExcel = await this.checkListService.exportReport(
@@ -125,6 +138,7 @@ export class CheckListController {
         zone,
         done,
         company,
+        isDeleted
       );
       response.setHeader(
         'Content-Disposition',
@@ -175,17 +189,41 @@ export class CheckListController {
     }
   }
 
-  @Post('/api/checklist')
-  async insertCheckListDriver(@Body() body: any, @Res() response: Response) {
+
+
+  @Get('/api/checklist/checkTodayChecklist/:id')
+  async checkTodayChecklist(@Param('id') id: number , @Res() response: Response){
     try {
-      const res = await this.checkListService.insertCheckList(body);
-      response.status(res.status).json(res.message);
+      const res = await this.checkListService.checkTodayChecklist(id);
+      response.status(res.status).json({ data: res.data , message: res.message });
     } catch (err) {
       console.log(err);
       response.status(500).json(err);
     }
   }
 
+
+  @Post('/api/checklist')
+  async insertCheckListDriver(@Body() body: any, @Res() response: Response) {
+    try {
+      const res = await this.checkListService.insertCheckList(body);
+      response.status(res.status).json({ data: res.data , message: res.message });
+    } catch (err) {
+      console.log(err);
+      response.status(500).json(err);
+    }
+  }
+
+  @Delete('/api/checklist/all')
+  async removeAllCheckLists(@Res() response: Response) {
+    try {
+      const res = await this.checkListService.removeAllCheckLists();
+      response.status(res.status).json(res.message);
+    } catch (err) {
+      console.log(err);
+      response.status(500).json(err);
+    }
+  }
   @Delete('/api/checklist/:id')
   async removeCheckList(@Param('id') id: number, @Res() response: Response) {
     try {

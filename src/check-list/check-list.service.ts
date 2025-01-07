@@ -18,6 +18,8 @@ import {
 import { generateDataExcel } from 'src/utility/export_excel';
 import { AuthService } from 'src/auth/services/auth.service';
 import { TruckBreakDown } from 'src/truck-break-down/truck-break-down.entity';
+import { KilometerService } from 'src/kilometer/kilometer.service';
+import { KilometerDetailsService } from 'src/kilometer-details/kilometer-details.service';
 
 @Injectable()
 export class CheckListService {
@@ -34,177 +36,419 @@ export class CheckListService {
     private readonly truckBreakDownRepository: typeof TruckBreakDown,
 
     private readonly authService: AuthService,
+    private readonly kilometerService: KilometerService,
+    private readonly kilometerDetailsService: KilometerDetailsService,
   ) { }
-  // async insertCheckList(body: Object) {
-  //   const checkList = {};
-  //   const checkListComment = {};
-  //   const answers: [] = body['answers'];
+//   async insertCheckList(body: Object) {
+//     const checkList = {};
+//     const checkListComment = {};
+//     const answers: [] = body['answers'];
 
-  //   checkList['userId'] = body['id'];
-  //   checkList['name'] = body['name'];
-  //   checkList['hours'] = body['hours'];
-  //   checkList['history'] = body['date'];
+//     checkList['userId'] = body['id'];
+//     checkList['name'] = body['name'];
+//     checkList['hours'] = body['hours'];
+//     checkList['history'] = body['date'];
 
-  //   // >>>>>>>>>>>>>>>>check user due to not have token<<<<<<<<<<<<
-  //   const user = await this.authRepository.findOne({
-  //     where: {
-  //       id: body['id'],
-  //     },
-  //   });
-  //   console.log('------------------------------------->', user.id);
-  //   if (!user.id) {
-  //     throw new HttpException(
-  //       'شما در سیستم ثبت نام نکرده اید یا کاربر شما پاک شده است لطفا به مدیر خود اطلاع دهید',
-  //       HttpStatus.UNAUTHORIZED,
-  //     );
-  //   }
-  //   //check key name and generate new record
-  //   for (let item of answers) {
-  //     checkList['answer_' + item['number']] = item['question'];
-  //     //check answer have comment and initite checkListComment
-  //     if (item['comment']) {
-  //       checkListComment['comment_' + item['number']] = item['comment'];
-  //     }
-  //   }
+//     const today = new Date();
+//     today.setHours(0, 0, 0, 0);
 
-  //   const insertCheckList =
-  //     await this.checkListRepository.create<CheckList>(checkList);
-  //   // console.log(checkListComment); //debug
-  //   if (Object.entries(checkListComment).length != 0) {
-  //     // add data for inset to relation model "checkListComment"
-  //     // console.log(checkList); // debug
-  //     checkListComment['checkListId'] = insertCheckList.id;
-  //     // console.log(checkListComment); //debug
-  //     const insertCheckListComment =
-  //       await this.checkListCommentRepository.create<CheckListComment>(
-  //         checkListComment,
-  //       );
-  //   }
-  //   // update lastCarLife  in "truck_info"
-  //   // check answered kilometer ; "answer_0" is kilometer number of truck
-  //   // console.log(CarNumber[`id${checkList['userId']}`]); // debug
-  //   let lastCarLifeBackup = checkList['answer_0'];
-  //   const truckInfo = await this.truckInfoRepository.findOne({
-  //     where: {
-  //       driverId: checkList['userId'],
-  //     },
-  //   });
+//     const todayCheckList = await this.checkListRepository.findOne({
+//         where: {
+//             userId: body['id'],
+//             createdAt: {
+//                 [Op.gte]: today,
+//             },
+//             isDeleted: false,
+//         },
+//     });
 
-  //   const today = new Date().getDate();
-
-  //   if (today != truckInfo.updatedAt.getDate()) {
-  //     lastCarLifeBackup = truckInfo.lastCarLife;
-  //   }
-
-  //   const updateTruckInfo = await this.truckInfoRepository.update(
-  //     {
-  //       lastCarLife: checkList['answer_0'],
-  //       lastCarLifeBackup: lastCarLifeBackup,
-  //       state: this.lowestValueCheckList(Object.values(checkList)),
-  //       updateCarNumber: false,
-  //     },
-  //     {
-  //       where: {
-  //         driverId: checkList['userId'],
-  //       },
-  //     },
-  //   );
-  //   // console.log(updateTruckInfo[0]); // debug "updateTruckInfo[0]" number of affected on row's with this update
-  //   if (updateTruckInfo[0] == 0) {
-  //     const createTruckInfo = await this.truckInfoRepository.create({
-  //       lastCarLife: checkList['answer_0'],
-  //       driverId: checkList['userId'],
-  //       state: this.lowestValueCheckList(Object.values(checkList)),
-  //     });
-  //   }
-
-  //   return {
-  //     status: 200,
-  //     message: 'insert check list successfully',
-  //   };
-  // }
-
-  async insertCheckList(body: Object) {
-    const checkList = {};
-    const checkListComment = {};
-    const answers: [] = body['answers'];
-
-    checkList['userId'] = body['id'];
-    checkList['name'] = body['name'];
-    checkList['hours'] = body['hours'];
-    checkList['history'] = body['date'];
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const todayCheckList = await this.checkListRepository.findOne({
-        where: {
-            userId: body['id'],
-            createdAt: {
-                [Op.gte]: today,
-            },
-            isDeleted: false,
-        },
-    });
-
-    if (todayCheckList) {
-        return {
-          status : 201 ,
-          data : [] ,
-          message : 'شما قبلاً چک‌لیست امروز را ثبت کرده‌اید'
-        }
-      }
+//     if (todayCheckList) {
+//         return {
+//           status : 200 ,
+//           data : [] ,
+//           message : 'شما قبلاً چک‌لیست امروز را ثبت کرده‌اید'
+//         }
+//       }
       
-      const lastCheckList = await this.checkListRepository.findOne({
-        where: { userId: body['id'] },
-        order: [['createdAt', 'DESC']],
-      });
+//       const lastCheckList = await this.checkListRepository.findOne({
+//         where: { userId: body['id'] },
+//         order: [['createdAt', 'DESC']],
+//       });
 
-      if (
-        lastCheckList &&
-        !lastCheckList.isDeleted && 
-        body['answers'].find(a => a.number === 0)?.question <= lastCheckList.answer_0 
-      ) {
-        return {
-          status: 201,
+//       if (
+//         lastCheckList &&
+//         !lastCheckList.isDeleted && 
+//         body['answers'].find(a => a.number === 0)?.question <= lastCheckList.answer_0 
+//       ) {
+//         return {
+//           status: 200,
+//           data: [],
+//           message: 'مقدار کیلومتر جاری نمی‌تواند کمتر یا مساوی مقدار آخرین رکورد باشد'
+//         };
+//       }
+
+//       for (let item of answers) {
+//           checkList['answer_' + item['number']] = item['question'];
+//           if (item['comment']) {
+//               checkListComment['comment_' + item['number']] = item['comment'];
+//           }
+//       }
+
+//     const insertCheckList = await this.checkListRepository.create<CheckList>(checkList);
+
+//     if (Object.entries(checkListComment).length !== 0) {
+//         checkListComment['checkListId'] = insertCheckList.id;
+//         await this.checkListCommentRepository.create<CheckListComment>(checkListComment);
+//     }
+
+//     const truckInfo = await this.truckInfoRepository.findOne({
+//         where: { driverId: checkList['userId'] },
+//     });
+
+//     const lastCarLifeBackup = truckInfo?.lastCarLife || checkList['answer_0'];
+
+//     await this.truckInfoRepository.upsert({
+//         lastCarLife: checkList['answer_0'],
+//         lastCarLifeBackup: lastCarLifeBackup,
+//         driverId: checkList['userId'],
+//         state: this.lowestValueCheckList(Object.values(checkList)),
+//     });
+
+//     return {
+//         status: 201,
+//         message: 'چک‌لیست با موفقیت ثبت شد',
+//     };
+// }
+
+
+// async insertCheckList(body: Object) {
+//   const checkList = {};
+//   const checkListComment = {};
+//   const answers: [] = body['answers'];
+
+//   checkList['userId'] = body['id'];
+//   checkList['name'] = body['name'];
+//   checkList['hours'] = body['hours'];
+//   checkList['history'] = body['date'];
+
+//   const today = new Date();
+//   today.setHours(0, 0, 0, 0);
+
+//   // بررسی چک‌لیست امروز
+//   const todayCheckList = await this.checkListRepository.findOne({
+//       where: {
+//           userId: body['id'],
+//           createdAt: {
+//               [Op.gte]: today,
+//           },
+//           isDeleted: false,
+//       },
+//   });
+
+//   // if (todayCheckList) {
+//   //     return {
+//   //         status: 200,
+//   //         data: [],
+//   //         message: 'شما قبلاً چک‌لیست امروز را ثبت کرده‌اید',
+//   //     };
+//   // }
+
+//   // یافتن آخرین چک‌لیست
+//   const lastCheckList = await this.checkListRepository.findOne({
+//       where: { userId: body['id'] },
+//       order: [['createdAt', 'DESC']],
+//   });
+
+//   // بررسی مقدار کیلومتر جاری با مقدار آخرین چک‌لیست
+//   const currentAnswer0 = body['answers'].find((a) => a.number === 0)?.question;
+//   if (
+//       lastCheckList &&
+//       !lastCheckList.isDeleted &&
+//       (currentAnswer0 <= lastCheckList.answer_0 || currentAnswer0 - lastCheckList.answer_0 < 50000)
+//   ) {
+//       return {
+//           status: 200,
+//           data: [],
+//           message: 'مقدار کیلومتر جاری باید حداقل ۵۰,۰۰۰ واحد بیشتر از مقدار آخرین رکورد باشد',
+//       };
+//   }
+
+//   // افزودن پاسخ‌ها و توضیحات
+//   for (let item of answers) {
+//       checkList['answer_' + item['number']] = item['question'];
+//       if (item['comment']) {
+//           checkListComment['comment_' + item['number']] = item['comment'];
+//       }
+//   }
+
+//   // ثبت چک‌لیست
+//   const insertCheckList = await this.checkListRepository.create<CheckList>(checkList);
+
+//   // ثبت توضیحات (در صورت وجود)
+//   if (Object.entries(checkListComment).length !== 0) {
+//       checkListComment['checkListId'] = insertCheckList.id;
+//       await this.checkListCommentRepository.create<CheckListComment>(checkListComment);
+//   }
+
+//   // به‌روزرسانی جدول truckInfo
+//   const truckInfo = await this.truckInfoRepository.findOne({
+//       where: { driverId: checkList['userId'] },
+//   });
+
+//   console.log(currentAnswer0);
+  
+//   if (truckInfo) {
+//       await this.truckInfoRepository.update(
+//           {
+//             lastCarLife: currentAnswer0, // به‌روزرسانی مقدار کیلومتر
+//           },
+//           { where: { driverId: checkList['userId'] } }
+//       );         
+//   }
+
+//   return {
+//       status: 201,
+//       message: 'چک‌لیست با موفقیت ثبت شد',
+//   };
+// }
+
+async checkTodayChecklist(id: number){
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // بررسی چک‌لیست امروز
+  const todayCheckList = await this.checkListRepository.findOne({
+      where: {
+          userId: id,
+          createdAt: {
+              [Op.gte]: today,
+          },
+          isDeleted: false,
+      },
+  });
+
+  if (todayCheckList) {
+      return {
+          status: 200,
           data: [],
-          message: 'مقدار کیلومتر جاری نمی‌تواند کمتر یا مساوی مقدار آخرین رکورد باشد'
-        };
-      }
+          message: 'شما قبلاً چک‌لیست امروز را ثبت کرده‌اید',
+      };
+  }
 
-      for (let item of answers) {
-          checkList['answer_' + item['number']] = item['question'];
-          if (item['comment']) {
-              checkListComment['comment_' + item['number']] = item['comment'];
-          }
-      }
-
-    const insertCheckList = await this.checkListRepository.create<CheckList>(checkList);
-
-    if (Object.entries(checkListComment).length !== 0) {
-        checkListComment['checkListId'] = insertCheckList.id;
-        await this.checkListCommentRepository.create<CheckListComment>(checkListComment);
-    }
-
-    const truckInfo = await this.truckInfoRepository.findOne({
-        where: { driverId: checkList['userId'] },
-    });
-
-    const lastCarLifeBackup = truckInfo?.lastCarLife || checkList['answer_0'];
-
-    await this.truckInfoRepository.upsert({
-        lastCarLife: checkList['answer_0'],
-        lastCarLifeBackup: lastCarLifeBackup,
-        driverId: checkList['userId'],
-        state: this.lowestValueCheckList(Object.values(checkList)),
-    });
-
-    return {
-        status: 200,
-        message: 'چک‌لیست با موفقیت ثبت شد',
-    };
+  return {
+    status : 201 ,
+    date : true ,
+    message : "مجاز برای ثبت چک لیست"
+  }
 }
 
+
+async insertCheckList(body: Object) {
+  const checkList = {};
+  const checkListComment = {};
+  const answers: [] = body['answers'];
+
+  checkList['userId'] = body['id'];
+  checkList['carNumber'] = body['carNumber'];
+  checkList['name'] = body['name'];
+  checkList['hours'] = body['hours'];
+  checkList['history'] = body['date'];
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+
+  const lastCheckList = await this.checkListRepository.findOne({
+      where: { carNumber: body['carNumber'] },
+      order: [['createdAt', 'DESC']],
+  });
+
+  const previousKilometer = lastCheckList.answer_0
+
+  const currentAnswer0 = body['answers'].find((a) => a.number === 0)?.question;
+  if (
+      lastCheckList &&
+      !lastCheckList.isDeleted &&
+      (currentAnswer0 < 50000)
+  ) {
+      return {
+          status: 200,
+          data: [],
+          message: 'مقدار کیلومتر جاری باید حداقل ۵۰,۰۰۰ واحد بیشتر از مقدار آخرین رکورد باشد',
+      };
+  }
+
+  const currenrKilometer = currentAnswer0
+
+
+  for (let item of answers) {
+    const answerKey = 'answer_' + item['number'];
+    checkList[answerKey] = item['question'];
+
+    if (item['number'] === 0) {
+        checkList[answerKey] += currenrKilometer;
+    }
+
+    if (item['comment']) {
+        checkListComment['comment_' + item['number']] = item['comment'];
+    }
+}
+  const insertCheckList = await this.checkListRepository.create<CheckList>(checkList);
+
+  await this.kilometerService.create(body['carNumber'] , currenrKilometer , previousKilometer)
+  await this.kilometerDetailsService.create(body['carNumber']  , body['userId'] , currenrKilometer)
+
+  if (Object.entries(checkListComment).length !== 0) {
+      checkListComment['checkListId'] = insertCheckList.id;
+      await this.checkListCommentRepository.create<CheckListComment>(checkListComment);
+  }
+
+  const unresolvedBreakdowns = await this.truckBreakDownRepository.findAll({
+    where: {
+        driverId: body['id'],
+        historySendToRepair: {
+            [Op.not]: null, 
+        },
+    },
+});
+
+  if (unresolvedBreakdowns.length > 0) {
+      for (const breakdown of unresolvedBreakdowns) {
+          await this.truckBreakDownRepository.update(
+              {
+                carLife: currentAnswer0, 
+              },
+              { where: { id: breakdown.id } }
+          );
+          console.log(breakdown);
+          
+      }
+  }
+
+  const truckInfo = await this.truckInfoRepository.findOne({
+    where: { driverId: checkList['userId'] },
+});
+
+  if (truckInfo) {
+      await this.truckInfoRepository.update(
+          { lastCarLife: checkList['answer_0'] , lastCarLifeBackup : truckInfo?.lastCarLife || checkList['answer_0'] },
+          { where: { driverId: checkList['userId'] } }
+      );
+}
+
+  return {
+      status: 201,
+      message: 'چک‌لیست با موفقیت ثبت شد',
+  };
+}
+// async insertCheckList(body: Object) {
+//   const checkList = {};
+//   const checkListComment = {};
+//   const answers: [] = body['answers'];
+
+//   checkList['userId'] = body['id'];
+//   checkList['name'] = body['name'];
+//   checkList['hours'] = body['hours'];
+//   checkList['history'] = body['date'];
+
+//   const today = new Date();
+//   today.setHours(0, 0, 0, 0);
+
+
+//   const lastCheckList = await this.checkListRepository.findOne({
+//       where: { userId: body['id'] },
+//       order: [['createdAt', 'DESC']],
+//   });
+
+//   const currentAnswer0 = body['answers'].find((a) => a.number === 0)?.question;
+//   if (
+//       lastCheckList &&
+//       !lastCheckList.isDeleted &&
+//       (currentAnswer0 <= lastCheckList.answer_0 || currentAnswer0 - lastCheckList.answer_0 < 50000)
+//   ) {
+//       return {
+//           status: 200,
+//           data: [],
+//           message: 'مقدار کیلومتر جاری باید حداقل ۵۰,۰۰۰ واحد بیشتر از مقدار آخرین رکورد باشد',
+//       };
+//   }
+
+//   for (let item of answers) {
+//       checkList['answer_' + item['number']] = item['question'];
+//       if (item['comment']) {
+//           checkListComment['comment_' + item['number']] = item['comment'];
+//       }
+//   }
+
+//   const insertCheckList = await this.checkListRepository.create<CheckList>(checkList);
+
+//   if (Object.entries(checkListComment).length !== 0) {
+//       checkListComment['checkListId'] = insertCheckList.id;
+//       await this.checkListCommentRepository.create<CheckListComment>(checkListComment);
+//   }
+
+//   const unresolvedBreakdowns = await this.truckBreakDownRepository.findAll({
+//     where: {
+//         driverId: body['id'],
+//         historySendToRepair: {
+//             [Op.not]: null, 
+//         },
+//     },
+// });
+
+// console.log(unresolvedBreakdowns);
+
+//   if (unresolvedBreakdowns.length > 0) {
+//       for (const breakdown of unresolvedBreakdowns) {
+//           await this.truckBreakDownRepository.update(
+//               {
+//                 carLife: currentAnswer0, 
+//               },
+//               { where: { id: breakdown.id } }
+//           );
+//           console.log(breakdown);
+          
+//       }
+//   }
+
+//   const truckInfo = await this.truckInfoRepository.findOne({
+//     where: { driverId: checkList['userId'] },
+// });
+
+//   if (truckInfo) {
+//       await this.truckInfoRepository.update(
+//           { lastCarLife: checkList['answer_0'] , lastCarLifeBackup : truckInfo?.lastCarLife || checkList['answer_0'] },
+//           { where: { driverId: checkList['userId'] } }
+//       );
+// }
+
+//   return {
+//       status: 201,
+//       message: 'چک‌لیست با موفقیت ثبت شد',
+//   };
+// }
+
+
+async getTotalKilometerOfChecklist(carNumber: string){
+  const kilometer = await this.checkListRepository.findOne({
+    where: { carNumber },
+    attributes: ['answer_0'],
+  });
+
+  if(!kilometer){
+    return {
+      status: 201 ,
+      data: [],
+      message: "answer_0 یافت نشد"
+    }
+  }
+
+  return {
+    status: 200 ,
+    data: kilometer ,
+    message: "answer_0 با موفقیت بازیابی شد"
+  }
+}
 
 
 
@@ -331,175 +575,177 @@ export class CheckListService {
     };
   }
 
-  async dailyCheck(
-    userId: number | undefined,
-    date: string | undefined,
-    done: string,
-    beforeHistory: string,
-    afterHistory: string,
-    zone: string,
-    company: string,
-  ) {
-    let check = false; // comment: default not register daily check
-    // comment: variable's of daily check in repair panel
-    const data = [];
-    let driversDone = [];
-    // let driversUndone = []; //notused
-    let idDriversUndone = [];
-    let idDriversDone = [];
-    let idDrivers = [];
-    let message: string;
-    let filterByDate = {};
-    let where = {};
-    // console.log(typeof done);
+  // async dailyCheck(
+  //   userId: number | undefined,
+  //   date: string | undefined,
+  //   done: string,
+  //   beforeHistory: string,
+  //   afterHistory: string,
+  //   zone: string,
+  //   company: string,
+  //   isDeleted: boolean
+  // ) {
+  //   let check = false; // comment: default not register daily check
+  //   // comment: variable's of daily check in repair panel
+  //   const data = [];
+  //   let driversDone = [];
+  //   // let driversUndone = []; //notused
+  //   let idDriversUndone = [];
+  //   let idDriversDone = [];
+  //   let idDrivers = [];
+  //   let message: string;
+  //   let filterByDate = {};
+  //   let where = {};
+  //   // console.log(typeof done);
 
-    if (done === undefined) {
-      //=============================================================[comment: logic; should more than one register in a day ]
-      return {
-        data: false,
-        status: 200,
-        message: `status of driver registered daily checklist, hint: false -> unregistered `,
-      };
+  //   if (done === undefined) {
+  //     //=============================================================[comment: logic; should more than one register in a day ]
+  //     return {
+  //       data: false,
+  //       status: 200,
+  //       message: `status of driver registered daily checklist, hint: false -> unregistered `,
+  //     };
 
-      //==========================================================================[comment: daily check for driver register checklist] logic: driver should one checklist register in a day
+  //     //==========================================================================[comment: daily check for driver register checklist] logic: driver should one checklist register in a day
 
-      // const checkList = await this.checkListRepository.count({
-      //   where: { [Op.and]: { userId: userId, history: date }, ...filterByDate },
-      // });
+  //     // const checkList = await this.checkListRepository.count({
+  //     //   where: { [Op.and]: { userId: userId, history: date }, ...filterByDate },
+  //     // });
 
-      // if (checkList === 1) {
-      //   check = true;
-      // }
+  //     // if (checkList === 1) {
+  //     //   check = true;
+  //     // }
 
-      // return {
-      //   data: check,
-      //   status: 200,
-      //   message: `status of driver registered daily checklist, hint: false -> unregistered `,
-      // };
-      //===========================================================================
-    }
-    // comment: daily check in repair panel
-    else {
-      `Driver done field's return: 
-        driverName, zone, carNumber, carLife, mobile, type, state, hours, history
-       Driver undone field's return: 
-        driverName, zone, carNumber, carLife, mobile, type`;
+  //     // return {
+  //     //   data: check,
+  //     //   status: 200,
+  //     //   message: `status of driver registered daily checklist, hint: false -> unregistered `,
+  //     // };
+  //     //===========================================================================
+  //   }
+  //   // comment: daily check in repair panel
+  //   else {
+  //     `Driver done field's return: 
+  //       driverName, zone, carNumber, carLife, mobile, type, state, hours, history
+  //      Driver undone field's return: 
+  //       driverName, zone, carNumber, carLife, mobile, type`;
 
-      // console.log('before history: ', beforeHistory); // #DEBUG
-      // console.log('after history: ', afterHistory); // #DEBUG
+  //     // console.log('before history: ', beforeHistory); // #DEBUG
+  //     // console.log('after history: ', afterHistory); // #DEBUG
 
-      if (beforeHistory || afterHistory) {
-        if (!afterHistory) {
-          afterHistory = '2400/0/0';
-        }
-        if (!beforeHistory) {
-          beforeHistory = '2023/0/0';
-        }
+  //     if (beforeHistory || afterHistory) {
+  //       if (!afterHistory) {
+  //         afterHistory = '2400/0/0';
+  //       }
+  //       if (!beforeHistory) {
+  //         beforeHistory = '2023/0/0';
+  //       }
 
-        where['history'] = {
-          [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
-        };
-      }
+  //       where['history'] = {
+  //         [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
+  //       };
+  //     }
 
-      if (date) where['history'] = date;
+  //     if (date) where['history'] = date;
 
 
-      // console.log('where cluase : \n', where); // #DEBUG
+  //     // console.log('where cluase : \n', where); // #DEBUG
 
-      const checkListRegisterByDriver = await this.checkListRepository.findAll({
-        where: { ...where },
-        attributes: ['id', 'userId', 'history', 'hours'],
-      });
+  //     const checkListRegisterByDriver = await this.checkListRepository.findAll({
+  //       where: { ...where },
+  //       attributes: ['id', 'userId', 'history', 'hours'],
+  //     });
 
-      // comment: fetch data of driver's register daily checkList
-      checkListRegisterByDriver.forEach((element) => {
-        idDriversDone.push(element.dataValues['userId']);
-        driversDone.push(element.dataValues);
-      });
-      // console.log('res: ', idDriversDone.length); // #DEBUG
-      // console.log('driverDone: ', driversDone); // #DEBUG
+  //     // comment: fetch data of driver's register daily checkList
+  //     checkListRegisterByDriver.forEach((element) => {
+  //       idDriversDone.push(element.dataValues['userId']);
+  //       driversDone.push(element.dataValues);
+  //     });
+  //     // console.log('res: ', idDriversDone.length); // #DEBUG
+  //     // console.log('driverDone: ', driversDone); // #DEBUG
 
-      // comment: fetch data of driver's unregister || register daily checkList
-      if (done === 'true') {
-        idDrivers = idDriversDone;
-        message = 'list of driver done check list today';
-      } else {
-        const res = await this.authRepository.findAll({
-          attributes: ['id', 'name', 'role', 'mobile'],
-          where: {
-            [Op.and]: {
-              role: 'companyDriver',
-              id: { [Op.notIn]: idDriversDone },
-            },
-          },
-        });
-        // console.log('drivers undone: ', res); // debug
-        res.forEach((element) => {
-          idDriversUndone.push(element.dataValues.id);
-        });
-        idDrivers = idDriversUndone;
-        message = 'list of driver undone check list today';
-      }
-      // comment; driver target to response
-      const filter = {};
-      if (zone) filter['zone'] = zone;
-      if (company) filter['company'] = company;
+  //     // comment: fetch data of driver's unregister || register daily checkList
+  //     if (done === 'true') {
+  //       idDrivers = idDriversDone;
+  //       message = 'list of driver done check list today';
+  //     } else {
+  //       const res = await this.authRepository.findAll({
+  //         attributes: ['id', 'name', 'role', 'mobile'],
+  //         where: {
+  //           [Op.and]: {
+  //             role: 'companyDriver',
+  //             id: { [Op.notIn]: idDriversDone },
+  //           },
+  //         },
+  //       });
+  //       // console.log('drivers undone: ', res); // debug
+  //       res.forEach((element) => {
+  //         idDriversUndone.push(element.dataValues.id);
+  //       });
+  //       idDrivers = idDriversUndone;
+  //       message = 'list of driver undone check list today';
+  //     }
+  //     // comment; driver target to response
+  //     const filter = {};
+  //     if (zone) filter['zone'] = zone;
+  //     if (company) filter['company'] = company;
+  //     if(isDeleted) filter['isDeleted'] = isDeleted
 
-      const drivers = await this.authRepository.findAll({
-        attributes: ['id', 'name', 'role', 'mobile', 'company', 'zone'],
-        where: {
-          [Op.and]: {
-            role: 'companyDriver',
-            id: { [Op.in]: idDrivers },
-            ...filter,
-          },
-        },
-      });
-      for (let item of drivers) {
-        // console.log('driver result: ', item.dataValues); // debug/
-        let checkInfo = {};
-        Object.assign(checkInfo, item.dataValues);
+  //     const drivers = await this.authRepository.findAll({
+  //       attributes: ['id', 'name', 'role', 'mobile', 'company', 'zone'],
+  //       where: {
+  //         [Op.and]: {
+  //           role: 'companyDriver',
+  //           id: { [Op.in]: idDrivers },
+  //           ...filter,
+  //         },
+  //       },
+  //     });
+  //     for (let item of drivers) {
+  //       // console.log('driver result: ', item.dataValues); // debug/
+  //       let checkInfo = {};
+  //       Object.assign(checkInfo, item.dataValues);
 
-        // comment: for driver done list on repair panel add "hours" and "history"
-        if (done === 'true') {
-          // console.log('driversDone : ', driversDone); // debug
-          for (let done of driversDone) {
-            checkInfo['answers'] = (await this.getAnswers(done['id'])).data;
+  //       // comment: for driver done list on repair panel add "hours" and "history"
+  //       if (done === 'true') {
+  //         // console.log('driversDone : ', driversDone); // debug
+  //         for (let done of driversDone) {
+  //           checkInfo['answers'] = (await this.getAnswers(done['id'])).data;
 
-            if (done['userId'] === item['id']) {
-              checkInfo['hours'] = done['hours'];
-              checkInfo['history'] = done['history'];
-              break;
-            }
-          }
-        }
-        const truckInfo = await this.truckInfoRepository.findOne({
-          where: { driverId: item.dataValues.id },
-          attributes: ['lastCarLife', 'carNumber', 'type', 'state'],
-        });
-        // comment:  handled ; if not exist companyDriver in truckInfo table
-        if (truckInfo) {
-          Object.assign(checkInfo, truckInfo.dataValues);
-        } else {
-          checkInfo['lastCarLife'] = null;
-          checkInfo['carNumber'] = null;
-          checkInfo['type'] = null;
-          checkInfo['zone'] = null;
-          checkInfo['state'] = null;
-          checkInfo['hours'] = null;
-          checkInfo['history'] = null;
-        }
+  //           if (done['userId'] === item['id']) {
+  //             checkInfo['hours'] = done['hours'];
+  //             checkInfo['history'] = done['history'];
+  //             break;
+  //           }
+  //         }
+  //       }
+  //       const truckInfo = await this.truckInfoRepository.findOne({
+  //         where: { driverId: item.dataValues.id },
+  //         attributes: ['lastCarLife', 'carNumber', 'type', 'state'],
+  //       });
+  //       // comment:  handled ; if not exist companyDriver in truckInfo table
+  //       if (truckInfo) {
+  //         Object.assign(checkInfo, truckInfo.dataValues);
+  //       } else {
+  //         checkInfo['lastCarLife'] = null;
+  //         checkInfo['carNumber'] = null;
+  //         checkInfo['type'] = null;
+  //         checkInfo['zone'] = null;
+  //         checkInfo['state'] = null;
+  //         checkInfo['hours'] = null;
+  //         checkInfo['history'] = null;
+  //       }
 
-        data.push(checkInfo);
-      }
+  //       data.push(checkInfo);
+  //     }
 
-      return {
-        data: data,
-        status: 200,
-        message: message,
-      };
-    }
-  }
+  //     return {
+  //       data: data,
+  //       status: 200,
+  //       message: message,
+  //     };
+  //   }
+  // }
 
   // async dailyCheckCount(date: string, done: string, zone: string , company ?: string) {
   //   try {
@@ -511,6 +757,149 @@ export class CheckListService {
   //     let countCheckList: number;
   //     let message: string;
   //     let data = {};
+
+
+  async dailyCheck(
+    userId: number | undefined,
+    date: string | undefined,
+    done: string,
+    beforeHistory: string,
+    afterHistory: string,
+    zone: string,
+    company: string,
+    isDeleted: boolean
+  ) {
+    let check = false; // default not registered daily check
+    const data = [];
+    let driversDone = [];
+    let idDriversUndone = [];
+    let idDriversDone = [];
+    let idDrivers = [];
+    let message: string;
+    const filterByDate = {};
+    const where: any = {};
+  
+    // اگر کار انجام شده تعریف نشده باشد
+    if (done === undefined) {
+      return {
+        data: false,
+        status: 200,
+        message: `status of driver registered daily checklist, hint: false -> unregistered `,
+      };
+    } else {
+      if (beforeHistory || afterHistory) {
+        if (!afterHistory) afterHistory = '2400/0/0';
+        if (!beforeHistory) beforeHistory = '2023/0/0';
+  
+        where['history'] = {
+          [Op.between]: [beforeHistory, afterHistory],
+        };
+      }
+  
+      if (date) where['history'] = date;
+  
+      if (userId) where['userId'] = userId; // اضافه کردن فیلتر userId
+  
+      // دریافت چک‌لیست‌های ثبت‌شده توسط راننده
+      const checkListRegisterByDriver = await this.checkListRepository.findAll({
+        where: { ...where },
+        attributes: ['id', 'userId', 'history', 'hours'],
+      });
+  
+      // ساخت لیست رانندگان با چک‌لیست انجام‌شده
+      checkListRegisterByDriver.forEach((element) => {
+        idDriversDone.push(element.dataValues['userId']);
+        driversDone.push(element.dataValues);
+      });
+  
+      // ایجاد پیام و فیلتر بر اساس وضعیت
+      if (done === 'true') {
+        idDrivers = idDriversDone;
+        message = 'list of driver done checklist today';
+      } else {
+        const res = await this.authRepository.findAll({
+          attributes: ['id', 'name', 'role', 'mobile'],
+          where: {
+            [Op.and]: {
+              role: 'companyDriver',
+              id: { [Op.notIn]: idDriversDone },
+            },
+          },
+        });
+        res.forEach((element) => {
+          idDriversUndone.push(element.dataValues.id);
+        });
+        idDrivers = idDriversUndone;
+        message = 'list of driver undone checklist today';
+      }
+  
+      // ساخت فیلتر‌های اضافی
+      const filter = {};
+      if (zone) filter['zone'] = zone;
+      if (company) filter['company'] = company;
+      if (isDeleted) filter['isDeleted'] = isDeleted;
+  
+      // دریافت اطلاعات رانندگان
+      const drivers = await this.authRepository.findAll({
+        attributes: ['id', 'name', 'role', 'mobile', 'company', 'zone'],
+        where: {
+          [Op.and]: {
+            role: 'companyDriver',
+            id: { [Op.in]: idDrivers },
+            ...filter,
+          },
+        },
+      });
+  
+      for (let item of drivers) {
+        let checkInfo = { ...item.dataValues };
+  
+        if (done === 'true') {
+          for (let done of driversDone) {
+            checkInfo['answers'] = (await this.getAnswers(done['id'])).data;
+  
+            if (done['userId'] === item['id']) {
+              checkInfo['hours'] = done['hours'];
+              checkInfo['history'] = done['history'];
+              break;
+            }
+          }
+        }
+  
+        // دریافت اطلاعات از truckInfo
+        const truckInfo = await this.truckInfoRepository.findOne({
+          where: { driverId: item.dataValues.id },
+          attributes: ['lastCarLife', 'carNumber', 'type', 'state'],
+        });
+  
+        if (truckInfo) {
+          Object.assign(checkInfo, truckInfo.dataValues);
+        } else {
+          Object.assign(checkInfo, {
+            lastCarLife: null,
+            carNumber: null,
+            type: null,
+            zone: null,
+            state: null,
+            hours: null,
+            history: null,
+          });
+        }
+  
+        data.push(checkInfo);
+      }
+  
+      return {
+        data: data,
+        status: 200,
+        message: message,
+      };
+    }
+  }
+
+
+
+
   async dailyCheckCount(
     date: string,
     done: string,
@@ -751,6 +1140,7 @@ export class CheckListService {
     zone: string,
     done: string,
     company: string,
+    isDeleted: boolean
   ) {
     try {
       const book = new Workbook();
@@ -766,6 +1156,7 @@ export class CheckListService {
         afterHistory,
         zone,
         company,
+        isDeleted
       );
 
       // console.log('checkLists', checkLists.data); // #DEBUG
@@ -820,6 +1211,15 @@ export class CheckListService {
       );
 
       return { status: 200, message: 'reomve checkList successfully' };
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async removeAllCheckLists() {
+    try {
+      await this.checkListRepository.destroy({where : {}})
+      return { status: 200, message: 'checkLists removed successfully' };
     } catch (err) {
       console.log(err);
     }

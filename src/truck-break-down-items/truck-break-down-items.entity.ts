@@ -1,9 +1,12 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
+import { TruckBreakDown } from 'src/truck-break-down/truck-break-down.entity';
 
 @Table
 export class TruckBreakDownItems extends Model<TruckBreakDownItems> {
   //   @Column({ type: DataType.TEXT })
   //   truckBreakDownId: number;
+  @HasMany(() => TruckBreakDown)
+  truckBreakDowns: TruckBreakDown[];
 
   @Column({ type: DataType.TEXT })
   answer_1: string;

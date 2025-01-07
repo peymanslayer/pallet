@@ -5,6 +5,7 @@ import {
   ForeignKey,
   BelongsTo,
 } from 'sequelize-typescript';
+import { PeriodicType } from 'src/periodic-type/periodic-type.entity';
 
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
 
@@ -39,4 +40,12 @@ export class PeriodicTruckCheck extends Model<PeriodicTruckCheck> {
 
   @BelongsTo(() => TruckInfo)
   truckInfo: TruckInfo;
+
+  @ForeignKey(() => PeriodicType)  
+  @Column
+  periodicTypeId: number;  
+
+  @BelongsTo(() => PeriodicType)  
+  periodicType: PeriodicType;
+
 }

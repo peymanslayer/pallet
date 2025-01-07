@@ -26,6 +26,8 @@ import { DriversIntoRepairShopModule } from './drivers-into-repair-shop/drivers-
 import { InternalOrExternalRepairmentModule } from './inside-or-outside-repairment/inside-or-outside-repairment.module';
 import { AutoPriodicTruckCheckModule } from './auto-priodic-truck-check/auto-priodic-truck-check.module';
 import { ExcelReportsModule } from './excel-reports/excel-reports.module';
+import { KilometerModule } from './kilometer/kilometer.module';
+import { KilometerDetailsModule } from './kilometer-details/kilometer-details.module';
 
 @Module({
   imports: [
@@ -48,6 +50,8 @@ import { ExcelReportsModule } from './excel-reports/excel-reports.module';
     InternalOrExternalRepairmentModule,
     AutoPriodicTruckCheckModule,
     ExcelReportsModule,
+    KilometerModule,
+    KilometerDetailsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

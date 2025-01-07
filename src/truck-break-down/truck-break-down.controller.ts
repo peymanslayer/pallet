@@ -283,6 +283,17 @@ export class TruckBreakDownController {
     }
   }
 
+  @Delete('/api/truckbreakdown/all')
+  async deleteAll(@Res() response: Response) {
+    try {
+      const res = await this.truckBreakDownService.deleteAll();
+      response.status(res.status).json(res.message);
+    } catch (err) {
+      console.log(err);
+      response.status(500).json(err);
+    }
+  }
+
   @Delete('/api/truckbreakdown/:id')
   async deleteById(@Param('id') id: number, @Res() response: Response) {
     try {

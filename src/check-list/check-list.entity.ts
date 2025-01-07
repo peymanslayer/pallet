@@ -5,6 +5,9 @@ export class CheckList extends Model<CheckList> {
   @Column
   userId: number;
 
+  @Column({type: DataType.INTEGER})
+  carNumber: number;
+
   @Index
   @Column
   history: string;

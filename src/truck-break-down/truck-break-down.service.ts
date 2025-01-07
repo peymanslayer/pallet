@@ -25,32 +25,132 @@ export class TruckBreakDownService {
     // private truckBreakDownItemService: typeof TruckBreakDownService,
   ) {}
 
+  // async getAll() {
+  //   let data = [];
+
+  //   const breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+  //     order: [['id', 'DESC']],
+  //   });
+
+  //   for (let item of breakDowns.rows) {
+  //     let breakDown = {};
+  //     const answers = await this.truckBreakDownItemsRepository.findOne({
+  //       where: {
+  //         id: item.truckBreakDownItemsId,
+  //       },
+  //     });
+  //     //   console.log(answers);
+  //     breakDown = item.dataValues;
+  //     breakDown['answers'] = answers.dataValues;
+  //     data.push(breakDown);
+  //     //   console.log(data);
+  //   }
+  //   return {
+  //     status: 200,
+  //     data: data,
+  //     count: breakDowns.count,
+  //   };
+  // }
+
+  // async getAll() {
+  //   let data = [];
+  
+  //   const breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+  //     order: [['id', 'DESC']],
+  //     include: [
+  //       {
+  //         model: this.truckBreakDownItemsRepository,
+  //         as: 'truckBreakDownItems', // نام مستعار مدل
+  //         required: false,
+  //       },
+  //     ],
+  //   });
+  
+  //   // بررسی و تغییر کیلومتر در خروجی
+  //   for (let item of breakDowns.rows) {
+  //     let breakDown = item.dataValues;
+  
+  //     // بررسی تغییرات کیلومتر
+  //     const unresolvedBreakdowns = await this.truckBreakDownRepository.findAll({
+  //       where: {
+  //         id: item.id,
+  //         historySendToRepair: null, // خرابی‌های حل نشده
+  //       },
+  //     });
+  
+  //     if (unresolvedBreakdowns.length > 0) {
+  //       const updatedKilometer = item.dataValues.carLife; 
+  //       breakDown['carLife'] = updatedKilometer;
+  //     }
+  
+  //     // اضافه کردن اطلاعات مربوط به `answers`
+  //     if (item.truckBreakDownItems) {
+  //       breakDown['answers'] = item.truckBreakDownItems.dataValues;
+  //     } else {
+  //       breakDown['answers'] = null;
+  //     }
+  
+  //     data.push(breakDown);
+  //   }
+  
+  //   return {
+  //     status: 200,
+  //     data: data,
+  //     count: breakDowns.count,
+  //   };
+  // }
+
+
   async getAll() {
-    let data = [];
+    const data = [];
 
     const breakDowns = await this.truckBreakDownRepository.findAndCountAll({
-      order: [['id', 'DESC']],
+        order: [['id', 'DESC']],
+        include: [
+            {
+                model: this.truckBreakDownItemsRepository,
+                as: 'truckBreakDownItems',
+                required: false,
+            },
+        ],
     });
 
-    for (let item of breakDowns.rows) {
-      let breakDown = {};
-      const answers = await this.truckBreakDownItemsRepository.findOne({
-        where: {
-          id: item.truckBreakDownItemsId,
-        },
-      });
-      //   console.log(answers);
-      breakDown = item.dataValues;
-      breakDown['answers'] = answers.dataValues;
-      data.push(breakDown);
-      //   console.log(data);
+    for (const item of breakDowns.rows) {
+        let breakDown = item.dataValues;
+
+        // بررسی خرابی ناتمام
+        if (item.historySendToRepair === null) {
+            // دریافت اطلاعات مربوط به `truckInfo`
+            const truckInfo = await this.truckInfoRepository.findOne({
+                where: { driverId: item.driverId },
+            });
+
+            if (truckInfo) {
+                // به‌روزرسانی `carLife` فقط در صورت ناتمام بودن خرابی
+                breakDown['carLife'] = truckInfo.lastCarLife;
+            }
+        }
+
+        // اضافه کردن اطلاعات مربوط به `answers`
+        if (item.truckBreakDownItems) {
+            breakDown['answers'] = item.truckBreakDownItems.dataValues;
+        } else {
+            breakDown['answers'] = null;
+        }
+
+        data.push(breakDown);
     }
+
     return {
-      status: 200,
-      data: data,
-      count: breakDowns.count,
+        status: 200,
+        data: data,
+        count: breakDowns.count,
     };
-  }
+}
+
+
+
+  
 
   async transportUserCountListState() {
     // ==============================================#HINT: "transportComment" and "repairDone" not set in queryParams
@@ -682,68 +782,144 @@ export class TruckBreakDownService {
     };
   }
 
+  // async getByDriverId(driverId: any) {
+  //   let data = [];
+
+  //   const breakDown = await this.truckBreakDownRepository.findAndCountAll({
+  //     where: {
+  //       driverId: driverId,
+  //     },
+  //     order: [
+  //       ['updatedAt', 'DESC'],
+  //       ['id', 'DESC'],
+  //     ],
+  //     limit: 20,
+  //   });
+  //   // create report for each breakdwon
+  //   for (let item of breakDown.rows) {
+  //     let report = {};
+  //     const res = await this.truckBreakDownItemsRepository.findOne({
+  //       where: {
+  //         id: item.truckBreakDownItemsId,
+  //       },
+  //     });
+  //     const items = res.dataValues;
+  //     // console.log(items);
+  //     report = item.dataValues;
+  //     // handle notify
+  //     if (item.lastFetch < item.updatedAt) report['notify'] = 1;
+  //     else report['notify'] = 0;
+  //     // due to keys of field have unique number , answer_1, answer_2, ..., answe_20
+  //     for (let item = 1; item <= 34; item++) {
+  //       // console.log(items[`answer_${item}`]);
+  //       if (items[`answer_${item}`] != null) {
+  //         report['type'] = items[`type_${item}`];
+  //         report['comment'] = items[`answer_${item}`];
+  //         report['number'] = item;
+  //         data.push(report);
+  //         // comment: break aim just return one of item's
+  //         break;
+  //       }
+  //     }
+  //   }
+  //   // update last fetch aim alert to driver in frontEnd when repairman new answer
+
+  //   // console.log(new Date().toISOString());
+  //   await this.truckBreakDownRepository.update(
+  //     {
+  //       lastFetch: new Date().toISOString(),
+  //       notifyTransportComment: false,
+  //       notifyRepairmanComment: false,
+  //     },
+  //     {
+  //       where: {
+  //         driverId: driverId,
+  //         transportComment: { [Op.ne]: null },
+  //       },
+  //     },
+  //   );
+  //   return {
+  //     status: 200,
+  //     data: data,
+  //     count: data.length,
+  //   };
+  // }
+
   async getByDriverId(driverId: any) {
-    let data = [];
+    const data = [];
 
-    const breakDown = await this.truckBreakDownRepository.findAndCountAll({
-      where: {
-        driverId: driverId,
-      },
-      order: [
-        ['updatedAt', 'DESC'],
-        ['id', 'DESC'],
-      ],
-      limit: 20,
+    const breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+        where: {
+            driverId: driverId,
+        },
+        order: [
+            ['updatedAt', 'DESC'],
+            ['id', 'DESC'],
+        ],
+        limit: 20,
     });
-    // create report for each breakdwon
-    for (let item of breakDown.rows) {
-      let report = {};
-      const res = await this.truckBreakDownItemsRepository.findOne({
-        where: {
-          id: item.truckBreakDownItemsId,
-        },
-      });
-      const items = res.dataValues;
-      // console.log(items);
-      report = item.dataValues;
-      // handle notify
-      if (item.lastFetch < item.updatedAt) report['notify'] = 1;
-      else report['notify'] = 0;
-      // due to keys of field have unique number , answer_1, answer_2, ..., answe_20
-      for (let item = 1; item <= 34; item++) {
-        // console.log(items[`answer_${item}`]);
-        if (items[`answer_${item}`] != null) {
-          report['type'] = items[`type_${item}`];
-          report['comment'] = items[`answer_${item}`];
-          report['number'] = item;
-          data.push(report);
-          // comment: break aim just return one of item's
-          break;
-        }
-      }
-    }
-    // update last fetch aim alert to driver in frontEnd when repairman new answer
 
-    // console.log(new Date().toISOString());
+    for (const item of breakDowns.rows) {
+        const res = await this.truckBreakDownItemsRepository.findOne({
+            where: {
+                id: item.truckBreakDownItemsId,
+            },
+        });
+
+        if (!res) continue;
+
+        const items = res.dataValues;
+
+        // گزارش جدید برای هر رکورد
+        const report = { ...item.dataValues };
+
+        // بررسی وضعیت `notify`
+        report['notify'] = item.lastFetch < item.updatedAt ? 1 : 0;
+
+        // بررسی و به‌روزرسانی `carLife` در صورت خرابی ناتمام
+        if (item.historySendToRepair === null) {
+            // اگر خرابی ناتمام باشد، `carLife` را با مقدار `lastCarLife` از چک لیست به‌روزرسانی کنید
+            report['carLife'] = item.carLife; // یا هر مقدار دیگری که باید از چک لیست بگیرید
+        }
+
+        // یافتن اولین پاسخ معتبر
+        for (let i = 1; i <= 34; i++) {
+            const answer = items[`answer_${i}`];
+            if (answer != null) {
+                report['type'] = items[`type_${i}`];
+                report['comment'] = answer;
+                report['number'] = i;
+                break; // فقط اولین پاسخ معتبر را اضافه کنید
+            }
+        }
+
+        // اضافه کردن گزارش به داده‌ها
+        data.push(report);
+    }
+
+    // به‌روزرسانی `lastFetch`
     await this.truckBreakDownRepository.update(
-      {
-        lastFetch: new Date().toISOString(),
-        notifyTransportComment: false,
-        notifyRepairmanComment: false,
-      },
-      {
-        where: {
-          driverId: driverId,
-          transportComment: { [Op.ne]: null },
+        {
+            lastFetch: new Date().toISOString(),
+            notifyTransportComment: false,
+            notifyRepairmanComment: false,
         },
-      },
+        {
+            where: {
+                driverId: driverId,
+                transportComment: { [Op.ne]: null },
+            },
+        },
     );
+
     return {
-      status: 200,
-      data: data,
-      count: data.length,
+        status: 200,
+        data: data,
+        count: breakDowns.count,
     };
-  }
+}
+
+
 
   async getCarPiecesHistory(carNumber: string) {
     try {
@@ -890,6 +1066,31 @@ export class TruckBreakDownService {
       message: message,
     };
   }
+
+  
+  async deleteAll() {
+    let message: string;
+    let status: number;
+    const deleteBreakDown = await this.truckBreakDownRepository.destroy({
+      where: {},
+    });
+    const deleteItems = await this.truckBreakDownItemsRepository.destroy({
+      where: {},
+    });
+    if (deleteBreakDown && deleteItems) {
+      message = `delete breakDowns successfully`;
+      status = 200;
+    } else {
+      message = `delete items failed`;
+      status = 400;
+    }
+
+    return {
+      status: status,
+      message: message,
+    };
+  }
+
 
   async getUsersSameZone(
     zone: string,

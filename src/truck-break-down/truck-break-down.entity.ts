@@ -4,11 +4,17 @@ import { Auth } from 'src/auth/auth.entity';
 import { TruckBreakDownStatus } from 'src/common/enum';
 import { RepairInvoice } from 'src/repair-invoice/rapair-invoice.entity';
 import { ROLES } from 'src/static/enum';
+import { TruckBreakDownItems } from 'src/truck-break-down-items/truck-break-down-items.entity';
 
 @Table
 export class TruckBreakDown extends Model {
+  @ForeignKey(() => TruckBreakDownItems) // تعریف کلید خارجی
   @Column
   truckBreakDownItemsId: number;
+
+  @BelongsTo(() => TruckBreakDownItems)
+  truckBreakDownItems: TruckBreakDownItems;
+
 
   @ForeignKey(() => Auth)
   @Column
@@ -117,8 +123,8 @@ export class TruckBreakDown extends Model {
   @Column({ defaultValue: false })
   repairShopOutside: boolean;
 
-  @HasMany(() => RepairInvoice)
-  repairInvoice: RepairInvoice[];
+  @HasMany(() => RepairInvoice, 'truckBreakDownId')
+  repairInvoices: RepairInvoice[];
 
   // MID: manage filter "TruckBreakDown"
   // @Column

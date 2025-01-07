@@ -1,4 +1,5 @@
 import {
+  BelongsTo,
   Column,
   DataType,
   ForeignKey,
@@ -33,4 +34,7 @@ export class RepairInvoice extends Model {
   @ForeignKey(() => TruckBreakDown)
   @Column({ allowNull: true })
   truckBreakDownId: number;
+
+  @BelongsTo(() => TruckBreakDown, 'truckBreakDownId')
+  truckBreakDown: TruckBreakDown;
 }

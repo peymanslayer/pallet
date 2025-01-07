@@ -9,7 +9,7 @@ export class CheckListComment extends Model<CheckListComment> {
   isDeleted: boolean;
 
   @Column
-  comment_0: string;
+  comment_0: number;
 
   @Column({ type: DataType.TEXT })
   answer_1: string;

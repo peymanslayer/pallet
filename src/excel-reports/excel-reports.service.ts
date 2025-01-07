@@ -615,18 +615,12 @@ export class ExcelReportsService {
       
         const breakdownRecords = await this.truckBreakDownRepository.findAll({
           where: breakdownFilter,
-          include: [
-            {
-              model: RepairInvoice,
-              where: repairInvoiceFilter,
-              required: pieces && pieces.length > 0,
-            },
-          ],
+          include: { all: true }
         });
+
+        // breakdownRecords[0].repairInvoice
       
-        console.log('breakdownRecords:', breakdownRecords);
-      
-        const flattenedData = breakdownRecords.flatMap((breakdown) => {
+        const combinedData = breakdownRecords.map((breakdown) => {
           const auth = authRecords.find((auth) => auth.id === breakdown.driverId);
           return breakdown.repairInvoices.map((invoice) => ({
             driverId: breakdown.driverId,
@@ -674,15 +668,27 @@ export class ExcelReportsService {
       
         headerRow.height = 20;
       
-        if (flattenedData.length > 0) {
-          flattenedData.forEach((data) => {
-            const row = worksheet.addRow(data);
+        if (combinedData.length > 0) {
+          combinedData.forEach((data) => {
+            if (data.repairInvoice.length > 0) {
+              data.repairInvoice.forEach((invoice) => {
+                const row = worksheet.addRow({...data, piece: invoice.piece});
+                row.eachCell((cell) => {
+                  cell.alignment = {
+                    vertical: 'middle',
+                    horizontal: 'center',
+                  };
+                });
+              })
+            } else {
+            const row = worksheet.addRow({...data, piece: ""});
             row.eachCell((cell) => {
               cell.alignment = {
                 vertical: 'middle',
                 horizontal: 'center',
               };
             });
+          }
           });
         } else {
           const row = worksheet.addRow(['اطلاعاتی یافت نشد']);

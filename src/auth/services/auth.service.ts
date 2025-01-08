@@ -169,7 +169,7 @@ export class AuthService {
     if (createUser) {
       if (Body.role === ROLES.DRIVER || Body.role === ROLES.COMPANYDRIVER) {
         let truckInfo = new TruckInfoInsertDto();
-        truckInfo.carNumber = Body.carNumber;
+        truckInfo.carNumber = Body.carNumber
         truckInfo['type'] = Body.type;
         truckInfo['driverId'] = createUser.id;
         truckInfo['zone'] = Body.zone;
@@ -213,6 +213,7 @@ export class AuthService {
       if (role === 'companyDriver') {
         const truckInfoDriver = await this.truckInfoService.get(userId);
         findUser.dataValues['carNumber'] = truckInfoDriver.carNumber;
+        findUser.dataValues['truckId'] = truckInfoDriver.id
       }
       // console.log('findUser return endpoint: /n', findUser); // debug
       return await this.loginProcess(findUser, Body);

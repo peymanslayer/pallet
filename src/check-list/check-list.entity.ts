@@ -1,9 +1,18 @@
-import { Column, Table, Model, Index, DataType } from 'sequelize-typescript';
+import { Column, Table, Model, Index, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { TruckInfo } from 'src/truck-info/truck-info.entity';
 
 @Table
 export class CheckList extends Model<CheckList> {
   @Column
   userId: number;
+
+  @ForeignKey(() => TruckInfo)
+  @Column(DataType.INTEGER)
+  truckId: number;
+
+
+  @BelongsTo(() => TruckInfo, 'truckId')
+  truck: TruckInfo;
 
   @Column({type: DataType.INTEGER})
   carNumber: number;

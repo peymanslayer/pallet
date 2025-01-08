@@ -1,13 +1,15 @@
 
-import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from 'sequelize-typescript';
+import { AutoIncrement, BelongsTo, Column, DataType, ForeignKey, HasMany, Model, PrimaryKey, Table } from 'sequelize-typescript';
 import { Auth } from 'src/auth/auth.entity';
 import { TruckBreakDownStatus } from 'src/common/enum';
 import { RepairInvoice } from 'src/repair-invoice/rapair-invoice.entity';
 import { ROLES } from 'src/static/enum';
 import { TruckBreakDownItems } from 'src/truck-break-down-items/truck-break-down-items.entity';
+import { TruckInfo } from 'src/truck-info/truck-info.entity';
 
 @Table
 export class TruckBreakDown extends Model {
+  
   @ForeignKey(() => TruckBreakDownItems) // تعریف کلید خارجی
   @Column
   truckBreakDownItemsId: number;
@@ -33,6 +35,8 @@ export class TruckBreakDown extends Model {
   // for not join in each report add this model
   @Column
   carNumber: string;
+
+
 
   @Column
   carLife: number;
@@ -125,6 +129,8 @@ export class TruckBreakDown extends Model {
 
   @HasMany(() => RepairInvoice, 'truckBreakDownId')
   repairInvoices: RepairInvoice[];
+
+
 
   // MID: manage filter "TruckBreakDown"
   // @Column

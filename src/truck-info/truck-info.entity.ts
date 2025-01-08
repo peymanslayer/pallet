@@ -1,5 +1,7 @@
 import { Column, HasMany, Model, Table } from 'sequelize-typescript';
+import { CheckList } from 'src/check-list/check-list.entity';
 import { PeriodicTruckCheck } from 'src/periodic-truck-check/periodic-truck-check.entity';
+import { TruckBreakDown } from 'src/truck-break-down/truck-break-down.entity';
 
 @Table
 // comment: used for info truck in "truck-break-down"
@@ -30,6 +32,9 @@ export class TruckInfo extends Model<TruckInfo> {
 
   @Column({ defaultValue: false })
   updateCarNumber: boolean;
+
+  @HasMany(() => CheckList)
+  checklists: CheckList[];
 
   @HasMany(() => PeriodicTruckCheck)
   periodicTruckCheck: PeriodicTruckCheck[];

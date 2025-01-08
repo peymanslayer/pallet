@@ -4,6 +4,7 @@ import { TruckInfoInsertDto } from './dto/truck-info.insert.dto';
 import { Auth } from 'src/auth/auth.entity';
 import { Op } from 'sequelize';
 import { PeriodicTruckCheck } from 'src/periodic-truck-check/periodic-truck-check.entity';
+import { PersianLetterMap } from './enum/truck.enum';
 @Injectable()
 export class TruckInfoService {
   constructor(
@@ -27,11 +28,26 @@ export class TruckInfoService {
   }
   async add(body: TruckInfoInsertDto) {
     try {
-      // body['driverId'] = driverId;
-      const truckInfoAdd = await this.truckInfoRepository.create(body);
+      const {driverId , state , type , zone , carNumber} = body
+      const validCarNumber = await this.combineCarNumber(carNumber)
+      console.log(validCarNumber);
+      
+      const truckInfoAdd = await this.truckInfoRepository.create({driverId , state , type , zone , carNumber: validCarNumber });
     } catch (err) {
       console.log(err);
     }
+  }
+
+  async combineCarNumber(carNumber: { firstPart: number; secondPart: number; thirdPart: number; fourthPart: number }): Promise<string> {
+    const { firstPart, secondPart, thirdPart, fourthPart } = carNumber;
+
+    const secondPartLetter = PersianLetterMap[secondPart];
+    if (!secondPartLetter) {
+      throw new Error('مقدار نامعتبر برای secondPart');
+    }
+
+    const combinedCarNumber = `${firstPart}-${secondPartLetter}-${thirdPart}-${fourthPart}`;
+    return combinedCarNumber;
   }
   async update(driverId: number, body: any) {
     try {

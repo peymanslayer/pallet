@@ -27,7 +27,7 @@ import { InternalOrExternalRepairmentModule } from './inside-or-outside-repairme
 import { AutoPriodicTruckCheckModule } from './auto-priodic-truck-check/auto-priodic-truck-check.module';
 import { ExcelReportsModule } from './excel-reports/excel-reports.module';
 import { KilometerModule } from './kilometer/kilometer.module';
-import { KilometerDetailsModule } from './kilometer-details/kilometer-details.module';
+import { KilometerDetailsModule } from './driver-kilometer-details/kilometer-details.module';
 
 @Module({
   imports: [
@@ -51,7 +51,7 @@ import { KilometerDetailsModule } from './kilometer-details/kilometer-details.mo
     AutoPriodicTruckCheckModule,
     ExcelReportsModule,
     KilometerModule,
-    KilometerDetailsModule,
+    KilometerDetailsModule ,
   ],
   controllers: [AppController],
   providers: [AppService],

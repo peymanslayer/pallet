@@ -19,7 +19,7 @@ import { generateDataExcel } from 'src/utility/export_excel';
 import { AuthService } from 'src/auth/services/auth.service';
 import { TruckBreakDown } from 'src/truck-break-down/truck-break-down.entity';
 import { KilometerService } from 'src/kilometer/kilometer.service';
-import { KilometerDetailsService } from 'src/kilometer-details/kilometer-details.service';
+import { KilometerDetailsService } from 'src/driver-kilometer-details/kilometer-details.service';
 
 @Injectable()
 export class CheckListService {
@@ -249,36 +249,44 @@ async insertCheckList(body: Object) {
   const answers: [] = body['answers'];
 
   checkList['userId'] = body['id'];
+  checkList['truckId'] = body['truckId'];
   checkList['carNumber'] = body['carNumber'];
   checkList['name'] = body['name'];
   checkList['hours'] = body['hours'];
   checkList['history'] = body['date'];
 
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-
   const lastCheckList = await this.checkListRepository.findOne({
-      where: { carNumber: body['carNumber'] },
-      order: [['createdAt', 'DESC']],
+    where: { truckId: body['truckId'] },
+    order: [['createdAt', 'DESC']],
   });
 
-  const previousKilometer = lastCheckList.answer_0
 
-  const currentAnswer0 = body['answers'].find((a) => a.number === 0)?.question;
-  if (
-      lastCheckList &&
-      !lastCheckList.isDeleted &&
-      (currentAnswer0 < 50000)
-  ) {
+  const currentAnswer0 = Number(body['answers'].find((a) => a.number === 0)?.question);
+  
+  if (lastCheckList) {
+    if (!lastCheckList.isDeleted && currentAnswer0 < 50000) {
       return {
-          status: 200,
-          data: [],
-          message: 'مقدار کیلومتر جاری باید حداقل ۵۰,۰۰۰ واحد بیشتر از مقدار آخرین رکورد باشد',
+        status: 200,
+        data: [],
+        message: 'مقدار کیلومتر جاری باید حداقل ۵۰,۰۰۰ واحد بیشتر از مقدار آخرین رکورد باشد',
       };
+    }
+  } else {
+    if (currentAnswer0 < 50000) {
+      return {
+        status: 200,
+        data: [],
+        message: 'مقدار کیلومتر جاری باید حداقل ۵۰,۰۰۰ واحد باشد',
+      };
+    }
   }
 
-  const currenrKilometer = currentAnswer0
+  const currentKilometer = currentAnswer0;
+
 
 
   for (let item of answers) {
@@ -286,61 +294,64 @@ async insertCheckList(body: Object) {
     checkList[answerKey] = item['question'];
 
     if (item['number'] === 0) {
-        checkList[answerKey] += currenrKilometer;
+      checkList[answerKey] += currentKilometer;
+      console.log(checkList[answerKey] += currentKilometer);
+      
     }
 
     if (item['comment']) {
-        checkListComment['comment_' + item['number']] = item['comment'];
+      checkListComment['comment_' + item['number']] = item['comment'];
     }
-}
-  const insertCheckList = await this.checkListRepository.create<CheckList>(checkList);
+  }
 
-  await this.kilometerService.create(body['carNumber'] , currenrKilometer , previousKilometer)
-  await this.kilometerDetailsService.create(body['carNumber']  , body['userId'] , currenrKilometer)
+  const insertCheckList = await this.checkListRepository.create<CheckList>(checkList);
+  
+
+  const kilometer = await this.kilometerDetailsService.create(Number(body['truckId']), Number(body['id']), currentKilometer);
 
   if (Object.entries(checkListComment).length !== 0) {
-      checkListComment['checkListId'] = insertCheckList.id;
-      await this.checkListCommentRepository.create<CheckListComment>(checkListComment);
+    checkListComment['checkListId'] = insertCheckList.id;
+    await this.checkListCommentRepository.create<CheckListComment>(checkListComment);
   }
 
   const unresolvedBreakdowns = await this.truckBreakDownRepository.findAll({
     where: {
-        driverId: body['id'],
-        historySendToRepair: {
-            [Op.not]: null, 
-        },
+      driverId: body['id'],
+      historySendToRepair: {
+        [Op.not]: null,
+      },
     },
-});
+  });
 
   if (unresolvedBreakdowns.length > 0) {
-      for (const breakdown of unresolvedBreakdowns) {
-          await this.truckBreakDownRepository.update(
-              {
-                carLife: currentAnswer0, 
-              },
-              { where: { id: breakdown.id } }
-          );
-          console.log(breakdown);
-          
-      }
+    for (const breakdown of unresolvedBreakdowns) {
+      await this.truckBreakDownRepository.update(
+        {
+          carLife: currentAnswer0,
+        },
+        { where: { id: breakdown.id } }
+      );
+      console.log(breakdown);
+    }
   }
 
   const truckInfo = await this.truckInfoRepository.findOne({
     where: { driverId: checkList['userId'] },
-});
+  });
 
   if (truckInfo) {
-      await this.truckInfoRepository.update(
-          { lastCarLife: checkList['answer_0'] , lastCarLifeBackup : truckInfo?.lastCarLife || checkList['answer_0'] },
-          { where: { driverId: checkList['userId'] } }
-      );
-}
+    await this.truckInfoRepository.update(
+      { lastCarLife: checkList['answer_0'], lastCarLifeBackup: truckInfo?.lastCarLife || checkList['answer_0'] },
+      { where: { driverId: checkList['userId'] } }
+    );
+  }
 
   return {
-      status: 201,
-      message: 'چک‌لیست با موفقیت ثبت شد',
+    status: 201,
+    message: 'چک‌لیست با موفقیت ثبت شد',
   };
 }
+
 // async insertCheckList(body: Object) {
 //   const checkList = {};
 //   const checkListComment = {};
@@ -494,52 +505,202 @@ async getTotalKilometerOfChecklist(carNumber: string){
     return { data, status: 200 };
   }
 
-  async getllByDriverId(
+  // async getllByDriverId(
+  //   userId: number,
+  //   beforHistory: string,
+  //   afterHistory: string,
+  // ) {
+  //   // comment:  return data : [{date,hours,answers[orderby number]}]
+  //   let data = [];
+  //   let where = {};
+  //   if (beforHistory && afterHistory)
+  //     where['history'] = {
+  //       [Op.between]: [`${beforHistory}`, `${afterHistory}`],
+  //     };
+  //   if (userId) where['userId'] = userId;
+
+  //   // check role for not showing deleted items
+  //   const user = await this.authRepository.findByPk(userId);
+  //   if (user.role == ROLES.COMPANYDRIVER) {
+  //     where["isDeleted"] = false
+  //   }
+  //   //get all of checklist of user checklists
+  //   const res = await this.checkListRepository.findAndCountAll({
+  //     where: where,
+  //     order: [['id', 'DESC']],
+  //   });
+  //   const allCheckList = res.rows;
+
+  //   // for each chklst add answers to data[x].answers
+  //   for (let checkList of allCheckList) {
+  //     let check = {};
+  //     const info = checkList.dataValues;
+
+  //     check['id'] = info['id'];
+  //     check['date'] = info['history'];
+  //     check['hours'] = info['hours'];
+  //     check['userId'] = info['userId'];
+  //     check['name'] = info['name'];
+
+  //     data.push(check);
+  //   }
+
+  //   return {
+  //     status: 200,
+  //     data: data,
+  //     message: `get all check list of driver id : ${userId}`,
+  //   };
+  // }
+
+  // async getAllByDriverId(
+  //   userId: number,
+  //   beforeHistory: string,
+  //   afterHistory: string,
+  // ) {
+  //   let data = [];
+  //   let where = {};
+
+  //   console.log(userId);
+    
+  
+  //   if (beforeHistory && afterHistory) {
+  //     where['history'] = {
+  //       [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
+  //     };
+  //   }
+  
+  //   if (userId) {where['userId'] = +userId;}
+  
+  //   const user = await this.authRepository.findOne({where : {id: userId}})
+  //   if (user.role == ROLES.COMPANYDRIVER) {
+  //     where["isDeleted"] = false;
+  //   }
+  
+  //   const res = await this.checkListRepository.findAndCountAll({
+  //     where: where,
+  //     order: [['id', 'DESC']],
+  //   });
+  
+  //   const allCheckList = res.rows;
+
+  //   console.log(allCheckList);
+    
+  
+  //   for (let checkList of allCheckList) {
+  //     let check = {};
+  //     const info = checkList.get(); 
+
+  //     console.log(info);
+      
+  
+  //     check['id'] = info['id'];
+  //     check['date'] = info['history'];
+  //     check['hours'] = info['hours'];
+  //     check['userId'] = info['userId'];
+  //     check['name'] = info['name'];
+      
+  //     check['answer_0'] = info['answer_0'];
+  //     check['answer_1'] = info['answer_1'];
+  //     check['answer_2'] = info['answer_2'];
+  //     check['answer_3'] = info['answer_3'];
+  //     check['answer_4'] = info['answer_4'];
+  //     check['answer_5'] = info['answer_5'];
+  //     check['answer_6'] = info['answer_6'];
+  //     check['answer_7'] = info['answer_7'];
+  //     check['answer_8'] = info['answer_8'];
+  //     check['answer_9'] = info['answer_9'];
+  //     check['answer_10'] = info['answer_10'];
+  //     check['answer_11'] = info['answer_11'];
+  //     check['answer_12'] = info['answer_12'];
+  //     check['answer_13'] = info['answer_13'];
+  //     check['answer_14'] = info['answer_14'];
+  //     check['answer_15'] = info['answer_15'];
+  //     check['answer_16'] = info['answer_16'];
+  //     check['answer_17'] = info['answer_17'];
+  //     check['answer_18'] = info['answer_18'];
+  //     check['answer_19'] = info['answer_19'];
+  //     check['answer_20'] = info['answer_20'];
+  
+  //     data.push(check);
+  //   }
+
+  //   console.log(data);
+  
+  //   return {
+  //     status: 200,
+  //     data: data,
+  //     message: `Get all checklists for driver id: ${userId}`,
+  //   };
+  // }
+  
+
+  async getAllByDriverId(
     userId: number,
-    beforHistory: string,
+    beforeHistory: string,
     afterHistory: string,
   ) {
-    // comment:  return data : [{date,hours,answers[orderby number]}]
     let data = [];
     let where = {};
-    if (beforHistory && afterHistory)
+  
+  
+    if (beforeHistory && afterHistory) {
       where['history'] = {
-        [Op.between]: [`${beforHistory}`, `${afterHistory}`],
+        [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
       };
-    if (userId) where['userId'] = userId;
-
-    // check role for not showing deleted items
-    const user = await this.authRepository.findByPk(userId);
-    if (user.role == ROLES.COMPANYDRIVER) {
-      where["isDeleted"] = false
     }
-    //get all of checklist of user checklists
+  
+    if (userId) {
+      where['userId'] = +userId;
+    }
+  
+    const user = await this.authRepository.findOne({ where: { id: userId } });
+    if (user && user.role === ROLES.COMPANYDRIVER) {
+      where["isDeleted"] = false;
+    }
+  
     const res = await this.checkListRepository.findAndCountAll({
       where: where,
       order: [['id', 'DESC']],
     });
+  
     const allCheckList = res.rows;
-
-    // for each chklst add answers to data[x].answers
+  
     for (let checkList of allCheckList) {
       let check = {};
-      const info = checkList.dataValues;
-
+      const info = checkList.get();  // گرفتن داده‌ها از checkList
+  
+      // اطمینان از اینکه info وجود دارد
+      if (!info) {
+        console.log("No info found for checklist", checkList.id);
+        continue;
+      }
+  
       check['id'] = info['id'];
       check['date'] = info['history'];
       check['hours'] = info['hours'];
       check['userId'] = info['userId'];
       check['name'] = info['name'];
-
+  
+      // برای هر پاسخ، بررسی وجود آن در info
+      for (let i = 0; i <= 20; i++) {
+        const answerKey = `answer_${i}`;
+        check[answerKey] = info[answerKey] !== undefined ? info[answerKey] : null;  // اگر پاسخ وجود نداشت، مقدار null قرار می‌دهیم
+      }
+  
       data.push(check);
     }
-
+  
+    console.log(data);
+  
     return {
       status: 200,
       data: data,
-      message: `get all check list of driver id : ${userId}`,
+      message: `Get all checklists for driver id: ${userId}`,
     };
   }
+  
+  
+
 
   async getAnswers(checkListId: number) {
     let data = [];

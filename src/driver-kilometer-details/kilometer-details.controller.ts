@@ -7,20 +7,20 @@ export class KilometerDetailsController {
   constructor(private readonly kilometerDetailsService: KilometerDetailsService) {}
 
   @Post('/add')
-  async create(@Body() carNumber: string ,driverId:number ,kilometer: number , @Res() response: Response){
-    const res = await this.kilometerDetailsService.create(carNumber , driverId , kilometer);
+  async create(@Body() truckId: number ,driverId:number ,kilometer: number , @Res() response: Response){
+    const res = await this.kilometerDetailsService.create(truckId , driverId , kilometer);
     response.status(res.status).json({data :res.data , message: res.message});
   }
 
   @Get('/filter')
   async getKilometerDetailsByFilter(
     @Query('driverIds') driverIds: number[] ,
-    @Query('carNumbers') carNumbers: string[] ,
+    @Query('truckIds') truckIds: number[] ,
     @Query('startDate') startDate: string ,
     @Query('endDate') endDate: string ,
     @Res() response: Response
   ){
-    const res = await this.kilometerDetailsService.getKilometerDetailsByFilter(driverIds , carNumbers , startDate , endDate);
+    const res = await this.kilometerDetailsService.getKilometerDetailsByFilter(driverIds , truckIds , startDate , endDate);
     response.status(res.status).json({data :res.data , message: res.message});
   }
 

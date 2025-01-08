@@ -4,6 +4,7 @@ import { OrderService } from 'src/order/services/order.service';
 import { AuthService } from 'src/auth/services/auth.service';
 import { InsertOperatorDto } from '../dtos/insertDto';
 import { OperatorShop } from 'src/operatorShop/operatorShop.schema';
+import { TruckInfoService } from 'src/truck-info/truck-info.service';
 
 @Injectable()
 export class OperatorService {
@@ -12,7 +13,8 @@ export class OperatorService {
     private readonly operatorRepository: typeof Operator,
     private readonly orderService: OrderService,
     @Inject(forwardRef(()=>AuthService))
-    private readonly authService:AuthService
+    private readonly authService:AuthService ,
+    private readonly truckInfoService: TruckInfoService,
   ) {}
 
   async insertOperator(body:InsertOperatorDto){

@@ -16,6 +16,7 @@ import { PeriodicTruckCheck } from 'src/periodic-truck-check/periodic-truck-chec
 import { PeriodicType } from 'src/periodic-type/periodic-type.entity';
 import { Op } from 'sequelize';
 import { Comment } from 'src/comment/comment..entity';
+import { KilometerDetails } from 'src/driver-kilometer-details/entities/kilometer-detail.entity';
 
 export const databaseProviders = [
   {
@@ -25,17 +26,17 @@ export const databaseProviders = [
         dialect: 'mysql',
 
         //-------------------------------db-chstseven/liara
-        host: 'himalayas.liara.cloud',
-        port: 32679,
-        username: 'root',
-        password: 'XY9n0YoCwwTmjF7W6zZPYSSm',
-        database: 'nifty_diffie',
-        //---------------------------------------db local
-        // host: 'localhost',
-        // port: 3306,
+        // host: 'himalayas.liara.cloud',
+        // port: 32679,
         // username: 'root',
-        // password: '001Zein@b',
-        // database: 'test',
+        // password: 'XY9n0YoCwwTmjF7W6zZPYSSm',
+        // database: 'nifty_diffie',
+        //---------------------------------------db local
+        host: 'localhost',
+        port: 3306,
+        username: 'root',
+        password: '001Zein@b',
+        database: 'test',
 
         logging: false,
         pool: {
@@ -65,6 +66,7 @@ export const databaseProviders = [
         RepairInvoice,
         PeriodicTruckCheck,
         PeriodicType,
+        KilometerDetails
       ]);
     },
   },

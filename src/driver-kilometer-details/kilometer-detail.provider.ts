@@ -1,6 +1,6 @@
 import { KilometerDetails } from "./entities/kilometer-detail.entity";
 
-export const KilometerDetailsProviders = [
+export const DriverKilometerDetailsProviders = [
     {
       provide: 'KILOMETER_DETAIL_REPOSITORY',
       useValue: KilometerDetails,

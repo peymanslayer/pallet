@@ -3,7 +3,7 @@ import { Auth } from "src/auth/auth.entity";
 import { TruckInfo } from "src/truck-info/truck-info.entity";
 
 @Table({
-    tableName: 'KilometerDetails',
+    tableName: 'kilometer_details',
     timestamps: true,
 })
 export class KilometerDetails extends Model {
@@ -28,6 +28,12 @@ export class KilometerDetails extends Model {
         defaultValue: 0,
       })
     kilometer: number;
+
+    @Column({
+        type: DataType.INTEGER,
+        defaultValue: 0,
+      })
+    totalKilometer: number;
       
     @BelongsTo(() => TruckInfo, 'truckId')
     truck: TruckInfo;

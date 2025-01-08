@@ -1,10 +1,16 @@
-import { Body, Controller, Get, Param, Put, Query, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query, Res } from '@nestjs/common';
 import { TruckInfoService } from './truck-info.service';
 import { Response } from 'express';
+import { TruckInfoInsertDto } from './dto/truck-info.insert.dto';
 
 @Controller()
 export class TruckInfoController {
   constructor(private readonly truckInfoService: TruckInfoService) {}
+
+  @Post('/api/truckInfo/add')
+  async addTruck(@Body() payload: TruckInfoInsertDto, @Res() response: Response){
+    const res = await this.truckInfoService.add(payload)
+  }
 
   @Get('/api/truckInfo')
   async get(@Query('zone') zone: string, @Query('company') company: string) {

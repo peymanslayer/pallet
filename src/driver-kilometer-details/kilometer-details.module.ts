@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
+import { KilometerDetailsService } from './kilometer-details.service';
+import { KilometerDetailsController } from './kilometer-details.controller';
 import { TruckInfoProviders } from 'src/truck-info/truck-info.provider';
-import { KilometerDetailsController } from 'src/driver-kilometer-details/kilometer-details.controller';
-import { KilometerDetailsService } from 'src/driver-kilometer-details/kilometer-details.service';
-import { DriverKilometerDetailsProviders } from 'src/driver-kilometer-details/kilometer-detail.provider';
+import { DriverKilometerDetailsProviders } from './kilometer-detail.provider';
 
 @Module({
   controllers: [KilometerDetailsController],

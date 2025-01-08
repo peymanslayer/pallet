@@ -1,4 +1,6 @@
-import { IsEmail, IsNotEmpty } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsEmail, IsNotEmpty, IsObject, ValidateNested } from 'class-validator';
+import { CarNumberPartsDto } from 'src/truck-info/dto/truck-info.insert.dto';
 
 export class SignUpDto {
   email: string;
@@ -23,7 +25,11 @@ export class SignUpDto {
 
   zone: string;
 
-  carNumber: string;
+  @IsObject()
+  @ValidateNested()
+  @Type(() => CarNumberPartsDto)
+  carNumber: CarNumberPartsDto;
+
 
   type: string; //TODO : change name field to "typeTruck" and check not lost data
 }

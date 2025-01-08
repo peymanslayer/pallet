@@ -162,7 +162,7 @@ export class CheckListController {
     @Res() response: Response,
   ) {
     try {
-      const res = await this.checkListService.getllByDriverId(
+      const res = await this.checkListService.getAllByDriverId(
         driverId,
         beforHistory,
         afterHistory,

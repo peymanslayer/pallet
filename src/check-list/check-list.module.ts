@@ -8,7 +8,7 @@ import { AuthProviders } from 'src/auth/auth.provider';
 import { AuthModule } from 'src/auth/auth.module';
 import { TruckBreakDownProviders } from 'src/truck-break-down/truck-break-down.provider';
 import { KilometerModule } from 'src/kilometer/kilometer.module';
-import { KilometerDetailsModule } from 'src/kilometer-details/kilometer-details.module';
+import { KilometerDetailsModule } from 'src/driver-kilometer-details/kilometer-details.module';
 
 @Module({
   imports: [AuthModule , KilometerModule , KilometerDetailsModule],

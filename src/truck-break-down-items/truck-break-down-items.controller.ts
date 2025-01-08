@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, Put, Res } from '@nestjs/common';
+import { Body, Controller, Param, Patch, Post, Put, Res } from '@nestjs/common';
 import { TruckBreakDownItemsService } from './truck-break-down-items.service';
 import { Response } from 'express';
 
@@ -35,5 +35,10 @@ export class TrukBreakDownItemsController {
       console.log(err);
       response.status(500).json(err);
     }
+  }
+
+  @Patch('/api/truckbreakdown/add-question')
+  async addQuestion(){
+    
   }
 }

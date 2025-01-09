@@ -634,72 +634,167 @@ async getTotalKilometerOfChecklist(carNumber: string){
   // }
   
 
-  async getAllByDriverId(
-    userId: number,
-    beforeHistory: string,
-    afterHistory: string,
-  ) {
-    let data = [];
-    let where = {};
+  // async getAllByDriverId(
+  //   userId: number,
+  //   beforeHistory: string,
+  //   afterHistory: string,
+  // ) {
+  //   let data = [];
+  //   let where = {};
   
   
-    if (beforeHistory && afterHistory) {
-      where['history'] = {
-        [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
+  //   if (beforeHistory && afterHistory) {
+  //     where['history'] = {
+  //       [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
+  //     };
+  //   }
+  
+  //   if (userId) {
+  //     where['userId'] = +userId;
+  //   }
+  
+  //   const user = await this.authRepository.findOne({ where: { id: userId } });
+  //   if (user && user.role === ROLES.COMPANYDRIVER) {
+  //     where["isDeleted"] = false;
+  //   }
+  
+  //   const res = await this.checkListRepository.findAndCountAll({
+  //     where: where,
+  //     order: [['id', 'DESC']],
+  //   });
+  
+  //   const allCheckList = res.rows;
+  
+  //   for (let checkList of allCheckList) {
+  //     let check = {};
+  //     const info = checkList.get();  // گرفتن داده‌ها از checkList
+  
+  //     // اطمینان از اینکه info وجود دارد
+  //     if (!info) {
+  //       console.log("No info found for checklist", checkList.id);
+  //       continue;
+  //     }
+  
+  //     check['id'] = info['id'];
+  //     check['date'] = info['history'];
+  //     check['hours'] = info['hours'];
+  //     check['userId'] = info['userId'];
+  //     check['name'] = info['name'];
+  
+  //     // برای هر پاسخ، بررسی وجود آن در info
+  //     for (let i = 0; i <= 20; i++) {
+  //       const answerKey = `answer_${i}`;
+  //       check[answerKey] = info[answerKey] !== undefined ? info[answerKey] : null;  // اگر پاسخ وجود نداشت، مقدار null قرار می‌دهیم
+  //     }
+  
+  //     data.push(check);
+  //   }
+  
+  //   console.log(data);
+  
+  //   return {
+  //     status: 200,
+  //     data: data,
+  //     message: `Get all checklists for driver id: ${userId}`,
+  //   };
+  // }
+  
+  async getAllByDriverId(userId: number, beforeHistory?: string, afterHistory?: string) {
+    try {
+      const where: any = {
+        userId: userId,
+      };
+  
+      const user = await this.authRepository.findOne({
+        where: { id: userId },
+        attributes: ['role'],
+      });
+  
+      if (!user) {
+        return {
+          status: 404,
+          message: `User with id ${userId} not found`,
+        };
+      }
+  
+      if (user.role === 'companyDriver') {
+        where['isDeleted'] = false; 
+      }
+  
+
+      if (beforeHistory && afterHistory) {
+        where['history'] = {
+          [Op.between]: [beforeHistory, afterHistory],
+        };
+      } else if (beforeHistory) {
+        where['history'] = {
+          [Op.lte]: beforeHistory,  
+        };
+      } else if (afterHistory) {
+        where['history'] = {
+          [Op.gte]: afterHistory,  
+        };
+      }
+  
+
+      const checkLists = await CheckList.findAll({
+        where: where,
+        order: [['history', 'DESC']], 
+      });
+  
+
+      if (checkLists.length === 0) {
+        return {
+          status: 404,
+          message: `No checklists found for userId: ${userId}`,
+        };
+      }
+  
+      const data = checkLists.map((checkList) => {
+        return {
+          id: checkList.id,
+          history: checkList.history,
+          hours: checkList.hours,
+          userId: checkList.userId,
+          name: checkList.name,
+          answer_0: checkList.answer_0,
+          answer_1: checkList.answer_1,
+          answer_2: checkList.answer_2,
+          answer_3: checkList.answer_3,
+          answer_4: checkList.answer_4,
+          answer_5: checkList.answer_5,
+          answer_6: checkList.answer_6,
+          answer_7: checkList.answer_7,
+          answer_8: checkList.answer_8,
+          answer_9: checkList.answer_9,
+          answer_10: checkList.answer_10,
+          answer_11: checkList.answer_11,
+          answer_12: checkList.answer_12,
+          answer_13: checkList.answer_13,
+          answer_14: checkList.answer_14,
+          answer_15: checkList.answer_15,
+          answer_16: checkList.answer_16,
+          answer_17: checkList.answer_17,
+          answer_18: checkList.answer_18,
+          answer_19: checkList.answer_19,
+          answer_20: checkList.answer_20,
+        };
+      });
+  
+      return {
+        status: 200,
+        data: data,
+        message: `Checklists found for userId: ${userId}`,
+      };
+  
+    } catch (error) {
+      console.error('Error retrieving checklists:', error);
+      return {
+        status: 500,
+        message: 'An error occurred while retrieving checklists.',
       };
     }
-  
-    if (userId) {
-      where['userId'] = +userId;
-    }
-  
-    const user = await this.authRepository.findOne({ where: { id: userId } });
-    if (user && user.role === ROLES.COMPANYDRIVER) {
-      where["isDeleted"] = false;
-    }
-  
-    const res = await this.checkListRepository.findAndCountAll({
-      where: where,
-      order: [['id', 'DESC']],
-    });
-  
-    const allCheckList = res.rows;
-  
-    for (let checkList of allCheckList) {
-      let check = {};
-      const info = checkList.get();  // گرفتن داده‌ها از checkList
-  
-      // اطمینان از اینکه info وجود دارد
-      if (!info) {
-        console.log("No info found for checklist", checkList.id);
-        continue;
-      }
-  
-      check['id'] = info['id'];
-      check['date'] = info['history'];
-      check['hours'] = info['hours'];
-      check['userId'] = info['userId'];
-      check['name'] = info['name'];
-  
-      // برای هر پاسخ، بررسی وجود آن در info
-      for (let i = 0; i <= 20; i++) {
-        const answerKey = `answer_${i}`;
-        check[answerKey] = info[answerKey] !== undefined ? info[answerKey] : null;  // اگر پاسخ وجود نداشت، مقدار null قرار می‌دهیم
-      }
-  
-      data.push(check);
-    }
-  
-    console.log(data);
-  
-    return {
-      status: 200,
-      data: data,
-      message: `Get all checklists for driver id: ${userId}`,
-    };
   }
-  
-  
 
 
   async getAnswers(checkListId: number) {

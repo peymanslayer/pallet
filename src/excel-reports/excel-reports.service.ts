@@ -947,12 +947,10 @@ export class ExcelReportsService {
         breakdownRecords.map(async (breakdown) => {
           const auth = authRecords.find((auth) => auth.id === breakdown.driverId);
     
-          // دریافت اطلاعات سوالات و جواب‌ها
           const breakdownItems = await this.truckBreakDownItemsRepository.findOne({
             where: { id: breakdown.truckBreakDownItemsId },
           });
     
-          // دریافت اطلاعات فاکتورها
           const repairInvoices = await this.repairInvoiceRepository.findAll({
             where: { truckBreakDownId: breakdown.id },
           });
@@ -981,6 +979,7 @@ export class ExcelReportsService {
             transportComment: breakdown.transportComment ,
             repairmanComment: breakdown.repairmanComment ,
             historyDeliveryDriver: breakdown.historyDeliveryDriver ,
+            historySendToRepair : breakdown.historySendToRepair ,
             company: auth?.company || 'نامشخص',
             zone: auth?.zone || 'نامشخص',
             personelCode: auth?.personelCode || 'نامشخص',
@@ -994,7 +993,6 @@ export class ExcelReportsService {
         })
       );
 
-      // ایجاد فایل اکسل
       const workbook = new Workbook();
       const worksheet = workbook.addWorksheet('گزارش خرابی‌ها');
     
@@ -1013,9 +1011,10 @@ export class ExcelReportsService {
         { header: 'نظر سرپرست لجستیک', key: 'logisticComment', width: 20 },
         { header: 'نظر سرپرست ترابری' , key: 'transportComment', width: 20 },
         { header: 'نظر سرپرست تعمیرگاه' , key: 'repairmanComment', width: 20 },
-        { header: 'قطعه', key: 'repairPart', width: 50 },
+        { header: 'قطعه مصرفی', key: 'repairPart', width: 50 },
         { header: 'مبلغ فاکتور', key: 'amount', width: 20 },  
         { header: ' پلاک سیستمی خودرو', key: 'carNumberSystem', width: 20 },
+        { header: 'تاریخ اعزام به تعمیرگاه', key: 'historySendToRepair', width: 20 },
         { header: 'تاریخ تحویل به راننده', key: 'historyDeliveryDriver', width: 20 },
       ];
     
@@ -1232,13 +1231,12 @@ export class ExcelReportsService {
         const worksheet = workbook.addWorksheet('گزارش چک‌لیست');
       
         worksheet.columns = [
-          { header: 'شناسه ثبت', key: 'id', width: 15 },
           { header: 'تاریخ ثبت', key: 'history', width: 20 },
           { header: 'ساعت ثبت', key: 'hours', width: 10 },
           { header: 'نام راننده', key: 'driverName', width: 20 },
           { header: 'شماره پلاک', key: 'carNumber', width: 20 },
-          { header: 'نام منطقه ثبت', key: 'zone', width: 15 },
-          { header: 'نام شرکت ثبت', key: 'company', width: 20 },
+          { header: 'نام منطقه', key: 'zone', width: 15 },
+          { header: 'نام شرکت', key: 'company', width: 20 },
           { header: 'نام وضعیت', key: 'question', width: 20 },
           { header: 'وضعیت ثبت شده', key: 'answer', width: 20 },
           { header: 'وضعیت چک لیست ثبت شده', key: 'isDeleted', width: 10 },

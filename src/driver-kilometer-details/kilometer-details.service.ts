@@ -14,6 +14,9 @@ export class KilometerDetailsService {
     async create(truckId: number, driverId: number, kilometer: number) {
       // جستجوی ماشین با شناسه truckId
       const truck = await this.truckInfoRepository.findOne({ where: { id: +truckId } });
+
+      console.log(kilometer);
+      
       
       // اگر ماشین پیدا نشد
       if (!truck) {

@@ -8,10 +8,22 @@ export class RepairInvoiceService {
         private readonly repairInvoiceRepository: typeof RepairInvoice,
     ){}
 
-    async create(){
-
-    }
-
+    async createRepairInvoices(inputData: any) {
+        const repairInvoices = inputData.repairInvoices.map((invoice) => ({
+          truckBreakDownId: inputData.truckBreakDownId, 
+          carNumber: inputData.carNumber,
+          carNumberSystem: inputData.carNumberSystem,
+          providerCode: inputData.providerCode,
+          providerName: inputData.providerName,
+          piece: invoice.piece,
+          typeActivity: invoice.typeActivity,
+          price: invoice.price,
+        }));
+      
+        await RepairInvoice.bulkCreate(repairInvoices);
+      
+        return { status: 200 , message: 'فاکتور با موفقیت ثبت شد' };
+      }
     async edit(){
 
     }

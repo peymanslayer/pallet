@@ -30,6 +30,9 @@ export class TruckInfo extends Model<TruckInfo> {
   @Column
   zone: string;
 
+  @Column
+  company: string;
+
   @Column({ defaultValue: false })
   updateCarNumber: boolean;
 

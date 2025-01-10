@@ -769,7 +769,7 @@ export class TruckBreakDownService {
       if (answer[0].includes('type_') && answer[1] != null) {
         ans['comment'] = answers[indx - 1][1];
         ans['type'] = answer[1];
-        ans['number'] = indx / 2;
+        ans['number'] =Math.floor(indx / 2);
         arrAns.push(ans);
       }
     }

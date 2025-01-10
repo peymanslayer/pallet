@@ -37,8 +37,8 @@ export const databaseProviders = [
         username: 'root',
         // password: 'Peyman1378P$',
         // database: 'nifty_diffie',
-        password: '001Zein@b',
-        database: 'test',
+        password: 'Peyman1378P$',
+        database: 'nifty_diffie',
 
         logging: false,
         pool: {

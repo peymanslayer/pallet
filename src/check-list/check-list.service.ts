@@ -941,7 +941,7 @@ async getTotalKilometerOfChecklist(carNumber: string){
 
       const checkLists = await CheckList.findAll({
         where: where,
-        order: [['history', 'DESC']], 
+        order: [['history', 'DESC']],
       });
   
 
@@ -980,6 +980,7 @@ async getTotalKilometerOfChecklist(carNumber: string){
           answer_18: checkList.answer_18,
           answer_19: checkList.answer_19,
           answer_20: checkList.answer_20,
+          isDeleted:checkList.isDeleted
         };
       });
   
@@ -1459,7 +1460,7 @@ async getTotalKilometerOfChecklist(carNumber: string){
       let repairmentWhere = {}
 
       if (date) where['history'] = date;
-
+      
       if (zone || company) {
         driversIdInSameZone = await this.getUsersSameZone(
           zone,

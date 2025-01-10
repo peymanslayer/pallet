@@ -139,16 +139,16 @@ async autoAdd(breakDownId: number, autoAdd: AutoAdd) {
 
         let responseData = [];
 
-        for (const type of types) {
-            if (type === 'tire') {
+        for (const ty of types) {
+            if (ty === 'tire') {
                 // محاسبه پایان کیلومتر
                 const periodicKilometer = await this.priodicTypeModel.findOne({
                     attributes: ['periodicKilometer'],
-                    where: { type: type },
+                    where: { type: ty },
                 });
 
                 if (!periodicKilometer) {
-                    console.log(`نوع دوره‌ای ${type} یافت نشد`);
+                    console.log(`نوع دوره‌ای ${ty} یافت نشد`);
                     continue;
                 }
 
@@ -159,7 +159,7 @@ async autoAdd(breakDownId: number, autoAdd: AutoAdd) {
 
                 const payload = {
                     truckInfoId: truck.id,
-                    type: type,
+                    type: ty,
                     endKilometer: newEndKilometer,
                     endDate: fourYearsLater,
                 };
@@ -171,9 +171,9 @@ async autoAdd(breakDownId: number, autoAdd: AutoAdd) {
                     responseData.push(result);
 
                     if (!result) {
-                        console.log(`ثبت نوع دوره‌ای ${type} انجام نشد`);
+                        console.log(`ثبت نوع دوره‌ای ${ty} انجام نشد`);
                     } else {
-                        console.log(`نوع دوره‌ای ${type} با مقدار ${payload.endKilometer} و تاریخ ${fourYearsLater} با موفقیت ثبت شد`);
+                        console.log(`نوع دوره‌ای ${ty} با مقدار ${payload.endKilometer} و تاریخ ${fourYearsLater} با موفقیت ثبت شد`);
                     }
                 } catch (error) {
                     console.error('Validation error for tire:', error.message);
@@ -182,13 +182,13 @@ async autoAdd(breakDownId: number, autoAdd: AutoAdd) {
                 continue; // از پردازش تایر خارج می‌شود
             }
 
-            if (type === 'technicalInspection') {
+            if (ty === 'technicalInspection') {
                 const oneYearLater = new Date();
                 oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
 
                 const payload = {
                     truckInfoId: truck.id,
-                    type: type,
+                    type: ty,
                     endDate: oneYearLater,
                 };
 
@@ -198,11 +198,13 @@ async autoAdd(breakDownId: number, autoAdd: AutoAdd) {
                     const result = await this.PriodicTruckCheckModel.create(payload);
                     responseData.push(result);
                     if (!result) {
-                        console.log(`ثبت نوع دوره‌ای ${type} انجام نشد`);
+                        console.log(`ثبت نوع دوره‌ای ${ty} انجام نشد`);
                     } else {
-                        console.log(`نوع دوره‌ای ${type} با تاریخ ${oneYearLater} با موفقیت ثبت شد`);
+                        console.log(`نوع دوره‌ای ${ty} با تاریخ ${oneYearLater} با موفقیت ثبت شد`);
                     }
                 } catch (error) {
+                    console.log(error);
+                    
                     console.error('Validation error for technicalInspection:', error.message);
                 }
                 continue;
@@ -210,11 +212,11 @@ async autoAdd(breakDownId: number, autoAdd: AutoAdd) {
 
             const periodicKilometer = await this.priodicTypeModel.findOne({
                 attributes: ['periodicKilometer'],
-                where: { type: type },
+                where: { type: ty },
             });
 
             if (!periodicKilometer) {
-                console.log(`نوع دوره‌ای ${type} یافت نشد`);
+                console.log(`نوع دوره‌ای ${ty} یافت نشد`);
                 continue;
             }
 
@@ -222,7 +224,7 @@ async autoAdd(breakDownId: number, autoAdd: AutoAdd) {
 
             const payload = {
                 truckInfoId: truck.id,
-                type: type,
+                type: ty,
                 endKilometer: newEndKilometer,
                 endDate: endDate,
             };
@@ -234,9 +236,9 @@ async autoAdd(breakDownId: number, autoAdd: AutoAdd) {
                 responseData.push(result);
 
                 if (!result) {
-                    console.log(`ثبت نوع دوره‌ای ${type} انجام نشد`);
+                    console.log(`ثبت نوع دوره‌ای ${ty} انجام نشد`);
                 } else {
-                    console.log(`نوع دوره‌ای ${type} با مقدار ${payload.endKilometer} با موفقیت ثبت شد`);
+                    console.log(`نوع دوره‌ای ${ty} با مقدار ${payload.endKilometer} با موفقیت ثبت شد`);
                 }
             } catch (error) {
                 console.error('Validation error:', error.message);
@@ -254,6 +256,8 @@ async autoAdd(breakDownId: number, autoAdd: AutoAdd) {
             message: 'عملیات با موفقیت انجام شد',
         };
     } catch (error) {
+        console.log(error);
+        
         throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

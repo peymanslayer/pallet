@@ -1691,7 +1691,7 @@ export class ExcelReportsService {
       
 
     async generatePeriodicCheckExcelReport(excelFilterDto: ExcelFilterDto) {
-        const { companies, zones, startDate, endDate, carNumbers } = excelFilterDto;
+        const { companies, zones, types,startDate, endDate, carNumbers } = excelFilterDto;
       
         const truckInfoFilter: any = {};
         if (zones && zones.length > 0) truckInfoFilter.zone = { [Op.in]: zones };
@@ -1704,7 +1704,10 @@ export class ExcelReportsService {
             [Op.between]: [new Date(startDate), new Date(endDate)],
           };
         }
-      
+
+        if (types && Array.isArray(types) && types.length > 0) {
+          periodicCheckFilter.type = { [Op.in]: types }; 
+        }
         // Map برای ترجمه نام تایپ‌ها
         const typeTranslationMap = {
           tire: 'لاستیک',

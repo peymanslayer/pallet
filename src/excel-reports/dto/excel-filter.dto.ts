@@ -34,4 +34,10 @@ export class ExcelFilterDto {
     @IsArray({ message: 'نام قطعه باید یک آرایه باشد.' })
     @IsString({ each: true, message: 'هر مقدار در نام قطعه باید از نوع رشته باشد.' })
     pieces?: string[]
+
+
+    @IsOptional()
+    @IsArray({ message: 'نوع سرویس دوره ای باید یک آرایه باشد.' })
+    @IsString({ each: true, message: 'هر مقدار در نوع سرویس دوره ای باید از نوع رشته باشد.' })
+    types?: string[]
 }

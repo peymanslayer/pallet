@@ -10,7 +10,11 @@ import {
 } from '@nestjs/common';
 import { CheckListService } from './check-list.service';
 import { Response } from 'express';
+import { ApiConsumes, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { SwaggerConsumes } from 'src/common/enum';
+import { CheckListResponse, InsertCheckListErrorResponse, InsertCheckListSuccessResponse, KilometerErrorResponse, SuccessResponse } from './interface/response';
 
+@ApiTags('CheckLists')
 @Controller()
 export class CheckListController {
   constructor(private readonly checkListService: CheckListService) {}
@@ -154,12 +158,34 @@ export class CheckListController {
     }
   }
   @Get('/api/checklist/All/:driverId')
+  @ApiConsumes(SwaggerConsumes.Urlencoded, SwaggerConsumes.Json)
+  @ApiOperation({ summary: 'Get all checklists for a driver' })
+  @ApiResponse({
+    status: 404,
+    description: 'User or checklists not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+  })
+  @ApiQuery({
+    name: 'beforHistory',
+    required: false, 
+    type: String,
+    description: 'تاریخ شروع (اختیاری)',
+  })
+  @ApiQuery({
+    name: 'afterHistory',
+    required: false, 
+    type: String,
+    description: 'تاریخ پایان (اختیاری)',
+  })
   async getAllCheckList(
     @Param('driverId') driverId: number,
-    @Query('beforHistory') beforHistory: string,
-    @Query('afterHistory') afterHistory: string,
-
     @Res() response: Response,
+    @Query('beforHistory') beforHistory?: string,
+    @Query('afterHistory') afterHistory?: string,
+
   ) {
     try {
       console.log('poo');
@@ -206,6 +232,18 @@ export class CheckListController {
 
 
   @Post('/api/checklist')
+  @ApiConsumes(SwaggerConsumes.Urlencoded, SwaggerConsumes.Json)
+  @ApiOperation({ summary: 'Insert a new checklist' })
+  @ApiResponse({
+    status: 201,
+    description: 'Checklist successfully inserted',
+    type: InsertCheckListSuccessResponse,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Invalid kilometer value',
+    type: InsertCheckListErrorResponse,
+  })
   async insertCheckListDriver(@Body() body: any, @Res() response: Response) {
     try {
       const res = await this.checkListService.insertCheckList(body);
@@ -238,6 +276,19 @@ export class CheckListController {
   }
 
   @Post('/api/checkKilometer')
+  @ApiConsumes(SwaggerConsumes.Urlencoded, SwaggerConsumes.Json)
+  @ApiOperation({ summary: 'Check the kilometer value' })
+  @ApiResponse({
+    status: 200,
+    description: 'Kilometer value is valid',
+    type: SuccessResponse,
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Kilometer value does not meet the required conditions for validation',
+    type: KilometerErrorResponse,
+  })
   async checkKilometer(@Body() body: any, @Res() response: Response){
     const checkedKilometer= await this.checkListService.checkKilometer(body);
     response.status(checkedKilometer.status).json(checkedKilometer.message);

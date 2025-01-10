@@ -124,6 +124,7 @@ export class TruckBreakDownItemsService {
     for (let item of answers) {
       breakDownItems['answer_' + item['number']] = item['comment'];
       breakDownItems['type_' + item['number']] = item['type'];
+      breakDownItems['number_'+ item['number']]=item['number'];
     }
 
     const insertItems =
@@ -135,7 +136,10 @@ export class TruckBreakDownItemsService {
       breakDown['truckBreakDownItemsId'] = insertItems.id;
       const insertBreakDown =
         await this.truckBreakDownRepository.create<TruckBreakDown>(breakDown);
+        console.log(insertItems,insertBreakDown);
     }
+   
+    
 
     return {
         status: 201,
@@ -160,21 +164,24 @@ export class TruckBreakDownItemsService {
       breakDownItems['answer_' + item] = null;
       breakDownItems['type_' + item] = null;
     }
-    const restToNullBreakDown = await this.truckBreakDownItemsRepository.update(
-      breakDownItems,
-      { where: { id: id } },
-    );
+    // const restToNullBreakDown = await this.truckBreakDownItemsRepository.update(
+    //   breakDownItems,
+    //   { where: { id: id } },
+    // );
 
     for (let item of answers) {
       breakDownItems['answer_' + item['number']] = item['comment'];
       breakDownItems['type_' + item['number']] = item['type'];
     }
+    console.log(breakDownItems);
+    
     const updateBreakDown = await this.truckBreakDownItemsRepository.update(
       breakDownItems,
       { where: { id: id } },
     );
-
-    if (updateBreakDown) {
+   console.log(updateBreakDown);
+   
+    if (updateBreakDown.length>0) {
       message = `update breakDown id = ${id} successfully`;
       status = 200;
     } else {

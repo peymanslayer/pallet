@@ -1,0 +1,29 @@
+version: "3.9" # Specify the version of the Docker Compose file format
+
+services:
+  mysql:
+    image: mysql:8.0 # Use the official MySQL 8.0 image
+    container_name: mysql_container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 001Zein@b # Set the root password
+      MYSQL_DATABASE: test           # Name of the default database
+    ports:
+      - "3306:3306" # Map port 3306 on the host to port 3306 in the container
+    volumes:
+      - ./mysql_data:/var/lib/mysql # Persist data to avoid losing it between restarts
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin_container
+    restart: always
+    environment:
+      PMA_HOST: mysql            # Hostname of the MySQL service
+      PMA_PORT: 3306             # MySQL port
+      PMA_USER: root             # Username for MySQL
+      PMA_PASSWORD: 001Zein@b    # Password for MySQL
+    ports:
+      - "8080:80" # Access phpMyAdmin on http://localhost:8080
+    depends_on:
+      - mysql
+

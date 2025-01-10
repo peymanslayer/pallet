@@ -32,6 +32,9 @@ export class PeriodicTruckCheck extends Model<PeriodicTruckCheck> {
   alertReview: boolean;
 
   @Column({ defaultValue: false })
+  autoAdd: boolean;
+
+  @Column({ defaultValue: false })
   alert: boolean; // #HINT: maybe use later
 
   @ForeignKey(() => TruckInfo)
@@ -47,5 +50,6 @@ export class PeriodicTruckCheck extends Model<PeriodicTruckCheck> {
 
   @BelongsTo(() => PeriodicType)  
   periodicType: PeriodicType;
+
 
 }

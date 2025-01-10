@@ -141,7 +141,6 @@ async autoAdd(breakDownId: number, autoAdd: AutoAdd) {
 
         for (const type of types) {
             if (type === 'tire') {
-                // محاسبه پایان کیلومتر
                 const periodicKilometer = await this.priodicTypeModel.findOne({
                     attributes: ['periodicKilometer'],
                     where: { type: type },
@@ -162,6 +161,7 @@ async autoAdd(breakDownId: number, autoAdd: AutoAdd) {
                     type: type,
                     endKilometer: newEndKilometer,
                     endDate: fourYearsLater,
+                    autoAdd: true
                 };
 
                 console.log('Payload for tire:', payload);
@@ -179,7 +179,7 @@ async autoAdd(breakDownId: number, autoAdd: AutoAdd) {
                     console.error('Validation error for tire:', error.message);
                 }
 
-                continue; // از پردازش تایر خارج می‌شود
+                continue; 
             }
 
             if (type === 'technicalInspection') {
@@ -190,6 +190,7 @@ async autoAdd(breakDownId: number, autoAdd: AutoAdd) {
                     truckInfoId: truck.id,
                     type: type,
                     endDate: oneYearLater,
+                    autoAdd: true
                 };
 
                 console.log('Payload for technicalInspection:', payload);
@@ -225,6 +226,7 @@ async autoAdd(breakDownId: number, autoAdd: AutoAdd) {
                 type: type,
                 endKilometer: newEndKilometer,
                 endDate: endDate,
+                autoAdd: true
             };
 
             console.log('Payload:', payload);

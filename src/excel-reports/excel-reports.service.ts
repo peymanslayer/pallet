@@ -1604,69 +1604,162 @@ export class ExcelReportsService {
       // }
       
       
-      async generatePeriodicCheckExcelReport(excelFilterDto: ExcelFilterDto) {
-        const { companies, zones, startDate, endDate, carNumbers } = excelFilterDto;
+      // async generatePeriodicCheckExcelReport(excelFilterDto: ExcelFilterDto) {
+      //   const { companies, zones, startDate, endDate, carNumbers } = excelFilterDto;
 
+      //   const truckInfoFilter: any = {};
+      //   if (zones && zones.length > 0) truckInfoFilter.zone = { [Op.in]: zones };
+      //   if (companies && companies.length > 0) truckInfoFilter.company = { [Op.in]: companies };
+      //   if (carNumbers && carNumbers.length > 0) truckInfoFilter.carNumber = { [Op.in]: carNumbers };
+
+      //   const periodicCheckFilter: any = {};
+      //   if (startDate && endDate) {
+      //     periodicCheckFilter.createdAt = {
+      //       [Op.between]: [new Date(startDate), new Date(endDate)],
+      //     };
+      //   }
+
+      //   const periodicChecks = await PeriodicTruckCheck.findAll({
+      //     where: periodicCheckFilter,
+      //     include: [
+      //       {
+      //         model: TruckInfo,
+      //         where: truckInfoFilter,
+      //         attributes: ['carNumber', 'zone', 'company' , 'lastCarLife'],
+      //       },
+      //       {
+      //         model: PeriodicType,
+      //         attributes: ['name' , 'periodicKilometer'],
+      //       },
+      //     ],
+      //   });
+
+      //   if (!periodicChecks || periodicChecks.length === 0) {
+      //     throw new Error('هیچ داده‌ای یافت نشد');
+      //   }
+
+      //   const reportData = periodicChecks.map((check) => ({
+      //     carNumber: check.truckInfo?.carNumber || 'نامشخص',
+      //     zone: check.truckInfo?.zone || 'نامشخص',
+      //     company: check.truckInfo?.company || 'نامشخص',
+      //     periodicTypeName: check.periodicType?.name || 'نامشخص',
+      //     carLife: check.truckInfo?.lastCarLife || 'نامشخص',
+      //     endKilometer: check.endKilometer || 'نامشخص',
+      //     endDate: check.endDate || 'نامشخص',
+      //     registerType : check.autoAdd ? 'سیستم' : 'دستی',
+      //     createdAt: check.createdAt || 'نامشخص',
+      //   }));
+
+      //   const workbook = new Workbook();
+      //   const worksheet = workbook.addWorksheet('گزارش سرویس دوره ای');
+
+      //   worksheet.columns = [
+      //     { header: 'پلاک خودرو', key: 'carNumber', width: 15 },
+      //     { header: 'منطقه', key: 'zone', width: 15 },
+      //     { header: 'شرکت', key: 'company', width: 20 },
+      //     { header: 'نام سرویس دوره‌ای', key: 'periodicTypeName', width: 25 },
+      //     { header: 'کیلومتر فعلی ثبت شده', key: 'carLife', width: 15 },
+      //     { header: 'تاریخ ثبت', key: 'createdAt', width: 20 },
+      //     { header:'كيلومتر سررسيد', key: 'endKilometer', width: 15 },
+      //     { header:'تاريخ سررسيد', key: 'endDate', width: 20 },
+      //     { header: 'نوع ثبت شده', key: 'registerType', width: 15 },
+      //   ];
+
+      //   reportData.forEach((row) => {
+      //     const excelRow = worksheet.addRow(row);
+      //     excelRow.eachCell((cell) => {
+      //       cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      //       cell.font = { size: 12 };
+      //     });
+      //   });
+
+      //   const headerRow = worksheet.getRow(1);
+      //   headerRow.eachCell((cell) => {
+      //     cell.font = { bold: true, size: 14, color: { argb: 'FFFFFF' } };
+      //     cell.fill = {
+      //       type: 'pattern',
+      //       pattern: 'solid',
+      //       fgColor: { argb: '4F81BD' },
+      //     };
+      //     cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      //   });
+      //   headerRow.height = 25;
+
+      //   const buffer = await workbook.xlsx.writeBuffer();
+      //   return buffer;
+      // }
+      
+
+    async generatePeriodicCheckExcelReport(excelFilterDto: ExcelFilterDto) {
+        const { companies, zones, startDate, endDate, carNumbers } = excelFilterDto;
+      
         const truckInfoFilter: any = {};
         if (zones && zones.length > 0) truckInfoFilter.zone = { [Op.in]: zones };
         if (companies && companies.length > 0) truckInfoFilter.company = { [Op.in]: companies };
         if (carNumbers && carNumbers.length > 0) truckInfoFilter.carNumber = { [Op.in]: carNumbers };
-
+      
         const periodicCheckFilter: any = {};
         if (startDate && endDate) {
           periodicCheckFilter.createdAt = {
             [Op.between]: [new Date(startDate), new Date(endDate)],
           };
         }
-
-        // دریافت داده‌ها از دیتابیس
+      
+        // Map برای ترجمه نام تایپ‌ها
+        const typeTranslationMap = {
+          tire: 'لاستیک',
+          enginOil: 'روغن موتور',
+          technicalInspection: 'معاینه فنی',
+          sparkPlug: 'شمع',
+          pad: 'بررسی موتور',
+          gearboxOil: 'روغن گیربکس',
+          brakeDisc: 'دیسک ترمز',
+          belt: 'تسمه',
+          clutch: 'صفحه کلاچ',
+          padBowl: 'لنت کاسه ای',
+        };
+      
         const periodicChecks = await PeriodicTruckCheck.findAll({
           where: periodicCheckFilter,
           include: [
             {
               model: TruckInfo,
+              as: 'truckInfo',
               where: truckInfoFilter,
-              attributes: ['carNumber', 'zone', 'company'],
-            },
-            {
-              model: PeriodicType,
-              attributes: ['name'],
+              attributes: ['carNumber', 'zone', 'company', 'lastCarLife'],
             },
           ],
         });
-
+      
         if (!periodicChecks || periodicChecks.length === 0) {
           throw new Error('هیچ داده‌ای یافت نشد');
         }
-
-        // آماده‌سازی داده‌ها برای اکسل
+      
         const reportData = periodicChecks.map((check) => ({
-          پلاک_خودرو: check.truckInfo?.carNumber || 'نامشخص',
-          منطقه: check.truckInfo?.zone || 'نامشخص',
-          شرکت: check.truckInfo?.company || 'نامشخص',
-          نام_سرویس_دوره_ای: check.periodicType?.name || 'نامشخص',
-          کیلومتر_سرویس: check.endKilometer || 'نامشخص',
-          تاریخ_سرویس: check.endDate || 'نامشخص',
-          // registerType : check.autoAdd ? 'سیستم' : 'دستی',
+          carNumber: check.truckInfo?.carNumber || 'نامشخص',
+          zone: check.truckInfo?.zone || 'نامشخص',
+          company: check.truckInfo?.company || 'نامشخص',
+          periodicTypeName: typeTranslationMap[check.type] || check.type || 'نامشخص', // ترجمه نام تایپ
+          endKilometer: check.endKilometer || 'نامشخص',
+          endDate: check.endDate || 'نامشخص',
+          registerType: check.autoAdd ? 'سیستم' : 'دستی',
           createdAt: check.createdAt || 'نامشخص',
         }));
-
+      
         const workbook = new Workbook();
         const worksheet = workbook.addWorksheet('گزارش سرویس دوره ای');
-
-        // تنظیم ستون‌ها
+      
         worksheet.columns = [
-          { header: 'پلاک خودرو', key: 'پلاک_خودرو', width: 15 },
-          { header: 'منطقه', key: 'منطقه', width: 15 },
-          { header: 'شرکت', key: 'شرکت', width: 20 },
-          { header: 'نام سرویس دوره‌ای', key: 'نام_سرویس_دوره_ای', width: 25 },
-          { header: 'کیلومتر سرویس', key: 'کیلومتر_سرویس', width: 15 },
-          { header: 'تاریخ سرویس', key: 'تاریخ_سرویس', width: 20 },
+          { header: 'پلاک خودرو', key: 'carNumber', width: 15 },
+          { header: 'منطقه', key: 'zone', width: 15 },
+          { header: 'شرکت', key: 'company', width: 20 },
+          { header: 'نام سرویس دوره‌ای', key: 'periodicTypeName', width: 25 },
+          { header: 'کیلومتر سرویس', key: 'endKilometer', width: 15 },
+          { header: 'تاریخ انقضای سرویس', key: 'endDate', width: 20 },
           { header: 'نوع ثبت شده', key: 'registerType', width: 15 },
           { header: 'تاریخ ثبت', key: 'createdAt', width: 20 },
         ];
-
-        // اضافه کردن داده‌ها به اکسل
+      
         reportData.forEach((row) => {
           const excelRow = worksheet.addRow(row);
           excelRow.eachCell((cell) => {
@@ -1674,8 +1767,7 @@ export class ExcelReportsService {
             cell.font = { size: 12 };
           });
         });
-
-        // قالب‌دهی هدر
+      
         const headerRow = worksheet.getRow(1);
         headerRow.eachCell((cell) => {
           cell.font = { bold: true, size: 14, color: { argb: 'FFFFFF' } };
@@ -1687,8 +1779,7 @@ export class ExcelReportsService {
           cell.alignment = { horizontal: 'center', vertical: 'middle' };
         });
         headerRow.height = 25;
-
-        // ذخیره اکسل به صورت بافر
+      
         const buffer = await workbook.xlsx.writeBuffer();
         return buffer;
       }

@@ -66,7 +66,7 @@ export class ExcelReportsController {
     @Res() res: Response,
   ) {
     try {
-      const checklistData = await this.excelReportsService.exportPriodicCheckTruckData(
+      const checklistData = await this.excelReportsService.generatePeriodicCheckExcelReport(
         excelFilterDto
       );
   

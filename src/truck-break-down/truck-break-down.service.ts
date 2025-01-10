@@ -397,6 +397,160 @@ export class TruckBreakDownService {
   }
 
   // list of dashboard role "LogisticAdmin"
+  // async logisticUserGetAll(
+  //   logisticComment: string,
+  //   repairDone: string,
+  //   reciveToRepair: string,
+  //   count: string,
+  //   beforeHistory: string,
+  //   afterHistory: string,
+  //   carNumber: string,
+  //   company: string,
+  //   zone: string,
+  // ) {
+  //   let filter = {}; // filter by "date" or "carNumber"
+  //   let data = [];
+  //   let countList: number;
+  //   let breakDowns: {
+  //     rows: TruckBreakDown[];
+  //     count: number;
+  //   };
+  //   const usersIdInSameZone = [];
+  //   const usersIdInCompany = [];
+  //   let usersIdFilter = [];
+  //   if (beforeHistory || afterHistory) {
+  //     if (!afterHistory) {
+  //       afterHistory = '2400/0/0';
+  //     }
+  //     if (!beforeHistory) {
+  //       beforeHistory = '2023/0/0';
+  //     }
+  //     if (repairDone == undefined) {
+  //       filter['historyDriverRegister'] = {
+  //         [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
+  //       };
+  //     } else {
+  //       filter['historyDeliveryDriver'] = {
+  //         [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
+  //       };
+  //     }
+  //   }
+  //   if (carNumber) {
+  //     filter['carNumber'] = carNumber;
+  //   }
+
+  //   const driversInZone = await this.getUsersSameZone(zone, 'companyDriver');
+  //   driversInZone.forEach((driver) => {
+  //     usersIdInSameZone.push(driver.dataValues['id']);
+  //   });
+
+  //   if (company) {
+  //     const filterUserByCompany =
+  //       await this.getUserIdListByCompanyName(company);
+
+  //     filterUserByCompany.forEach((driver) => {
+  //       usersIdInCompany.push(driver.dataValues['id']);
+  //     });
+  //     usersIdFilter = usersIdInSameZone.filter((item) => {
+  //       return usersIdInCompany.includes(item);
+  //     });
+  //   } else {
+  //     usersIdFilter.push(...usersIdInSameZone);
+  //   }
+  //   // console.log('userIdInCompany :', usersIdInCompany); // #DEBUG
+  //   // console.log('filterUserBy', driversInZone); // #DEBUG
+  //   // console.log('usersIdFilter in just same zone:', usersIdFilter); // #DEBUG
+
+  //   // console.log('DIIZ', driversId); // #Debug
+  //   // get list of  "Activity in Progress"
+  //   if (logisticComment === 'true') {
+  //     breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+  //       where: {
+  //         [Op.and]: {
+  //           logisticConfirm: { [Op.eq]: true },
+  //           historyReciveToRepair: { [Op.eq]: null },
+  //           driverId: { [Op.in]: usersIdFilter },
+  //           ...filter,
+  //         },
+  //       },
+  //       order: [['id', 'DESC']],
+  //       limit: 20,
+  //     });
+  //   } else if (repairDone === 'true') {
+  //     breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+  //       where: {
+  //         [Op.and]: {
+  //           logisticConfirm: { [Op.ne]: false },
+  //           transportComment: { [Op.in]: ['necessary', 'immediately'] },
+  //           historyDeliveryDriver: { [Op.ne]: null },
+  //           driverId: { [Op.in]: usersIdFilter },
+  //           ...filter,
+  //         },
+  //       },
+  //       order: [['id', 'DESC']],
+  //       limit: 20,
+  //     });
+  //   }
+  //   // get list of "Activity necessary to do"
+  //   else {
+  //     breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+  //       where: {
+  //         [Op.and]: {
+  //           logisticConfirm: { [Op.eq]: false },
+  //           driverId: { [Op.in]: usersIdFilter },
+  //           ...filter,
+  //         },
+  //       },
+  //       order: [['id', 'DESC']],
+  //       limit: 20,
+  //     });
+  //   }
+  //   // console.log(breakDowns); //#Debug
+  //   if (count === 'true') {
+  //     countList = breakDowns.count;
+  //   } else {
+  //     for (let item of breakDowns.rows) {
+  //       let breakDown = {};
+  //       let row = {};
+
+  //       breakDown = item.dataValues;
+
+  //       const carPiecesHistory = await this.getCarPiecesHistory(
+  //         breakDown['carNumber'],
+  //       );
+
+  //       row['id'] = breakDown['id'];
+  //       row['numberOfBreakDown'] = breakDown['numberOfBreakDown'];
+  //       row['hours'] = breakDown['hoursDriverRegister'];
+  //       row['history'] = breakDown['historyDriverRegister'];
+  //       row['driverName'] = breakDown['driverName'];
+  //       row['driverMobile'] = breakDown['driverMobile'];
+  //       row['carNumber'] = breakDown['carNumber'];
+  //       row['kilometer'] = breakDown['carLife'];
+  //       row['logisticConfirm'] = breakDown['logisticConfirm'];
+  //       row['transportComment'] = breakDown['transportComment'];
+  //       row['historySendToRepair'] = breakDown['historySendToRepair'];
+  //       row['historyReciveToRepair'] = breakDown['historyReciveToRepair'];
+  //       row['histroyDeliveryTruck'] = breakDown['histroyDeliveryTruck'];
+  //       row['historyDeliveryDriver'] = breakDown['historyDeliveryDriver'];
+  //       row['piece'] = breakDown['piece'];
+  //       row['piecesReplacementHistory'] = carPiecesHistory;
+  //       row['answers'] = await this.getBreakDownItemsById(
+  //         breakDown['truckBreakDownItemsId'],
+  //       );
+
+  //       data.push(row);
+  //     }
+  //   }
+
+  //   return {
+  //     status: 200,
+  //     data: countList === 0 || countList ? countList : data,
+  //     count: breakDowns.count,
+  //   };
+  // }
+
+
   async logisticUserGetAll(
     logisticComment: string,
     repairDone: string,
@@ -407,148 +561,167 @@ export class TruckBreakDownService {
     carNumber: string,
     company: string,
     zone: string,
-  ) {
+) {
     let filter = {}; // filter by "date" or "carNumber"
     let data = [];
     let countList: number;
     let breakDowns: {
-      rows: TruckBreakDown[];
-      count: number;
+        rows: TruckBreakDown[];
+        count: number;
     };
     const usersIdInSameZone = [];
     const usersIdInCompany = [];
     let usersIdFilter = [];
+
     if (beforeHistory || afterHistory) {
-      if (!afterHistory) {
-        afterHistory = '2400/0/0';
-      }
-      if (!beforeHistory) {
-        beforeHistory = '2023/0/0';
-      }
-      if (repairDone == undefined) {
-        filter['historyDriverRegister'] = {
-          [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
-        };
-      } else {
-        filter['historyDeliveryDriver'] = {
-          [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
-        };
-      }
+        if (!afterHistory) {
+            afterHistory = '2400/0/0';
+        }
+        if (!beforeHistory) {
+            beforeHistory = '2023/0/0';
+        }
+        if (repairDone == undefined) {
+            filter['historyDriverRegister'] = {
+                [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
+            };
+        } else {
+            filter['historyDeliveryDriver'] = {
+                [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
+            };
+        }
     }
     if (carNumber) {
-      filter['carNumber'] = carNumber;
+        filter['carNumber'] = carNumber;
     }
 
     const driversInZone = await this.getUsersSameZone(zone, 'companyDriver');
     driversInZone.forEach((driver) => {
-      usersIdInSameZone.push(driver.dataValues['id']);
+        usersIdInSameZone.push(driver.dataValues['id']);
     });
 
     if (company) {
-      const filterUserByCompany =
-        await this.getUserIdListByCompanyName(company);
+        const filterUserByCompany =
+            await this.getUserIdListByCompanyName(company);
 
-      filterUserByCompany.forEach((driver) => {
-        usersIdInCompany.push(driver.dataValues['id']);
-      });
-      usersIdFilter = usersIdInSameZone.filter((item) => {
-        return usersIdInCompany.includes(item);
-      });
+        filterUserByCompany.forEach((driver) => {
+            usersIdInCompany.push(driver.dataValues['id']);
+        });
+        usersIdFilter = usersIdInSameZone.filter((item) => {
+            return usersIdInCompany.includes(item);
+        });
     } else {
-      usersIdFilter.push(...usersIdInSameZone);
+        usersIdFilter.push(...usersIdInSameZone);
     }
-    // console.log('userIdInCompany :', usersIdInCompany); // #DEBUG
-    // console.log('filterUserBy', driversInZone); // #DEBUG
-    // console.log('usersIdFilter in just same zone:', usersIdFilter); // #DEBUG
 
-    // console.log('DIIZ', driversId); // #Debug
-    // get list of  "Activity in Progress"
+    // Get list of "Activity in Progress"
     if (logisticComment === 'true') {
-      breakDowns = await this.truckBreakDownRepository.findAndCountAll({
-        where: {
-          [Op.and]: {
-            logisticConfirm: { [Op.eq]: true },
-            historyReciveToRepair: { [Op.eq]: null },
-            driverId: { [Op.in]: usersIdFilter },
-            ...filter,
-          },
-        },
-        order: [['id', 'DESC']],
-        limit: 20,
-      });
+        breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+            where: {
+                [Op.and]: {
+                    logisticConfirm: { [Op.eq]: true },
+                    historyReciveToRepair: { [Op.eq]: null },
+                    driverId: { [Op.in]: usersIdFilter },
+                    ...filter,
+                },
+            },
+            order: [['id', 'DESC']],
+            limit: 20,
+        });
     } else if (repairDone === 'true') {
-      breakDowns = await this.truckBreakDownRepository.findAndCountAll({
-        where: {
-          [Op.and]: {
-            logisticConfirm: { [Op.ne]: false },
-            transportComment: { [Op.in]: ['necessary', 'immediately'] },
-            historyDeliveryDriver: { [Op.ne]: null },
-            driverId: { [Op.in]: usersIdFilter },
-            ...filter,
-          },
-        },
-        order: [['id', 'DESC']],
-        limit: 20,
-      });
-    }
-    // get list of "Activity necessary to do"
-    else {
-      breakDowns = await this.truckBreakDownRepository.findAndCountAll({
-        where: {
-          [Op.and]: {
-            logisticConfirm: { [Op.eq]: false },
-            driverId: { [Op.in]: usersIdFilter },
-            ...filter,
-          },
-        },
-        order: [['id', 'DESC']],
-        limit: 20,
-      });
-    }
-    // console.log(breakDowns); //#Debug
-    if (count === 'true') {
-      countList = breakDowns.count;
+        breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+            where: {
+                [Op.and]: {
+                    logisticConfirm: { [Op.ne]: false },
+                    transportComment: { [Op.in]: ['necessary', 'immediately'] },
+                    historyDeliveryDriver: { [Op.ne]: null },
+                    driverId: { [Op.in]: usersIdFilter },
+                    ...filter,
+                },
+            },
+            order: [['id', 'DESC']],
+            limit: 20,
+        });
     } else {
-      for (let item of breakDowns.rows) {
-        let breakDown = {};
-        let row = {};
+        breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+            where: {
+                [Op.and]: {
+                    logisticConfirm: { [Op.eq]: false },
+                    driverId: { [Op.in]: usersIdFilter },
+                    ...filter,
+                },
+            },
+            order: [['id', 'DESC']],
+            limit: 20,
+        });
+    }
 
-        breakDown = item.dataValues;
+    if (count === 'true') {
+        countList = breakDowns.count;
+    } else {
+        for (let item of breakDowns.rows) {
+            let breakDown = {};
+            let row = {};
 
-        const carPiecesHistory = await this.getCarPiecesHistory(
-          breakDown['carNumber'],
-        );
+            breakDown = item.dataValues;
 
-        row['id'] = breakDown['id'];
-        row['numberOfBreakDown'] = breakDown['numberOfBreakDown'];
-        row['hours'] = breakDown['hoursDriverRegister'];
-        row['history'] = breakDown['historyDriverRegister'];
-        row['driverName'] = breakDown['driverName'];
-        row['driverMobile'] = breakDown['driverMobile'];
-        row['carNumber'] = breakDown['carNumber'];
-        row['kilometer'] = breakDown['carLife'];
-        row['logisticConfirm'] = breakDown['logisticConfirm'];
-        row['transportComment'] = breakDown['transportComment'];
-        row['historySendToRepair'] = breakDown['historySendToRepair'];
-        row['historyReciveToRepair'] = breakDown['historyReciveToRepair'];
-        row['histroyDeliveryTruck'] = breakDown['histroyDeliveryTruck'];
-        row['historyDeliveryDriver'] = breakDown['historyDeliveryDriver'];
-        row['piece'] = breakDown['piece'];
-        row['piecesReplacementHistory'] = carPiecesHistory;
-        row['answers'] = await this.getBreakDownItemsById(
-          breakDown['truckBreakDownItemsId'],
-        );
+            const carPiecesHistory = await this.getCarPiecesHistory(
+                breakDown['carNumber'],
+            );
 
-        data.push(row);
-      }
+            // اضافه کردن اطلاعات اضافی از uth
+            let driverDetails = null;
+            try {
+                driverDetails = await this.authService.getById(
+                    breakDown['driverId'],
+                );
+            } catch (error) {
+                console.error(
+                    `خطا در دریافت اطلاعات auth برای driverId: ${breakDown['driverId']}`,
+                    error.message,
+                );
+            }
+
+            row['id'] = breakDown['id'];
+            row['numberOfBreakDown'] = breakDown['numberOfBreakDown'];
+            row['hours'] = breakDown['hoursDriverRegister'];
+            row['history'] = breakDown['historyDriverRegister'];
+            row['driverName'] = breakDown['driverName'];
+            row['driverMobile'] = breakDown['driverMobile'];
+            row['carNumber'] = breakDown['carNumber'];
+            row['kilometer'] = breakDown['carLife'];
+            row['logisticConfirm'] = breakDown['logisticConfirm'];
+            row['transportComment'] = breakDown['transportComment'];
+            row['historySendToRepair'] = breakDown['historySendToRepair'];
+            row['historyReciveToRepair'] = breakDown['historyReciveToRepair'];
+            row['histroyDeliveryTruck'] = breakDown['histroyDeliveryTruck'];
+            row['historyDeliveryDriver'] = breakDown['historyDeliveryDriver'];
+            row['piece'] = breakDown['piece'];
+            row['piecesReplacementHistory'] = carPiecesHistory;
+            row['answers'] = await this.getBreakDownItemsById(
+                breakDown['truckBreakDownItemsId'],
+            );
+
+            if (driverDetails) {
+                row['personelCode'] = driverDetails.personelCode;
+                row['zone'] = driverDetails.zone;
+                row['company'] = driverDetails.company;
+            } else {
+                row['personnelCode'] = null;
+                row['zone'] = null;
+                row['company'] = null;
+            }
+
+            data.push(row);
+        }
     }
 
     return {
-      status: 200,
-      data: countList === 0 || countList ? countList : data,
-      count: breakDowns.count,
+        status: 200,
+        data: countList === 0 || countList ? countList : data,
+        count: breakDowns.count,
     };
-  }
+}
+
 
   async exportReportLogisticAdmin(
     logisticComment: string,

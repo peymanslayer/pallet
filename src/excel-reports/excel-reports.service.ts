@@ -1604,150 +1604,94 @@ export class ExcelReportsService {
       // }
       
       
+      async generatePeriodicCheckExcelReport(excelFilterDto: ExcelFilterDto) {
+        const { companies, zones, startDate, endDate, carNumbers } = excelFilterDto;
 
-      async exportPriodicCheckTruckData(excelFilterDto: ExcelFilterDto) {
-        try {
-          const { driverNames, companies, zones, carNumbers, startDate, endDate } = excelFilterDto;
-      
-          const authFilter: any = {};
-          if (zones && zones.length > 0) authFilter.zone = { [Op.in]: zones };
-          if (companies && companies.length > 0) authFilter.company = { [Op.in]: companies };
-      
-          const matchingDrivers = await this.authRepository.findAll({
-            where: authFilter,
-            attributes: ['id', 'name', 'company', 'zone'],
-          });
-      
-          if (!matchingDrivers || matchingDrivers.length === 0) {
-            throw new Error('هیچ راننده‌ای پیدا نشد');
-          }
-      
-          const driverIds = matchingDrivers.map((driver) => driver.id);
-      
-          const periodicTruckCheckFilter: any = {};
-          if (startDate && endDate) {
-            const start = new Date(startDate);
-            start.setHours(0, 0, 0, 0);
-            const end = new Date(endDate);
-            end.setHours(23, 59, 59, 999);
-      
-            periodicTruckCheckFilter.createdAt = { [Op.between]: [start, end] };
-          }
-      
-          const truckInfoFilter: any = {};
-          if (carNumbers && carNumbers.length > 0) truckInfoFilter.carNumber = { [Op.in]: carNumbers };
-          if (driverNames && driverNames.length > 0) truckInfoFilter.driverName = { [Op.in]: driverNames };
-          if (driverIds.length > 0) truckInfoFilter.driverId = { [Op.in]: driverIds };
-      
-          const truckInfos = await this.truckInfoRepository.findAll({
-            where: truckInfoFilter,
-            attributes: ['id', 'driverId', 'carNumber', 'zone'],
-            include: [
-              {
-                model: PeriodicTruckCheck,
-                where: periodicTruckCheckFilter,
-                attributes: ['id', 'endKilometer', 'endDate', 'alertReview', 'createdAt'],
-                include: [
-                  {
-                    model: PeriodicType,
-                    attributes: ['type', 'name'],
-                  },
-                ],
-              },
-            ],
-          });
-      
-          console.log(truckInfos);
-      
-          const allDriverIds = truckInfos.map((truckInfo) => truckInfo.driverId);
-          const drivers = await this.authRepository.findAll({
-            where: { id: { [Op.in]: allDriverIds } },
-            attributes: ['id', 'name', 'company'],
-          });
-      
-          const enrichedData = [];
-          truckInfos.forEach((truckInfo) => {
-            const driver = drivers.find((d) => d.id === truckInfo.driverId);
-            if (!driver) return;
-      
-            truckInfo.periodicTruckCheck.forEach((check) => {
-              enrichedData.push({
-                truckInfoId: truckInfo.id,
-                driverName: driver.name || 'نامشخص',
-                company: driver.company || 'نامشخص',
-                carNumber: truckInfo.carNumber,
-                zone: truckInfo.zone,
-                type: check.type || 'نامشخص',  // افزودن نوع قطعه
-                endKilometer: check.endKilometer,
-                endDate: check.endDate,
-                alertReview: check.alertReview,
-                createdAt: check.createdAt,
-              });
-            });
-          });
-      
-          const workbook = new Workbook();
-          const worksheet = workbook.addWorksheet('گزارش اطلاعات خودروها');
-      
-          worksheet.columns = [
-            { header: 'شناسه خودرو', key: 'truckInfoId', width: 15 },
-            { header: 'پلاک خودرو', key: 'carNumber', width: 15 },
-            { header: 'منطقه', key: 'zone', width: 15 },
-            { header: 'نوع قطعه', key: 'type', width: 20 },  // افزودن ستون نوع قطعه
-            { header: 'حداکثر کیلومتر', key: 'endKilometer', width: 15 },
-            { header: 'تاریخ انقضای قطعه', key: 'endDate', width: 15 },
-            { header: 'آلارم بازبینی', key: 'alertReview', width: 15 },
-            { header: 'تاریخ ایجاد', key: 'createdAt', width: 20 },
-          ];
-      
-          const headerRow = worksheet.getRow(1);
-          headerRow.eachCell((cell) => {
-            cell.font = { bold: true, size: 12, name: 'B Titr', color: { argb: 'FFFFA500' } };
-            cell.alignment = { vertical: 'middle', horizontal: 'center' };
-            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '000080' } };
-          });
-          headerRow.height = 20;
-      
-          // گروهبندی داده‌ها بر اساس راننده
-          const groupedData = enrichedData.reduce((acc, item) => {
-            if (!acc[item.driverName]) acc[item.driverName] = [];
-            acc[item.driverName].push(item);
-            return acc;
-          }, {});
-      
-          // افزودن رکوردها برای هر راننده
-          Object.keys(groupedData).forEach((driverName) => {
-            // افزودن عنوان (نام راننده) به عنوان ردیف اول
-            const driverRow = worksheet.addRow([driverName]);
-            driverRow.eachCell((cell) => {
-              cell.font = { bold: true, size: 12, name: 'B Nazanin', color: { argb: 'FFFFFF' } };
-              cell.alignment = { vertical: 'middle', horizontal: 'center' };
-              cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '000080' } };
-            });
-            driverRow.height = 20;
-      
-            // افزودن داده‌ها برای هر ماشین مربوط به راننده
-            groupedData[driverName].forEach((data) => {
-              worksheet.addRow(data); // هر رکورد برای هر ماشین اضافه می‌شود
-            });
-          });
-      
-          worksheet.eachRow((row, rowNumber) => {
-            if (rowNumber !== 1) row.height = 18;
-          });
-      
-          const buffer = await workbook.xlsx.writeBuffer();
-          return buffer;
-        } catch (error) {
-          console.error('Error exporting periodic check truck data:', error);
-          throw new Error('خطایی در هنگام استخراج داده‌ها رخ داده است.');
+        const truckInfoFilter: any = {};
+        if (zones && zones.length > 0) truckInfoFilter.zone = { [Op.in]: zones };
+        if (companies && companies.length > 0) truckInfoFilter.company = { [Op.in]: companies };
+        if (carNumbers && carNumbers.length > 0) truckInfoFilter.carNumber = { [Op.in]: carNumbers };
+
+        const periodicCheckFilter: any = {};
+        if (startDate && endDate) {
+          periodicCheckFilter.createdAt = {
+            [Op.between]: [new Date(startDate), new Date(endDate)],
+          };
         }
+
+        // دریافت داده‌ها از دیتابیس
+        const periodicChecks = await PeriodicTruckCheck.findAll({
+          where: periodicCheckFilter,
+          include: [
+            {
+              model: TruckInfo,
+              where: truckInfoFilter,
+              attributes: ['carNumber', 'zone', 'company'],
+            },
+            {
+              model: PeriodicType,
+              attributes: ['name'],
+            },
+          ],
+        });
+
+        if (!periodicChecks || periodicChecks.length === 0) {
+          throw new Error('هیچ داده‌ای یافت نشد');
+        }
+
+        // آماده‌سازی داده‌ها برای اکسل
+        const reportData = periodicChecks.map((check) => ({
+          پلاک_خودرو: check.truckInfo?.carNumber || 'نامشخص',
+          منطقه: check.truckInfo?.zone || 'نامشخص',
+          شرکت: check.truckInfo?.company || 'نامشخص',
+          نام_سرویس_دوره_ای: check.periodicType?.name || 'نامشخص',
+          کیلومتر_سرویس: check.endKilometer || 'نامشخص',
+          تاریخ_سرویس: check.endDate || 'نامشخص',
+          // registerType : check.autoAdd ? 'سیستم' : 'دستی',
+          createdAt: check.createdAt || 'نامشخص',
+        }));
+
+        const workbook = new Workbook();
+        const worksheet = workbook.addWorksheet('گزارش سرویس دوره ای');
+
+        // تنظیم ستون‌ها
+        worksheet.columns = [
+          { header: 'پلاک خودرو', key: 'پلاک_خودرو', width: 15 },
+          { header: 'منطقه', key: 'منطقه', width: 15 },
+          { header: 'شرکت', key: 'شرکت', width: 20 },
+          { header: 'نام سرویس دوره‌ای', key: 'نام_سرویس_دوره_ای', width: 25 },
+          { header: 'کیلومتر سرویس', key: 'کیلومتر_سرویس', width: 15 },
+          { header: 'تاریخ سرویس', key: 'تاریخ_سرویس', width: 20 },
+          { header: 'نوع ثبت شده', key: 'registerType', width: 15 },
+          { header: 'تاریخ ثبت', key: 'createdAt', width: 20 },
+        ];
+
+        // اضافه کردن داده‌ها به اکسل
+        reportData.forEach((row) => {
+          const excelRow = worksheet.addRow(row);
+          excelRow.eachCell((cell) => {
+            cell.alignment = { horizontal: 'center', vertical: 'middle' };
+            cell.font = { size: 12 };
+          });
+        });
+
+        // قالب‌دهی هدر
+        const headerRow = worksheet.getRow(1);
+        headerRow.eachCell((cell) => {
+          cell.font = { bold: true, size: 14, color: { argb: 'FFFFFF' } };
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: '4F81BD' },
+          };
+          cell.alignment = { horizontal: 'center', vertical: 'middle' };
+        });
+        headerRow.height = 25;
+
+        // ذخیره اکسل به صورت بافر
+        const buffer = await workbook.xlsx.writeBuffer();
+        return buffer;
       }
-      
-      
-      
-      
-    
       
       
     convertEnglishNumbersToPersian(input) {

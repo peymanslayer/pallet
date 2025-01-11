@@ -973,7 +973,6 @@ export class TruckBreakDownService {
         deliveryDriver: !!breakDown?.historyDeliveryDriver,
     };
 
-    // ایجاد گزارش برای هر خرابی
     const res = await this.truckBreakDownItemsRepository.findOne({
         where: {
             id: breakDown.truckBreakDownItemsId,
@@ -984,7 +983,6 @@ export class TruckBreakDownService {
         where: { driverId: breakDown.dataValues.driverId },
     });
 
-    // ساخت داده بازگشتی
     data = breakDown.dataValues;
     data['dateDriver'] = breakDown.dataValues.historyDriverRegister;
     data['hoursDriver'] = breakDown.dataValues.hoursDriverRegister;
@@ -994,16 +992,16 @@ export class TruckBreakDownService {
 
     const answers = Object.entries(res.dataValues);
 
-    // پردازش پاسخ‌ها
+
     for (let i = 0; i < answers.length; i++) {
         const [key, value] = answers[i];
 
-        // اگر کلید شامل type_ باشد و مقدار خالی نباشد
+
         if (key.includes('type_') && value != null) {
             const ans: any = {};
             ans['type'] = value;
-            ans['comment'] = answers[i - 1]?.[1] || null; // مقدار قبلی برای comment
-            ans['number'] = parseInt(key.split('_')[1], 10); // استخراج شماره از کلید
+            ans['comment'] = answers[i - 1]?.[1] || null; 
+            ans['number'] = parseInt(key.split('_')[1], 10); 
             arrAns.push(ans);
         }
     }

@@ -901,59 +901,122 @@ export class TruckBreakDownService {
     };
   }
 
+  // async get(id: number) {
+  //   let data = {};
+
+  //   let arrAns = [];
+  //   const breakDown = await this.truckBreakDownRepository.findOne({
+  //     where: {
+  //       id: id,
+  //     },
+  //   });
+  //   const status = {
+  //     logisticConfirm: !!breakDown?.isLogisticConfirmed,
+  //     transportComment: !!breakDown?.isTransportCommentValid,
+  //     repairComment: !!breakDown?.historyRepairComment,
+  //     deliveryDriver: !!breakDown?.historyDeliveryDriver,
+  //   };
+    
+  //   // create report for each breakdwon
+  //   const res = await this.truckBreakDownItemsRepository.findOne({
+  //     where: {
+  //       id: breakDown.truckBreakDownItemsId,
+  //     },
+  //   });
+  //   const truckInfo = await this.truckInfoRepository.findOne({
+  //     where: { driverId: breakDown.dataValues.driverId },
+  //   });
+  //   // console.log(Object.entries(truckInfo)); // #DEBUG
+  //   data = breakDown.dataValues;
+  //   data['dateDriver'] = breakDown.dataValues.historyDriverRegister;
+  //   data['hoursDriver'] = breakDown.dataValues.hoursDriverRegister;
+  //   data['driverName'] = breakDown.dataValues.driverName;
+  //   data['carNumber'] = truckInfo.carNumber;
+  //   data['carLife'] = truckInfo.lastCarLife;
+  //   const answers = Object.entries(res.dataValues);
+  //   for (let answer of answers) {
+  //     let ans = {};
+
+  //     let indx = answers.indexOf(answer);
+
+  //     if (answer[0].includes('type_') && answer[1] != null) {
+  //       ans['comment'] = answers[indx - 1][1];
+  //       ans['type'] = answer[1];
+  //       ans['number'] =Math.floor(indx / 2);
+  //       arrAns.push(ans);
+  //     }
+  //   }
+  //   data['answers'] = arrAns;
+  //   data['status'] = status
+  //   //   console.log(data);
+  //   return {
+  //     status: 200,
+  //     data: data,
+  //   };
+  // }
   async get(id: number) {
     let data = {};
 
+
     let arrAns = [];
     const breakDown = await this.truckBreakDownRepository.findOne({
-      where: {
-        id: id,
-      },
+        where: {
+            id: id,
+        },
     });
+
+
     const status = {
-      logisticConfirm: !!breakDown?.isLogisticConfirmed,
-      transportComment: !!breakDown?.isTransportCommentValid,
-      repairComment: !!breakDown?.historyRepairComment,
-      deliveryDriver: !!breakDown?.historyDeliveryDriver,
+        logisticConfirm: !!breakDown?.isLogisticConfirmed,
+        transportComment: !!breakDown?.isTransportCommentValid,
+        repairComment: !!breakDown?.historyRepairComment,
+        deliveryDriver: !!breakDown?.historyDeliveryDriver,
     };
-    
-    // create report for each breakdwon
+
+    // ایجاد گزارش برای هر خرابی
     const res = await this.truckBreakDownItemsRepository.findOne({
-      where: {
-        id: breakDown.truckBreakDownItemsId,
-      },
+        where: {
+            id: breakDown.truckBreakDownItemsId,
+        },
     });
+
     const truckInfo = await this.truckInfoRepository.findOne({
-      where: { driverId: breakDown.dataValues.driverId },
+        where: { driverId: breakDown.dataValues.driverId },
     });
-    // console.log(Object.entries(truckInfo)); // #DEBUG
+
+    // ساخت داده بازگشتی
     data = breakDown.dataValues;
     data['dateDriver'] = breakDown.dataValues.historyDriverRegister;
     data['hoursDriver'] = breakDown.dataValues.hoursDriverRegister;
     data['driverName'] = breakDown.dataValues.driverName;
     data['carNumber'] = truckInfo.carNumber;
     data['carLife'] = truckInfo.lastCarLife;
+
     const answers = Object.entries(res.dataValues);
-    for (let answer of answers) {
-      let ans = {};
 
-      let indx = answers.indexOf(answer);
+    // پردازش پاسخ‌ها
+    for (let i = 0; i < answers.length; i++) {
+        const [key, value] = answers[i];
 
-      if (answer[0].includes('type_') && answer[1] != null) {
-        ans['comment'] = answers[indx - 1][1];
-        ans['type'] = answer[1];
-        ans['number'] =Math.floor(indx / 2);
-        arrAns.push(ans);
-      }
+        // اگر کلید شامل type_ باشد و مقدار خالی نباشد
+        if (key.includes('type_') && value != null) {
+            const ans: any = {};
+            ans['type'] = value;
+            ans['comment'] = answers[i - 1]?.[1] || null; // مقدار قبلی برای comment
+            ans['number'] = parseInt(key.split('_')[1], 10); // استخراج شماره از کلید
+            arrAns.push(ans);
+        }
     }
+
     data['answers'] = arrAns;
-    data['status'] = status
-    //   console.log(data);
+    data['status'] = status;
+
     return {
-      status: 200,
-      data: data,
+        status: 200,
+        data: data,
     };
-  }
+}
+
 
   // async getByDriverId(driverId: any) {
   //   let data = [];

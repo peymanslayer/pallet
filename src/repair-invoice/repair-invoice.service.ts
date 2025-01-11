@@ -24,6 +24,29 @@ export class RepairInvoiceService {
       
         return { status: 200 , message: 'فاکتور با موفقیت ثبت شد' };
       }
+
+    async getAllPieces(){
+      const pieces = await this.repairInvoiceRepository.findAll({
+        attributes: ['piece'], 
+      });
+
+      if(pieces){
+        return {
+          status: 201 ,
+          data : [] ,
+          message : "قطعه ای یافت نشد"
+        }
+      }
+
+      return {
+        status: 200 ,
+        data: pieces,
+        message : "قطعات با موفقیت یافت شدند"
+      }
+      
+    }
+
+
     async edit(){
 
     }

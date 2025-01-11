@@ -1095,6 +1095,214 @@ export class ExcelReportsService {
       const buffer = await workbook.xlsx.writeBuffer();
       return buffer;
     }
+
+    // async exportAllBreakdownFieldsToExcel(excelFilterDto: ExcelFilterDto) {
+    //   const { driverNames, companies, zones, startDate, endDate, pieces, carNumbers } = excelFilterDto;
+    //   const authFilter: any = {};
+    //   const breakdownFilter: any = {};
+    
+    //   if (zones && zones.length > 0) authFilter.zone = { [Op.in]: zones };
+    //   if (companies && companies.length > 0) authFilter.company = { [Op.in]: companies };
+    
+    //   const authRecords = await this.authRepository.findAll({
+    //     where: authFilter,
+    //     attributes: ['id', 'name', 'company', 'zone'],
+    //   });
+    
+    //   const driverIds = authRecords.map((auth) => auth.id);
+    
+    //   if (carNumbers && carNumbers.length > 0) {
+    //     breakdownFilter.carNumber = { [Op.in]: carNumbers };
+    //   }
+    
+    //   if (startDate && endDate) {
+    //     breakdownFilter.createdAt = {
+    //       [Op.between]: [
+    //         new Date(startDate).setHours(0, 0, 0, 0),
+    //         new Date(endDate).setHours(23, 59, 59, 999),
+    //       ],
+    //     };
+    //   }
+    
+    //   if (driverNames && driverNames.length > 0) {
+    //     breakdownFilter.driverName = { [Op.in]: driverNames };
+    //   }
+    
+    //   if (pieces && pieces.length > 0) {
+    //     const relevantInvoices = await this.repairInvoiceRepository.findAll({
+    //       where: {
+    //         piece: { [Op.in]: pieces },
+    //       },
+    //       attributes: ['truckBreakDownId'], // فقط شناسه‌های مربوطه
+    //     });
+      
+    //     const truckBreakDownIds = relevantInvoices.map((invoice) => invoice.truckBreakDownId);
+      
+    //     if (truckBreakDownIds.length > 0) {
+    //       breakdownFilter.id = { [Op.in]: truckBreakDownIds }; // اضافه کردن فیلتر برای خرابی‌ها
+    //     } else {
+    //       throw new Error('هیچ خرابی مرتبط با قطعات مورد نظر یافت نشد');
+    //     }
+    //   }
+    
+    //   if (driverIds.length > 0) breakdownFilter.driverId = { [Op.in]: driverIds };
+    
+    //   const breakdownRecords = await this.truckBreakDownRepository.findAll({
+    //     where: breakdownFilter,
+    //   });
+    
+    //   const combinedData = await Promise.all(
+    //     breakdownRecords.map(async (breakdown) => {
+    //       const auth = authRecords.find((auth) => auth.id === breakdown.driverId);
+    
+    //       const breakdownItems = await this.truckBreakDownItemsRepository.findOne({
+    //         where: { id: breakdown.truckBreakDownItemsId },
+    //       });
+    
+    //       const repairInvoices = await this.repairInvoiceRepository.findAll({
+    //         where: { truckBreakDownId: breakdown.id },
+    //       });
+    
+    //       const items = [];
+    //       if (breakdownItems) {
+    //         for (let i = 1; i <= 34; i++) {
+    //           const question = breakdownItems[`question_${i}`];
+    //           const answer = breakdownItems[`answer_${i}`];
+    //           if (question && answer) {
+    //             items.push({ question, answer });
+    //           }
+    //         }
+    //       }
+    
+    //       return {
+    //         ...breakdown.toJSON(),
+    //         id: breakdown.id ,
+    //         driverName: breakdown.driverName ,
+    //         hoursDriverRegister: breakdown.hoursDriverRegister ,
+    //         createdAt: breakdown.createdAt ,
+    //         driverMobile: breakdown.driverMobile ,
+    //         carNumber: breakdown.carNumber ,
+    //         carLife: breakdown.carLife ,
+    //         logisticComment: breakdown.logisticComment ,
+    //         transportComment: breakdown.transportComment ,
+    //         repairmanComment: breakdown.repairmanComment ,
+    //         historyDeliveryDriver: breakdown.historyDeliveryDriver ,
+    //         historySendToRepair : breakdown.historySendToRepair ,
+    //         company: auth?.company || 'نامشخص',
+    //         zone: auth?.zone || 'نامشخص',
+    //         personelCode: auth?.personelCode || 'نامشخص',
+    //         breakdownItems: items,
+    //         repairParts: repairInvoices, 
+    //       };
+
+          
+          
+      
+    //     })
+    //   );
+
+    //   const workbook = new Workbook();
+    //   const worksheet = workbook.addWorksheet('گزارش خرابی‌ها');
+    
+    //   worksheet.columns = [
+    //     { header:' شناسه ثبت ( شماره سفارش )', key: 'id', width: 15 },
+    //     { header: 'تاریخ ثبت', key: 'createdAt', width: 20 },
+    //     { header: 'ساعت ثبت', key: 'hoursDriverRegister', width: 20 },
+    //     { header: 'نام راننده', key: 'driverName', width: 20 },
+    //     { header: ' تلفن راننده', key: 'driverMobile', width: 20 },
+    //     { header: 'شماره پلاک', key: 'carNumber', width: 15 },
+    //     { header: 'کیلوتر ثبت شده خودرو', key: 'carLife', width: 15 },
+    //     { header: 'نام شرکت', key: 'company', width: 20 },
+    //     { header: 'نام منطقه', key: 'zone', width: 15 },
+    //     { header: 'نام خرابی اعلام شده توسط راننده ', key: 'question', width: 50 },
+    //     { header: 'توضیحات راننده', key: 'answer', width: 50 },
+    //     { header: 'نظر سرپرست لجستیک', key: 'logisticComment', width: 20 },
+    //     { header: 'نظر سرپرست ترابری' , key: 'transportComment', width: 20 },
+    //     { header: 'نظر سرپرست تعمیرگاه' , key: 'repairmanComment', width: 20 },
+    //     { header: 'قطعه مصرفی', key: 'repairPart', width: 50 },
+    //     { header: 'مبلغ فاکتور', key: 'amount', width: 20 },  
+    //     { header: ' پلاک سیستمی خودرو', key: 'carNumberSystem', width: 20 },
+    //     { header: 'تاریخ اعزام به تعمیرگاه', key: 'historySendToRepair', width: 20 },
+    //     { header: 'تاریخ تحویل به راننده', key: 'historyDeliveryDriver', width: 20 },
+    //   ];
+    
+    //   const headerRow = worksheet.getRow(1);
+    //   headerRow.eachCell((cell) => {
+    //     cell.font = { bold: true, size: 12 , name: 'B Titr' , color: { argb: 'FFFFA500' }};
+    //     cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    //     cell.fill = {
+    //       type: 'pattern',
+    //       pattern: 'solid',
+    //       fgColor: { argb: '000080' },
+    //     };
+    //   });
+    
+    //   if (combinedData.length > 0) {
+    //     combinedData.forEach((data) => {
+    //       const baseRowData = {
+    //         driverId: data.driverId,
+    //         driverName: data.driverName,
+    //         personelCode: data.personelCode ,
+    //         id: data.id,
+    //         hoursDriverRegister: data.hoursDriverRegister,
+    //         driverMobile: data.driverMobile,
+    //         carLife: data.carLife,
+    //         logisticComment: data.logisticComment ,
+    //         transportComment: data.transportComment ,
+    //         repairmanComment: data.repairmanComment ,
+    //         carNumber: data.carNumber,
+    //         createdAt: data.createdAt,
+    //         company: data.company,
+    //         zone: data.zone,
+    //         carNumberSystem: data.carNumberSystem || 'بدون پلاک سیستمی',
+    //         historyDeliveryDriver: data.historyDeliveryDriver || 'بدون تاریخ تحویل',
+    //       };
+      
+    //       // برای هر قطعه یک سطر جدید
+    //       if (data.repairParts.length > 0) {
+    //         data.repairParts.forEach((part) => {
+    //           const row = worksheet.addRow({
+    //             ...baseRowData,
+    //             repairPart: part.piece || 'بدون قطعه',
+    //             question: 'بدون سوال',
+    //             answer: 'بدون جواب',
+    //             amount: part.amount || 'بدون مبلغ',  // اضافه کردن مبلغ فاکتور
+    //           });
+    //           row.eachCell((cell) => {
+    //             cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    //           });
+    //         });
+    //       } else {
+    //         worksheet.addRow({
+    //           ...baseRowData,
+    //           repairPart: 'بدون قطعه',
+    //           question: 'بدون سوال',
+    //           answer: 'بدون جواب',
+    //           amount: 'بدون مبلغ',  // اضافه کردن مبلغ فاکتور
+    //         });
+    //       }
+      
+    //       // برای هر سوال و جواب یک سطر جدید
+    //       if (data.breakdownItems.length > 0) {
+    //         data.breakdownItems.forEach((item) => {
+    //           worksheet.addRow({
+    //             ...baseRowData,
+    //             repairPart: 'بدون قطعه',
+    //             question: item.question,
+    //             answer: item.answer,
+    //             amount: 'بدون مبلغ',  // مبلغ برای سوالات و جواب‌ها
+    //           });
+    //         });
+    //       }
+    //     });
+    //   } else {
+    //     worksheet.addRow(['اطلاعاتی یافت نشد']);
+    //   }
+      
+    
+    //   const buffer = await workbook.xlsx.writeBuffer();
+    //   return buffer;
+    // }
     
     
 
@@ -1771,17 +1979,46 @@ export class ExcelReportsService {
           });
         });
       
+        // const headerRow = worksheet.getRow(1);
+        // headerRow.eachCell((cell) => {
+        //   cell.font = { bold: true, size: 14, color: { argb: 'FFFFFF' } };
+        //   cell.fill = {
+        //     type: 'pattern',
+        //     pattern: 'solid',
+        //     fgColor: { argb: '000080' },
+        //   };
+        //   cell.alignment = { horizontal: 'center', vertical: 'middle' };
+        // });
+        // headerRow.height = 25;
+
         const headerRow = worksheet.getRow(1);
-        headerRow.eachCell((cell) => {
-          cell.font = { bold: true, size: 14, color: { argb: 'FFFFFF' } };
+        headerRow.eachCell({ includeEmpty: true }, (cell) => {
+          cell.font = {
+            bold: true,
+            size: 12,
+            name: 'B Titr',
+            color: { argb: 'FFFFA500' },
+          };
+          cell.alignment = { vertical: 'middle', horizontal: 'center' };
           cell.fill = {
             type: 'pattern',
             pattern: 'solid',
-            fgColor: { argb: '4F81BD' },
+            fgColor: { argb: '000080' },
           };
-          cell.alignment = { horizontal: 'center', vertical: 'middle' };
         });
-        headerRow.height = 25;
+        headerRow.height = 20;
+        
+        worksheet.eachRow((row, rowNumber) => {
+          if (rowNumber !== 1) {
+            row.height = 18;
+          }
+        });
+        
+        worksheet.columns.forEach((column) => {
+          column.width = 20; 
+        });
+        
+
       
         const buffer = await workbook.xlsx.writeBuffer();
         return buffer;

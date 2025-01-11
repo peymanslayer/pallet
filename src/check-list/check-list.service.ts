@@ -360,25 +360,37 @@ const fullHour=`${hours}:${minutes}`;
       order: [['createdAt', 'DESC']],
   });
   console.log(lastCheckList);
-  
+
   const currentAnswer0 = body['answers'].find((a) => a.number === 0)?.question;
   console.log(currentAnswer0);
-  
-  if (
-      lastCheckList &&
-      !lastCheckList.isDeleted &&
-      (currentAnswer0 <= lastCheckList.answer_0 || currentAnswer0 - lastCheckList.answer_0 < 50000 || currentAnswer0-lastCheckList.answer_0>800000)
-  ) {
-      return {
-          status: 200,
-          data: [],
-          message: 'مقدار کیلومتر جاری باید حداقل ۵۰ واحد بیشتر از مقدار آخرین رکورد باشد',
-      };
-  } 
+  let diff = 0
+  if (lastCheckList) {
+    // اگر رکورد قبلی وجود دارد
+    if (
+        !lastCheckList.isDeleted &&
+        (currentAnswer0 <= lastCheckList.answer_0 || 
+         currentAnswer0 - lastCheckList.answer_0 < 50000 || 
+         currentAnswer0 - lastCheckList.answer_0 > 800000)
+    ) {
+        return {
+            status: 200,
+            data: [],
+            message: 'مقدار کیلومتر جاری باید حداقل 50000 واحد بیشتر از مقدار آخرین رکورد باشد',
+        };
+    }
 
-  const diff = currentAnswer0 - lastCheckList.answer_0
-  console.log(diff);
-  
+    diff = currentAnswer0 - lastCheckList.answer_0;
+    console.log("diff", diff);
+  } else {
+      if (currentAnswer0 < 50000) {
+          return {
+              status: 200,
+              data: [],
+              message: 'مقدار کیلومتر جاری باید حداقل 50000 باشد',
+          };
+      }
+      console.log('هیچ رکوردی برای چک‌لیست قبلی پیدا نشد، مقدار کیلومتر جاری معتبر است.');
+  }
 
   for (let item of answers) {
       checkList['answer_' + item['number']] = item['question'];
@@ -435,6 +447,109 @@ console.log(unresolvedBreakdowns);
       message: 'چک‌لیست با موفقیت ثبت شد',
   };
 }
+// async insertCheckList(body: Object) {
+//   const checkList = {};
+//   const checkListComment = {};
+//   const answers: [] = body['answers'];
+
+//   checkList['userId'] = body['id']; 
+//   checkList['truckId'] = body['truckId']; 
+//   checkList['name'] = body['name'];
+//   checkList['hours'] = body['hours'];
+//   checkList['history'] = body['date'];
+
+//   await this.checkTodayChecklist(body['truckId'])
+
+//   const today = new Date();
+//   const formattedDate = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
+//   checkList['history']=formattedDate
+//   const currentTime = new Date();
+// let hours = currentTime.getHours();
+// let minutes = currentTime.getMinutes();
+// const fullHour=`${hours}:${minutes}`;
+//   checkList['hours']=fullHour
+
+
+//   const lastCheckList = await this.checkListRepository.findOne({
+//       where: { truckId: body['truckId'] },
+//       order: [['createdAt', 'DESC']],
+//   });
+//   console.log(lastCheckList);
+
+//   const currentAnswer0 = body['answers'].find((a) => a.number === 0)?.question;
+//   console.log(currentAnswer0);
+  
+//   if (
+//       lastCheckList &&
+//       !lastCheckList.isDeleted &&
+//       (currentAnswer0 <= lastCheckList.answer_0 || currentAnswer0 - lastCheckList.answer_0 < 50000 || currentAnswer0-lastCheckList.answer_0>800000)
+//   ) {
+//       return {
+//           status: 200,
+//           data: [],
+//           message: 'مقدار کیلومتر جاری باید حداقل 500000 واحد بیشتر از مقدار آخرین رکورد باشد',
+//       };
+//   } 
+
+//   const diff = currentAnswer0 - lastCheckList.answer_0
+//   console.log("diff" , diff);
+  
+
+//   for (let item of answers) {
+//       checkList['answer_' + item['number']] = item['question'];
+//       if (item['comment']) {
+//           checkListComment['comment_' + item['number']] = item['comment'];
+//       }
+//   }
+
+//   const insertCheckList = await this.checkListRepository.create<CheckList>(checkList);
+//   const kilometer = await this.kilometerDetailsService.create(body['truckId'] ,body['id'] , diff )
+
+//   if (Object.entries(checkListComment).length !== 0) {
+//       checkListComment['checkListId'] = insertCheckList.id;
+//       await this.checkListCommentRepository.create<CheckListComment>(checkListComment);
+//   }
+
+//   const unresolvedBreakdowns = await this.truckBreakDownRepository.findAll({
+//     where: {
+//         driverId: body['id'],
+//         historySendToRepair: {
+//             [Op.not]: null, 
+//         },
+//     },
+// });
+
+// console.log(unresolvedBreakdowns);
+
+//   if (unresolvedBreakdowns.length > 0) {
+//       for (const breakdown of unresolvedBreakdowns) {
+//           await this.truckBreakDownRepository.update(
+//               {
+//                 carLife: currentAnswer0, 
+//               },
+//               { where: { id: breakdown.id } }
+//           );
+//           console.log(breakdown);
+          
+//       }
+//   }
+
+//   const truckInfo = await this.truckInfoRepository.findOne({
+//     where: { driverId: checkList['userId'] },
+// });
+
+//   if (truckInfo) {
+//       await this.truckInfoRepository.update(
+//           { lastCarLife: checkList['answer_0'] , lastCarLifeBackup : truckInfo?.lastCarLife || checkList['answer_0'] },
+//           { where: { driverId: checkList['userId'] } }
+//       );
+// }
+
+//   return {
+//       status: 201,
+//       message: 'چک‌لیست با موفقیت ثبت شد',
+//   };
+// }
 
 
 //   async insertCheckList(body: Object) {

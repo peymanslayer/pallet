@@ -1,6 +1,7 @@
 import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger'; // برای استفاده از دکوریتورهای Swagger
 import { TruckBreakDown } from 'src/truck-break-down/truck-break-down.entity';
+import { Sequelize } from 'sequelize';
 
 @Table
 export class TruckBreakDownItems extends Model<TruckBreakDownItems> {
@@ -398,7 +399,7 @@ export class TruckBreakDownItems extends Model<TruckBreakDownItems> {
 
   @ApiProperty({ description: 'Type of answer for question 33' })
   @Column({ type: DataType.TEXT })
-  type_33: string;
+  type_33:string;
 
   @ApiProperty({ description: 'Question 33, e.g., "Air filter system"', default: 'فیلتر هوا' })
   @Column({ type: DataType.TEXT, defaultValue: 'فیلتر هوا' })

@@ -156,34 +156,38 @@ else{
 
 
   async updateByDriver(id: number, body: any) {
-    let message: string;
+    try{
+    let message;
     let status: number;
     const breakDownItems = {};
-    const answers: [] = body['answers'];
     // for frontEnd developer solution !!!!
-    for (let item = 0; item <= 20; item++) {
-      breakDownItems['answer_' + item] = null;
-      breakDownItems['type_' + item] = null;
-    }
+    // for (let item = 0; item <= 20; item++) {
+    //   breakDownItems['answer_' + item] = null;
+    //   breakDownItems['type_' + item] = null;
+    // }
     // const restToNullBreakDown = await this.truckBreakDownItemsRepository.update(
     //   breakDownItems,
     //   { where: { id: id } },
     // );
 
-    for (let item of answers) {
-      breakDownItems['answer_' + item['number']] = item['comment'];
-      breakDownItems['type_' + item['number']] = item['type'];
-    }
-    console.log(breakDownItems);
-    
-    const updateBreakDown = await this.truckBreakDownItemsRepository.update(
-      breakDownItems,
-      { where: { id: id } },
+    // for (let item of answers) {
+    //   breakDownItems['answer_' + item['number']] = item['comment'];
+    //   breakDownItems['type_' + item['number']] = item['type'];
+    // }
+    console.log(body);
+
+    const [affectedCount] = await this.truckBreakDownItemsRepository.update(
+      body,
+      { where: { id: id }}
+
     );
-   console.log(updateBreakDown);
+    const findBreakDown=await this.truckBreakDownItemsRepository.findOne({
+      where:{id:id}
+     });
+   console.log(findBreakDown);
    
-    if (updateBreakDown.length>0) {
-      message = `update breakDown id = ${id} successfully`;
+    if (affectedCount>0) {
+      message = findBreakDown;
       status = 200;
     } else {
       message = `update item id = ${id} failed`;
@@ -193,7 +197,11 @@ else{
       status: status,
       message: message,
     };
+  }catch(err){
+    console.log(err);
+    
   }
+}
 
   async lastNumberOfBreakDown() {
     const lastBreakDown = await this.truckBreakDownRepository.findOne({

@@ -1000,7 +1000,7 @@ export class TruckBreakDownService {
         if (key.includes('type_') && value != null) {
             const ans: any = {};
             ans['type'] = value;
-            ans['comment'] = answers[i - 1]?.[1] || null; 
+            ans['comment'] = answers[i + 1]?.[1] || null; 
             ans['number'] = parseInt(key.split('_')[1], 10); 
             arrAns.push(ans);
         }

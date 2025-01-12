@@ -1909,7 +1909,7 @@ async getTotalKilometerOfChecklist(carNumber: string){
       return {
           status: 200,
           data: [],
-          message: 'مقدار کیلومتر جاری باید بیشتر از مقدار آخرین رکورد و کمتر از 80 کیلومتر باشد',
+          message: 'مقدار کیلومتر جاری باید حداقل ۵۰ واحد بیشتر از مقدار آخرین رکورد باشد',
       };
   }else if (currentAnswer0 > 800) {
     return {

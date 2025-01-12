@@ -47,6 +47,8 @@ export class TrukBreakDownItemsController {
     @Res() response: Response,
   ) {
     try {
+      console.log(body);
+      
       const res = await this.truckBreakDownItemsService.updateByDriver(
         id,
         body,

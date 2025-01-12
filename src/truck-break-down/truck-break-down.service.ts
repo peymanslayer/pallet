@@ -1008,11 +1008,14 @@ export class TruckBreakDownService {
     for (let i = 0; i < answers.length; i++) {
         const [key, value] = answers[i];
 
-
+        console.log(i);
+        
         if (key.includes('type_') && value != null) {
             const ans: any = {};
             ans['type'] = value;
             ans['comment'] = answers[i - 1]?.[1] || null; 
+            console.log(ans);
+            
             ans['number'] = parseInt(key.split('_')[1], 10); 
             arrAns.push(ans);
         }
@@ -1255,7 +1258,6 @@ export class TruckBreakDownService {
   }
 
   async update(id: number, body: UpdateTruckBreakDownDto) {
-    //check and update notify state for driver
     const notify = {};
     if (body.transportComment) {
       notify['notifyTransportComment'] = true;
@@ -1284,6 +1286,7 @@ export class TruckBreakDownService {
         message: 'update failed',
       };
     }
+
   }
 
   async delete(id: number) {

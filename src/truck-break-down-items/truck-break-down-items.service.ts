@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { TruckBreakDown } from 'src/truck-break-down/truck-break-down.entity';
 import { TruckBreakDownItems } from './truck-break-down-items.entity';
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
-import { Op } from 'sequelize';
+import { Op, where } from 'sequelize';
 import { MESSAGE_ALERT } from 'src/static/enum';
 import { CheckList } from 'src/check-list/check-list.entity';
 @Injectable()
@@ -156,51 +156,90 @@ else{
 
 
   async updateByDriver(id: number, body: any) {
-    try{
-    let message;
-    let status: number;
-    const breakDownItems = {};
-    // for frontEnd developer solution !!!!
-    // for (let item = 0; item <= 20; item++) {
-    //   breakDownItems['answer_' + item] = null;
-    //   breakDownItems['type_' + item] = null;
-    // }
-    // const restToNullBreakDown = await this.truckBreakDownItemsRepository.update(
-    //   breakDownItems,
-    //   { where: { id: id } },
-    // );
-
-    // for (let item of answers) {
-    //   breakDownItems['answer_' + item['number']] = item['comment'];
-    //   breakDownItems['type_' + item['number']] = item['type'];
-    // }
-    console.log(body);
-
-    const [affectedCount] = await this.truckBreakDownItemsRepository.update(
-      body,
-      { where: { id: id }}
-
-    );
-    const findBreakDown=await this.truckBreakDownItemsRepository.findOne({
-      where:{id:id}
-     });
-   console.log(findBreakDown);
-   
-    if (affectedCount>0) {
-      message = findBreakDown;
-      status = 200;
-    } else {
-      message = `update item id = ${id} failed`;
-      status = 400;
+    let arr=[];
+    let answer;
+    let type;
+    let obj={}
+    for(let x of body.answers){
+      answer = `answer_` +x.number;
+      type= `type_` + x.number;
+      arr.push([answer,x.comment]);
+      arr.push([type,x.type]);
     }
-    return {
-      status: status,
-      message: message,
-    };
-  }catch(err){
-    console.log(err);
+   const finalresult=Object.fromEntries(arr);
+  console.log(arr,finalresult);
+  
+  
+  
+
     
+    
+  const [affectedCount]=await this.truckBreakDownItemsRepository.update( 
+     finalresult,
+    {where:{id:id}})
+  //   try{
+  //   let message;
+  //   let status: number;
+  //   let affectedCountResult=[];
+  //   const breakDownItems = {};
+  //   for(const item of body.answers){
+  //     const [affectedCount] = await this.truckBreakDownItemsRepository.update(
+  //       item,
+  //       { where: { id: id }}
+       
+  //     );
+  //     affectedCountResult.push(affectedCount);
+  //   }
+  //   // for frontEnd developer solution !!!!
+  //   // for (let item = 0; item <= 20; item++) {
+  //   //   breakDownItems['answer_' + item] = null;
+  //   //   breakDownItems['type_' + item] = null;
+  //   // }
+  //   // const restToNullBreakDown = await this.truckBreakDownItemsRepository.update(
+  //   //   breakDownItems,
+  //   //   { where: { id: id } },
+  //   // );
+
+  //   // for (let item of answers) {
+  //   //   breakDownItems['answer_' + item['number']] = item['comment'];
+  //   //   breakDownItems['type_' + item['number']] = item['type'];
+  //   // }
+  //   console.log(body);
+
+
+  //   const findBreakDown=await this.truckBreakDownItemsRepository.findOne({
+  //     where:{id:id}
+  //    });
+  //  console.log(affectedCountResult);
+  //   if (affectedCountResult.includes(0)) {
+  //     message = `update item id = ${id} failed`;
+  //     status = 400;
+  //   } else {
+  //     message = findBreakDown;
+  //     status = 200;
+
+  //   }
+  //   return {
+  //     status: status,
+  //     message: message,
+  //   };
+  // }catch(err){
+  //   console.log(err);
+    
+  // }
+  console.log(affectedCount);
+  
+if(affectedCount==0){
+  return{
+    status:200,
+    message:'اپدیت نشد'
   }
+}else{
+  return{
+    status:200,
+    message:'اپدیت شد'
+  }
+}
 }
 
   async lastNumberOfBreakDown() {

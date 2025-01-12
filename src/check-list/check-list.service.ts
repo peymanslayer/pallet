@@ -369,24 +369,25 @@ const fullHour=`${hours}:${minutes}`;
     if (
         !lastCheckList.isDeleted &&
         (currentAnswer0 <= lastCheckList.answer_0 || 
-         currentAnswer0 - lastCheckList.answer_0 < 50000 || 
-         currentAnswer0 - lastCheckList.answer_0 > 800000)
+        //  currentAnswer0 - lastCheckList.answer_0 < 50000 || 
+         currentAnswer0 - lastCheckList.answer_0 > 800)
     ) {
         return {
             status: 200,
             data: [],
-            message: 'مقدار کیلومتر جاری باید حداقل 50000 واحد بیشتر از مقدار آخرین رکورد باشد',
+            message: 'مقدار کیلومتر جاری باید بیشتر از مقدار آخرین رکورد و کمتر از 800 کیلومتر باشد',
         };
     }
 
     diff = currentAnswer0 - lastCheckList.answer_0;
     console.log("diff", diff);
-  } else {
-      if (currentAnswer0 < 50000) {
+  } 
+  else {
+      if (currentAnswer0 > 800) {
           return {
               status: 200,
               data: [],
-              message: 'مقدار کیلومتر جاری باید حداقل 50000 باشد',
+              message: 'مقدار کیلومتر جاری باید حداکثر 80 باشد',
           };
       }
       console.log('هیچ رکوردی برای چک‌لیست قبلی پیدا نشد، مقدار کیلومتر جاری معتبر است.');
@@ -1903,14 +1904,21 @@ async getTotalKilometerOfChecklist(carNumber: string){
   if (
       lastCheckList &&
       !lastCheckList.isDeleted &&
-      (currentAnswer0 <= lastCheckList.answer_0 || currentAnswer0 - lastCheckList.answer_0 < 50000 || currentAnswer0-lastCheckList.answer_0>800000)
+      (currentAnswer0 <= lastCheckList.answer_0 || currentAnswer0-lastCheckList.answer_0 >800)
   ) {
       return {
           status: 200,
           data: [],
-          message: 'مقدار کیلومتر جاری باید حداقل ۵۰ واحد بیشتر از مقدار آخرین رکورد باشد',
+          message: 'مقدار کیلومتر جاری باید بیشتر از مقدار آخرین رکورد و کمتر از 80 کیلومتر باشد',
       };
-  }else{
+  }else if (currentAnswer0 > 800) {
+    return {
+        status: 200,
+        data: [],
+        message: 'مقدار کیلومتر جاری باید حداکثر 80 باشد',
+    };
+}
+  else{
     return{
       status:200,
       message:'ok!'

@@ -984,7 +984,11 @@ export class ExcelReportsService {
             zone: auth?.zone || 'نامشخص',
             personelCode: auth?.personelCode || 'نامشخص',
             breakdownItems: items,
-            repairParts: repairInvoices, 
+            repairParts: repairInvoices.map((invoice) => ({
+              piece: invoice.piece || 'بدون قطعه',
+              amount: invoice.amount || 'بدون مبلغ', 
+              carNumberSystem: invoice.carNumberSystem || 'بدون پلاک سیستمی', 
+            })),
           };
 
           
@@ -1011,7 +1015,7 @@ export class ExcelReportsService {
         { header: 'نظر سرپرست لجستیک', key: 'logisticComment', width: 20 },
         { header: 'نظر سرپرست ترابری' , key: 'transportComment', width: 20 },
         { header: 'نظر سرپرست تعمیرگاه' , key: 'repairmanComment', width: 20 },
-        { header: 'قطعه مصرفی', key: 'repairPart', width: 50 },
+        { header: 'قطعه مصرفی', key: 'piece', width: 50 },
         { header: 'مبلغ فاکتور', key: 'amount', width: 20 },  
         { header: ' پلاک سیستمی خودرو', key: 'carNumberSystem', width: 20 },
         { header: 'تاریخ اعزام به تعمیرگاه', key: 'historySendToRepair', width: 20 },
@@ -1953,6 +1957,7 @@ export class ExcelReportsService {
           periodicTypeName: typeTranslationMap[check.type] || check.type || 'نامشخص', // ترجمه نام تایپ
           endKilometer: check.endKilometer || 'نامشخص',
           endDate: check.endDate || 'نامشخص',
+          carLife: check.truckInfo.lastCarLife || 'نامشخص',
           registerType: check.autoAdd ? 'سیستم' : 'دستی',
           createdAt: check.createdAt || 'نامشخص',
         }));
@@ -1965,10 +1970,11 @@ export class ExcelReportsService {
           { header: 'منطقه', key: 'zone', width: 15 },
           { header: 'شرکت', key: 'company', width: 20 },
           { header: 'نام سرویس دوره‌ای', key: 'periodicTypeName', width: 25 },
-          { header: 'کیلومتر سرویس', key: 'endKilometer', width: 15 },
-          { header: 'تاریخ انقضای سرویس', key: 'endDate', width: 20 },
-          { header: 'نوع ثبت شده', key: 'registerType', width: 15 },
+          { header: 'کیلومتر فعلی ثبت شده', key: 'carLife', width: 15 },
           { header: 'تاریخ ثبت', key: 'createdAt', width: 20 },
+          { header: 'کیلومتر سررسید', key: 'endKilometer', width: 15 },
+          { header: 'تاریخ سررسید', key: 'endDate', width: 20 },
+          { header: 'نوع ثبت شده', key: 'registerType', width: 15 },
         ];
       
         reportData.forEach((row) => {

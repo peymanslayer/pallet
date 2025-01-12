@@ -10,6 +10,7 @@ import { generateDataExcel } from 'src/utility/export_excel';
 import { FIELDS_OF_EXCEL_REPORT_TRANSPORT_AND_LOGISTIC_ADMIN } from 'src/static/enum';
 import { COLUMNS_NAME_EXCEL_REPORT_TRANSPORT_AND_LOGISTIC_ADMIN } from 'src/static/fields-excelFile';
 import { Auth } from 'src/auth/auth.entity';
+import { RejectBreakDownDto } from './dto/rejectBreakdown.dto';
 @Injectable()
 export class TruckBreakDownService {
   constructor(
@@ -105,6 +106,7 @@ export class TruckBreakDownService {
     const data = [];
 
     const breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+        where: { status: 'opened' },
         order: [['id', 'DESC']],
         include: [
             {
@@ -138,8 +140,19 @@ export class TruckBreakDownService {
             breakDown['answers'] = null;
         }
 
+        if (item.logisticComment === "موردی نیست ادامه فعالیت") {
+          breakDown['status'] = 'closed';
+        }
+        if (item.transportComment === "موردی نیست ادامه فعالیت") {
+          breakDown['status'] = 'closed';
+        }
+        if (item.repairmanComment === "موردی نیست ادامه فعالیت") {
+          breakDown['status'] = 'closed';
+        }
+
         data.push(breakDown);
     }
+
 
     return {
         status: 200,
@@ -147,7 +160,6 @@ export class TruckBreakDownService {
         count: breakDowns.count,
     };
 }
-
 
 
   
@@ -1371,4 +1383,41 @@ export class TruckBreakDownService {
       console.log(error);
     }
   }
+  async setStatusForDriverDeliveryByDriver(breakdownId: number ){
+    const breakDown = await this.truckBreakDownRepository.findOne({where : {id : breakdownId}})
+    if (!breakDown) {
+      return {
+        status: 200,
+        data: [] ,
+        message: "خرابی یافت نشد"
+      }
+    }
+    breakDown.driverDeliveryConfirm = true
+
+    await breakDown.save()
+
+    return {
+      status : 201 ,
+      data : true ,
+      message : "تغییر با موفقیت ثبت شد"
+    }
+  }
+
+  async rejectTruckBreakdown(rejectBreakDownDto: RejectBreakDownDto){
+    const {message , breakdownId , driverId , additionalMessage} = rejectBreakDownDto
+    const breakDown = await this.truckBreakDownRepository.findOne({where : {id: breakdownId}})
+    if(!breakDown){
+      return {
+        status : 200 ,
+        data : [] ,
+        message : "خرابی یافت نشد"
+      }
+    }
+    breakDown.status = 'closed'
+    await breakDown.save()
+  }
 }
+
+
+
+

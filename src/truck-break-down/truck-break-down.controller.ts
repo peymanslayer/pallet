@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Put,
   Query,
   Res,
@@ -313,6 +314,17 @@ export class TruckBreakDownController {
   ) {
     try {
       const res = await this.truckBreakDownService.update(id, body);
+      response.status(res.status).json(res.message);
+    } catch (err) {
+      console.log(err);
+      response.status(500).json(err);
+    }
+  }
+
+  @Patch('/api/truckbreakdown/delivery-confirm/:breakDownId')
+  async setStatusForDriverDeliveryByDriver(@Param('breakDownId') breakDownId: number, @Res() response: Response,){
+    try {
+      const res = await this.truckBreakDownService.setStatusForDriverDeliveryByDriver(breakDownId);
       response.status(res.status).json(res.message);
     } catch (err) {
       console.log(err);

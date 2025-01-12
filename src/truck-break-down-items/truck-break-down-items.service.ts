@@ -159,7 +159,16 @@ else{
     try{
     let message;
     let status: number;
+    let affectedCountResult=[];
     const breakDownItems = {};
+    for(const item of body.answers){
+      const [affectedCount] = await this.truckBreakDownItemsRepository.update(
+        item,
+        { where: { id: id }}
+       
+      );
+      affectedCountResult.push(affectedCount);
+    }
     // for frontEnd developer solution !!!!
     // for (let item = 0; item <= 20; item++) {
     //   breakDownItems['answer_' + item] = null;
@@ -176,22 +185,18 @@ else{
     // }
     console.log(body);
 
-    const [affectedCount] = await this.truckBreakDownItemsRepository.update(
-      body,
-      { where: { id: id }}
 
-    );
     const findBreakDown=await this.truckBreakDownItemsRepository.findOne({
       where:{id:id}
      });
-   console.log(findBreakDown);
-   
-    if (affectedCount>0) {
-      message = findBreakDown;
-      status = 200;
-    } else {
+   console.log(affectedCountResult);
+    if (affectedCountResult.includes(0)) {
       message = `update item id = ${id} failed`;
       status = 400;
+    } else {
+      message = findBreakDown;
+      status = 200;
+
     }
     return {
       status: status,

@@ -343,7 +343,10 @@ async insertCheckList(body: Object) {
   checkList['hours'] = body['hours'];
   checkList['history'] = body['date'];
 
-  await this.checkTodayChecklist(body['truckId'])
+  const checkListCheck= await this.checkTodayChecklist(body['truckId']);
+  if(checkListCheck.message=="مجاز برای ثبت چک لیست"){
+    
+
 
   const today = new Date();
   const formattedDate = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
@@ -369,27 +372,25 @@ const fullHour=`${hours}:${minutes}`;
     if (
         !lastCheckList.isDeleted &&
         (currentAnswer0 <= lastCheckList.answer_0 || 
-         currentAnswer0 - lastCheckList.answer_0 < 50000 || 
-         currentAnswer0 - lastCheckList.answer_0 > 800000)
+        //  currentAnswer0 - lastCheckList.answer_0 < 50000 || 
+         currentAnswer0 - lastCheckList.answer_0 > 800)
     ) {
         return {
             status: 200,
             data: [],
-            message: 'مقدار کیلومتر جاری باید حداقل 50000 واحد بیشتر از مقدار آخرین رکورد باشد',
+            message: 'مقدار کیلومتر جاری باید بیشتر از مقدار آخرین رکورد و کمتر از 800 کیلومتر باشد',
         };
     }
 
     diff = currentAnswer0 - lastCheckList.answer_0;
     console.log("diff", diff);
-  } else {
-      if (currentAnswer0 < 50000) {
-          return {
-              status: 200,
-              data: [],
-              message: 'مقدار کیلومتر جاری باید حداقل 50000 باشد',
-          };
+  } 
+  else {
+      return {
+        status: 201 ,
+        data : true ,
+        message: "ok"
       }
-      console.log('هیچ رکوردی برای چک‌لیست قبلی پیدا نشد، مقدار کیلومتر جاری معتبر است.');
   }
 
   for (let item of answers) {
@@ -446,6 +447,12 @@ console.log(unresolvedBreakdowns);
       status: 201,
       message: 'چک‌لیست با موفقیت ثبت شد',
   };
+}else{
+  return{
+    status:200,
+    message:'مجاز برای ثبت چک لیست نیستید'
+  }
+}
 }
 // async insertCheckList(body: Object) {
 //   const checkList = {};
@@ -1904,14 +1911,15 @@ async getTotalKilometerOfChecklist(carNumber: string){
   if (
       lastCheckList &&
       !lastCheckList.isDeleted &&
-      (currentAnswer0 <= lastCheckList.answer_0 || currentAnswer0-lastCheckList.answer_0>800 || currentAnswer0>800)
+      (currentAnswer0 <= lastCheckList.answer_0 || currentAnswer0-lastCheckList.answer_0 >800)
   ) {
       return {
           status: 200,
           data: [],
-          message: 'نمی تونید چک لیست ثبت کنید',
+          message: 'مقدار کیلومتر جاری باید حداکثر 800 کیلومتر بیشتر از مقدار آخرین رکورد باشد',
       };
-  }else{
+  }
+  else{
     return{
       status:200,
       message:'ok!'

@@ -51,7 +51,7 @@ import { KilometerDetailsModule } from './driver-kilometer-details/kilometer-det
     AutoPriodicTruckCheckModule,
     ExcelReportsModule,
     KilometerModule,
-    KilometerDetailsModule ,
+    KilometerDetailsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

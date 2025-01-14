@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -247,14 +248,14 @@ export class TruckBreakDownController {
     @Query('carNumber') carNumber: string,
     @Query('company') company: string,
     @Query('transportComment') transportComment: string,
-    // @Query('historyReciveToRepair') reciveToRepair: string, // not used
+    @Query('historySendToRepair') historySendToRepair: string,
     @Query('deliveryDriver') deliveryDriver: string,
     @Query('count') count: string,
   ) {
     try {
       const res = await this.truckBreakDownService.repairShopGetAll(
         transportComment,
-        // reciveToRepair,
+        historySendToRepair,
         deliveryDriver,
         count,
         beforeHistory,
@@ -321,14 +322,6 @@ export class TruckBreakDownController {
     }
   }
 
-  @Get('/api/truckbreakdown/GetRepairDetails')
-  async getRepairDetail(@Body() body: any,@Res() response: Response){
-    try{
-     const getRepairDetail=await this.truckBreakDownService.getRepairDetail(body)
-    }catch(err){
-     response.status(500).json('ارور سرور')
-    }
-  }
 
   @Post('/api/truckbreakdown/sendToRepair')
   async truckBreakDownSendToRepair(@Body() body: any,@Res() response: Response){
@@ -337,5 +330,16 @@ export class TruckBreakDownController {
    }catch(err){
     response.status(500).json('ارور سرور')
    }
+  }
+
+  @Patch('/api/truckbreakdown/delivery-confirm/:breakDownId')
+  async setStatusForDriverDeliveryByDriver(@Param('breakDownId') breakDownId: number, @Res() response: Response,){
+    try {
+      const res = await this.truckBreakDownService.setStatusForDriverDeliveryByDriver(breakDownId);
+      response.status(res.status).json(res.message);
+    } catch (err) {
+      console.log(err);
+      response.status(500).json(err);
+    }
   }
 }

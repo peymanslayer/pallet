@@ -10,7 +10,6 @@ import { generateDataExcel } from 'src/utility/export_excel';
 import { FIELDS_OF_EXCEL_REPORT_TRANSPORT_AND_LOGISTIC_ADMIN } from 'src/static/enum';
 import { COLUMNS_NAME_EXCEL_REPORT_TRANSPORT_AND_LOGISTIC_ADMIN } from 'src/static/fields-excelFile';
 import { Auth } from 'src/auth/auth.entity';
-import { elementAt } from 'rxjs';
 @Injectable()
 export class TruckBreakDownService {
   constructor(
@@ -106,6 +105,7 @@ export class TruckBreakDownService {
     const data = [];
 
     const breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+        where: { status: 'opened' },
         order: [['id', 'DESC']],
         include: [
             {
@@ -139,8 +139,19 @@ export class TruckBreakDownService {
             breakDown['answers'] = null;
         }
 
+        if (item.logisticComment === "موردی نیست ادامه فعالیت") {
+          breakDown['status'] = 'closed';
+        }
+        if (item.transportComment === "موردی نیست ادامه فعالیت") {
+          breakDown['status'] = 'closed';
+        }
+        if (item.repairmanComment === "موردی نیست ادامه فعالیت") {
+          breakDown['status'] = 'closed';
+        }
+
         data.push(breakDown);
     }
+
 
     return {
         status: 200,
@@ -148,7 +159,6 @@ export class TruckBreakDownService {
         count: breakDowns.count,
     };
 }
-
 
 
   
@@ -780,7 +790,7 @@ export class TruckBreakDownService {
 
   async repairShopGetAll(
     transportComment: string,
-    // reciveToRepair,
+    historySendToRepair: string,
     deliveryDriver: string,
     count: string,
     beforeHistory: string,
@@ -825,9 +835,11 @@ export class TruckBreakDownService {
         where: {
           [Op.and]: {
             transportComment: { [Op.in]: ['necessary', 'immediately'] },
-            // historyReciveToRepair: { [Op.eq]: null }, //not used in this query
+            logisticComment: { [Op.ne]: null },
+            historyReciveToRepair: { [Op.eq]: null }, 
             repairmanComment: { [Op.eq]: null },
-            piece: { [Op.eq]: null },
+            // piece: { [Op.eq]: null },
+            status: {[Op.eq] : 'opened' } ,
             logisticConfirm: { [Op.ne]: false },
             ...filter,
           },
@@ -835,16 +847,35 @@ export class TruckBreakDownService {
         order: [['id', 'DESC']],
         limit: 20,
       });
-      // get list of "Delivery to Driver"
-    } else if (deliveryDriver === 'true') {
+    } else if(historySendToRepair === 'true'){
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {
           [Op.and]: {
             transportComment: { [Op.in]: ['necessary', 'immediately'] },
-            // historyReciveToRepair: { [Op.ne]: null }, //not used in this query
+            logisticComment: { [Op.ne]: null },
+            historySendToRepair	: { [Op.ne]: null }, 
+            // repairmanComment: { [Op.eq]: null },
+            // piece: { [Op.eq]: null },
+            // status: {[Op.eq] : 'opened' } ,
+            logisticConfirm: { [Op.ne]: false },
+            ...filter,
+          },
+        },
+        order: [['id', 'DESC']],
+        limit: 20,
+      });
+    }
+    // get list of "Delivery to Driver"
+    else if (deliveryDriver === 'true') {
+      breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+        where: {
+          [Op.and]: {
+            transportComment: { [Op.in]: ['necessary', 'immediately'] },
+            historyReciveToRepair: { [Op.ne]: null }, 
             logisticConfirm: { [Op.ne]: false },
             repairmanComment: { [Op.eq]: null },
             historyDeliveryDriver: { [Op.ne]: null },
+            // status: {[Op.eq] : 'opened' } ,
             ...filter,
           },
         },
@@ -901,6 +932,7 @@ export class TruckBreakDownService {
       count: breakDowns.count,
     };
   }
+
 
   // async get(id: number) {
   //   let data = {};
@@ -1384,8 +1416,23 @@ console.log(item);
       console.log(error);
     }
   }
+  async setStatusForDriverDeliveryByDriver(breakdownId: number ){
+    const breakDown = await this.truckBreakDownRepository.findOne({where : {id : breakdownId}})
+    if (!breakDown) {
+      return {
+        status: 200,
+        data: [] ,
+        message: "خرابی یافت نشد"
+      }
+    }
+    breakDown.driverDeliveryConfirm = true
 
-  async getRepairDetail(body:any){
+    await breakDown.save()
 
+    return {
+      status : 201 ,
+      data : true ,
+      message : "تغییر با موفقیت ثبت شد"
+    }
   }
 }

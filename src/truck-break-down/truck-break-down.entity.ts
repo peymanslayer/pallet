@@ -36,7 +36,8 @@ export class TruckBreakDown extends Model {
   @Column
   carNumber: string;
 
-
+  @Column({type: DataType.ENUM('opened', 'closed'), allowNull: false, defaultValue: 'opened'})
+  status: string
 
   @Column
   carLife: number;

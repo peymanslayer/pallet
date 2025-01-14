@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common';
 import { RepairInvoiceService } from './repair-invoice.service';
 import { Response } from 'express';
 
@@ -19,6 +19,30 @@ export class RepairInvoiceController {
     @Get('pieces')
     async getInvoicePieces(@Res() response: Response){
         const res = await this.repairInvoiceService.getAllPieces();
+        response
+        .status(res.status)
+        .json({data: res.data , message: res.message});
+    }
+
+    @Get('/:id')
+    async getOneById(@Param('id') id : number,@Res() response: Response){
+        const res = await this.repairInvoiceService.getById(id);
+        response
+        .status(res.status)
+        .json({data: res.data , message: res.message});
+    }
+
+    @Get('all')
+    async getAll(@Res() response: Response){
+        const res = await this.repairInvoiceService.getAll();
+        response
+        .status(res.status)
+        .json({data: res.data , message: res.message});
+    }
+
+    @Get('all-by-filter')
+    async allByFilter(@Res() response: Response , @Query('company') company?: string ,  @Query('zone') zone?: string){
+        const res = await this.repairInvoiceService.getInvoicesByZoneAndCompany(zone , company);
         response
         .status(res.status)
         .json({data: res.data , message: res.message});

@@ -213,7 +213,6 @@ async autoAdd(breakDownId: number, autoAdd: AutoAdd) {
             }
 
             const periodicKilometer = await this.priodicTypeModel.findOne({
-                attributes: ['periodicKilometer'],
                 where: { type: ty },
             });
 
@@ -229,7 +228,8 @@ async autoAdd(breakDownId: number, autoAdd: AutoAdd) {
                 type: ty,
                 endKilometer: newEndKilometer,
                 endDate: endDate,
-                autoAdd: true
+                autoAdd: true ,
+                periodicTypeId : periodicKilometer.id
             };
 
             console.log('Payload:', payload);
@@ -252,7 +252,7 @@ async autoAdd(breakDownId: number, autoAdd: AutoAdd) {
             { lastCarLife: initialCarLife.toString() },
             { where: { id: truck.id } }
         );
-
+        
         return {
             status: 200,
             data: responseData,

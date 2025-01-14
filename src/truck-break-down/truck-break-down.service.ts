@@ -989,16 +989,17 @@ export class TruckBreakDownService {
   //     data: data,
   //   };
   // }
-  async get(name: string) {
+  async get(id: number) {
     let data = {};
     let finalResult=[];
 
     let arrAns = [];
     const breakDowns = await this.truckBreakDownRepository.findAll({
       where: {
-        driverName: name,
+        id: id,
       },
   });
+  
   console.log(breakDowns,"fghjkl");
   for(let item of breakDowns){
 console.log(item);
@@ -1021,9 +1022,9 @@ console.log(item);
   });
 
   data = item.dataValues;
-  data['dateDriver'] = item.dataValues.historyDriverRegister;
-  data['hoursDriver'] = item.dataValues.hoursDriverRegister;
-  data['driverName'] = item.dataValues.driverName;
+  data['dateDriver'] = item.historyDriverRegister;
+  data['hoursDriver'] = item.hoursDriverRegister;
+  data['driverName'] = item.driverName;
   data['carNumber'] = truckInfo.carNumber;
   data['carLife'] = truckInfo.lastCarLife;
 

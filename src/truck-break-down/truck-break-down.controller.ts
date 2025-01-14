@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Post,
   Put,
   Query,
   Res,
@@ -272,10 +273,10 @@ export class TruckBreakDownController {
     }
   }
 
-  @Get('/api/truckbreakdown/:id')
-  async getbyId(@Param('id') id: number, @Res() response: Response) {
+  @Get('/api/truckbreakdown/:name')
+  async getbyId(@Param('name') name: string, @Res() response: Response) {
     try {
-      const res = await this.truckBreakDownService.get(id);
+      const res = await this.truckBreakDownService.get(name);
       response.status(res.status).json(res.data);
     } catch (err) {
       console.log(err);
@@ -318,5 +319,23 @@ export class TruckBreakDownController {
       console.log(err);
       response.status(500).json(err);
     }
+  }
+
+  @Get('/api/truckbreakdown/GetRepairDetails')
+  async getRepairDetail(@Body() body: any,@Res() response: Response){
+    try{
+     const getRepairDetail=await this.truckBreakDownService.getRepairDetail(body)
+    }catch(err){
+     response.status(500).json('ارور سرور')
+    }
+  }
+
+  @Post('/api/truckbreakdown/sendToRepair')
+  async truckBreakDownSendToRepair(@Body() body: any,@Res() response: Response){
+   try{
+    
+   }catch(err){
+    response.status(500).json('ارور سرور')
+   }
   }
 }

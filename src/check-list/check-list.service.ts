@@ -1017,6 +1017,7 @@ async getTotalKilometerOfChecklist(carNumber: string){
   // }
   
   async getAllByDriverId(userId: number, beforeHistory?: string, afterHistory?: string) {
+    let ArrayResult;
     try {
       const where: any = {
         userId: userId,

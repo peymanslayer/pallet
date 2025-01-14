@@ -71,29 +71,35 @@ export class TruckBreakDownItemsService {
   //   };
   // }
 
-  async insertTruckBreakDownItems(body: Object) {
+  async insertTruckBreakDownItems(body: any) {
+    let insertBreakDown;
     const breakDownItems = {};
     const breakDown = {};
     const answers: [] = body['answers'];
     const today = new Date();
     const formattedDate = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
+    console.log(formattedDate,body['id']);
+    
     const todayCheckList=await this.checkListRepository.findOne({
-      where:{history:formattedDate,userId:body['id']}
+      where:{history:
+      formattedDate,userId:body.id}
     });
+    console.log(todayCheckList);
+    
     if(todayCheckList){
-    const activeBreakdown = await this.truckBreakDownRepository.findOne({
-        where: {
-            driverId: body['id'],
-            driverDeliveryConfirm: false, 
-        },
-    });
+    // const activeBreakdown = await this.truckBreakDownRepository.findOne({
+    //     where: {
+    //         driverId: body['id'],
+    //         driverDeliveryConfirm: false, 
+    //     },
+    // });
 
-    if (activeBreakdown) {
-        return {
-            status: 200,
-            message: 'شما در حال حاضر یک خرابی در دست انجام دارید. لطفاً آن را تکمیل کنید.',
-        };
-    }
+    // if (activeBreakdown) {
+    //     return {
+    //         status: 200,
+    //         message: 'شما در حال حاضر یک خرابی در دست انجام دارید. لطفاً آن را تکمیل کنید.',
+    //     };
+    // }
 
     const truckInfo = await this.truckInfoRepository.findOne({
       where: { driverId: body['id'] },
@@ -134,7 +140,7 @@ export class TruckBreakDownItemsService {
 
     if (insertItems) {
       breakDown['truckBreakDownItemsId'] = insertItems.id;
-      const insertBreakDown =
+       insertBreakDown =
         await this.truckBreakDownRepository.create<TruckBreakDown>(breakDown);
         console.log(insertItems,insertBreakDown);
     }
@@ -143,7 +149,7 @@ export class TruckBreakDownItemsService {
 
     return {
         status: 201,
-        message: 'گزارش خرابی کامیاب ثبت شد.',
+        message:[insertBreakDown]
     };
 }
 else{

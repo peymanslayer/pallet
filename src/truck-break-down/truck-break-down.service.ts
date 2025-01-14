@@ -10,6 +10,7 @@ import { generateDataExcel } from 'src/utility/export_excel';
 import { FIELDS_OF_EXCEL_REPORT_TRANSPORT_AND_LOGISTIC_ADMIN } from 'src/static/enum';
 import { COLUMNS_NAME_EXCEL_REPORT_TRANSPORT_AND_LOGISTIC_ADMIN } from 'src/static/fields-excelFile';
 import { Auth } from 'src/auth/auth.entity';
+import { elementAt } from 'rxjs';
 @Injectable()
 export class TruckBreakDownService {
   constructor(
@@ -797,7 +798,7 @@ export class TruckBreakDownService {
     };
     if (beforeHistory || afterHistory) {
       if (!afterHistory) {
-        afterHistory = '2400/0/0';
+        afterHistory = '2024/0/0';
       }
       if (!beforeHistory) {
         beforeHistory = '2023/0/0';
@@ -954,67 +955,71 @@ export class TruckBreakDownService {
   //     data: data,
   //   };
   // }
-  async get(id: number) {
+  async get(name: string) {
     let data = {};
-
+    let finalResult=[];
 
     let arrAns = [];
-    const breakDown = await this.truckBreakDownRepository.findOne({
-        where: {
-            id: id,
-        },
-    });
-
+    const breakDowns = await this.truckBreakDownRepository.findAll({
+      where: {
+        driverName: name,
+      },
+  });
+  console.log(breakDowns,"fghjkl");
+  for(let item of breakDowns){
+console.log(item);
 
     const status = {
-        logisticConfirm: !!breakDown?.isLogisticConfirmed,
-        transportComment: !!breakDown?.isTransportCommentValid,
-        repairComment: !!breakDown?.historyRepairComment,
-        deliveryDriver: !!breakDown?.historyDeliveryDriver,
-    };
+      logisticConfirm: !!item?.isLogisticConfirmed,
+      transportComment: !!item?.isTransportCommentValid,
+      repairComment: !!item?.historyRepairComment,
+      deliveryDriver: !!item?.historyDeliveryDriver,
+  };
+  const res = await this.truckBreakDownItemsRepository.findOne({
+      where: {
+          id: item.truckBreakDownItemsId,
+      },
+  }); 
+ 
+  
+  const truckInfo = await this.truckInfoRepository.findOne({
+      where: { driverId: item.driverId },
+  });
 
-    const res = await this.truckBreakDownItemsRepository.findOne({
-        where: {
-            id: breakDown.truckBreakDownItemsId,
-        },
-    });
+  data = item.dataValues;
+  data['dateDriver'] = item.dataValues.historyDriverRegister;
+  data['hoursDriver'] = item.dataValues.hoursDriverRegister;
+  data['driverName'] = item.dataValues.driverName;
+  data['carNumber'] = truckInfo.carNumber;
+  data['carLife'] = truckInfo.lastCarLife;
 
-    const truckInfo = await this.truckInfoRepository.findOne({
-        where: { driverId: breakDown.dataValues.driverId },
-    });
-
-    data = breakDown.dataValues;
-    data['dateDriver'] = breakDown.dataValues.historyDriverRegister;
-    data['hoursDriver'] = breakDown.dataValues.hoursDriverRegister;
-    data['driverName'] = breakDown.dataValues.driverName;
-    data['carNumber'] = truckInfo.carNumber;
-    data['carLife'] = truckInfo.lastCarLife;
-
-    const answers = Object.entries(res.dataValues);
+  const answers = Object.entries(res.dataValues);
 
 
-    for (let i = 0; i < answers.length; i++) {
-        const [key, value] = answers[i];
+  for (let i = 0; i < answers.length; i++) {
+      const [key, value] = answers[i];
+      
+      if (key.includes('type_') && value != null) {
+          const ans: any = {};
+          ans['type'] = value;
+          ans['comment'] = answers[i - 1]?.[1] || null; 
+          console.log(ans);
+          
+          ans['number'] = parseInt(key.split('_')[1], 10); 
+          arrAns.push(ans);
+      }
+  }
 
-        console.log(i);
-        
-        if (key.includes('type_') && value != null) {
-            const ans: any = {};
-            ans['type'] = value;
-            ans['comment'] = answers[i - 1]?.[1] || null; 
-            console.log(ans);
-            
-            ans['number'] = parseInt(key.split('_')[1], 10); 
-            arrAns.push(ans);
-        }
-    }
+  data['answers'] = arrAns;
+  data['status'] = status;
+  finalResult.push(data)
+  }
 
-    data['answers'] = arrAns;
-    data['status'] = status;
+
 
     return {
         status: 200,
-        data: data,
+        data: finalResult,
     };
 }
 
@@ -1022,7 +1027,7 @@ export class TruckBreakDownService {
   // async getByDriverId(driverId: any) {
   //   let data = [];
 
-  //   const breakDown = await this.truckBreakDownRepository.findAndCountAll({
+  //   const item = await this.truckBreakDownRepository.findAndCountAll({
   //     where: {
   //       driverId: driverId,
   //     },
@@ -1095,15 +1100,20 @@ export class TruckBreakDownService {
         ],
         limit: 20,
     });
-
-    for (const item of breakDowns.rows) {
+    console.log(breakDowns.count);
+    
+    for (let item of breakDowns.rows) {
+      console.log(2);
+      
         const res = await this.truckBreakDownItemsRepository.findOne({
             where: {
-                id: item.truckBreakDownItemsId,
+                id: item.dataValues.truckBreakDownItemsId,
             },
         });
+        console.log(res);
+        
 
-        if (!res) continue;
+        if (res){
 
         const items = res.dataValues;
 
@@ -1132,7 +1142,7 @@ export class TruckBreakDownService {
 
         // اضافه کردن گزارش به داده‌ها
         data.push(report);
-    }
+
 
     // به‌روزرسانی `lastFetch`
     await this.truckBreakDownRepository.update(
@@ -1148,12 +1158,12 @@ export class TruckBreakDownService {
             },
         },
     );
-
-    return {
-        status: 200,
-        data: data,
-        count: breakDowns.count,
-    };
+}
+  }
+  return{
+    status:200,
+    data:data
+  }
 }
 
 
@@ -1373,5 +1383,9 @@ export class TruckBreakDownService {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  async getRepairDetail(body:any){
+
   }
 }

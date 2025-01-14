@@ -343,7 +343,10 @@ async insertCheckList(body: Object) {
   checkList['hours'] = body['hours'];
   checkList['history'] = body['date'];
 
-  await this.checkTodayChecklist(body['truckId'])
+  const checkListCheck= await this.checkTodayChecklist(body['truckId']);
+  if(checkListCheck.message=="مجاز برای ثبت چک لیست"){
+    
+
 
   const today = new Date();
   const formattedDate = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
@@ -444,6 +447,12 @@ console.log(unresolvedBreakdowns);
       status: 201,
       message: 'چک‌لیست با موفقیت ثبت شد',
   };
+}else{
+  return{
+    status:200,
+    message:'مجاز برای ثبت چک لیست نیستید'
+  }
+}
 }
 // async insertCheckList(body: Object) {
 //   const checkList = {};
@@ -1015,6 +1024,7 @@ async getTotalKilometerOfChecklist(carNumber: string){
   // }
   
   async getAllByDriverId(userId: number, beforeHistory?: string, afterHistory?: string) {
+    let ArrayResult;
     try {
       const where: any = {
         userId: userId,

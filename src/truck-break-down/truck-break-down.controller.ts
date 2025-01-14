@@ -247,14 +247,14 @@ export class TruckBreakDownController {
     @Query('carNumber') carNumber: string,
     @Query('company') company: string,
     @Query('transportComment') transportComment: string,
-    // @Query('historyReciveToRepair') reciveToRepair: string, // not used
+    @Query('historySendToRepair') historySendToRepair: string,
     @Query('deliveryDriver') deliveryDriver: string,
     @Query('count') count: string,
   ) {
     try {
       const res = await this.truckBreakDownService.repairShopGetAll(
         transportComment,
-        // reciveToRepair,
+        historySendToRepair,
         deliveryDriver,
         count,
         beforeHistory,

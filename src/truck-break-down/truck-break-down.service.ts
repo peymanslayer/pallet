@@ -791,7 +791,7 @@ export class TruckBreakDownService {
 
   async repairShopGetAll(
     transportComment: string,
-    // reciveToRepair,
+    historySendToRepair: string,
     deliveryDriver: string,
     count: string,
     beforeHistory: string,
@@ -836,9 +836,11 @@ export class TruckBreakDownService {
         where: {
           [Op.and]: {
             transportComment: { [Op.in]: ['necessary', 'immediately'] },
-            // historyReciveToRepair: { [Op.eq]: null }, //not used in this query
+            logisticComment: { [Op.ne]: null },
+            historyReciveToRepair: { [Op.eq]: null }, 
             repairmanComment: { [Op.eq]: null },
-            piece: { [Op.eq]: null },
+            // piece: { [Op.eq]: null },
+            status: {[Op.eq] : 'opened' } ,
             logisticConfirm: { [Op.ne]: false },
             ...filter,
           },
@@ -846,16 +848,35 @@ export class TruckBreakDownService {
         order: [['id', 'DESC']],
         limit: 20,
       });
-      // get list of "Delivery to Driver"
-    } else if (deliveryDriver === 'true') {
+    } else if(historySendToRepair === 'true'){
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {
           [Op.and]: {
             transportComment: { [Op.in]: ['necessary', 'immediately'] },
-            // historyReciveToRepair: { [Op.ne]: null }, //not used in this query
+            logisticComment: { [Op.ne]: null },
+            historySendToRepair	: { [Op.ne]: null }, 
+            // repairmanComment: { [Op.eq]: null },
+            // piece: { [Op.eq]: null },
+            status: {[Op.eq] : 'opened' } ,
+            logisticConfirm: { [Op.ne]: false },
+            ...filter,
+          },
+        },
+        order: [['id', 'DESC']],
+        limit: 20,
+      });
+    }
+    // get list of "Delivery to Driver"
+    else if (deliveryDriver === 'true') {
+      breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+        where: {
+          [Op.and]: {
+            transportComment: { [Op.in]: ['necessary', 'immediately'] },
+            historyReciveToRepair: { [Op.ne]: null }, 
             logisticConfirm: { [Op.ne]: false },
             repairmanComment: { [Op.eq]: null },
             historyDeliveryDriver: { [Op.ne]: null },
+            status: {[Op.eq] : 'opened' } ,
             ...filter,
           },
         },
@@ -912,6 +933,7 @@ export class TruckBreakDownService {
       count: breakDowns.count,
     };
   }
+
 
   // async get(id: number) {
   //   let data = {};

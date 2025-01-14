@@ -383,14 +383,11 @@ const fullHour=`${hours}:${minutes}`;
     console.log("diff", diff);
   } 
   else {
-      if (currentAnswer0 > 800) {
-          return {
-              status: 200,
-              data: [],
-              message: 'مقدار کیلومتر جاری باید حداکثر 80 باشد',
-          };
+      return {
+        status: 201 ,
+        data : true ,
+        message: "ok"
       }
-      console.log('هیچ رکوردی برای چک‌لیست قبلی پیدا نشد، مقدار کیلومتر جاری معتبر است.');
   }
 
   for (let item of answers) {
@@ -1909,15 +1906,9 @@ async getTotalKilometerOfChecklist(carNumber: string){
       return {
           status: 200,
           data: [],
-          message: 'مقدار کیلومتر جاری باید حداقل ۵۰ واحد بیشتر از مقدار آخرین رکورد باشد',
+          message: 'مقدار کیلومتر جاری باید حداکثر 800 کیلومتر بیشتر از مقدار آخرین رکورد باشد',
       };
-  }else if (currentAnswer0 > 800) {
-    return {
-        status: 200,
-        data: [],
-        message: 'مقدار کیلومتر جاری باید حداکثر 80 باشد',
-    };
-}
+  }
   else{
     return{
       status:200,

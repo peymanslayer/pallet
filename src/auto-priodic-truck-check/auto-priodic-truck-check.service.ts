@@ -253,6 +253,14 @@ async autoAdd(breakDownId: number, autoAdd: AutoAdd) {
             { where: { id: truck.id } }
         );
 
+        if(responseData = []){
+            return {
+                status: 200,
+                data: responseData,
+                message: 'عملیات با شکست مواجه شد',
+            };
+        }
+
         return {
             status: 200,
             data: responseData,

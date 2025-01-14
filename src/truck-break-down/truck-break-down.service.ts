@@ -864,6 +864,8 @@ export class TruckBreakDownService {
         order: [['id', 'DESC']],
         limit: 20,
       });
+      console.log(breakDowns);
+      
     }
     // get list of "Delivery to Driver"
     else if (deliveryDriver === 'true') {

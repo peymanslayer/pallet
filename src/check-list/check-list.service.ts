@@ -219,13 +219,14 @@ async checkTodayChecklist(id: number){
   // بررسی چک‌لیست امروز
   const todayCheckList = await this.checkListRepository.findOne({
       where: {
-          truckId: id,
+          userId: id,
           createdAt: {
               [Op.gte]: today,
           },
           isDeleted: false,
       },
   });
+console.log(todayCheckList);
 
   if (todayCheckList) {
       return {
@@ -343,7 +344,7 @@ async insertCheckList(body: Object) {
   checkList['hours'] = body['hours'];
   checkList['history'] = body['date'];
 
-  const checkListCheck= await this.checkTodayChecklist(body['truckId']);
+  const checkListCheck= await this.checkTodayChecklist(body['id']);
   if(checkListCheck.message=="مجاز برای ثبت چک لیست"){
     
 
@@ -359,7 +360,7 @@ const fullHour=`${hours}:${minutes}`;
 
 
   const lastCheckList = await this.checkListRepository.findOne({
-      where: { truckId: body['truckId'] },
+      where: { userId: body['id'] },
       order: [['createdAt', 'DESC']],
   });
   console.log(lastCheckList);
@@ -385,13 +386,6 @@ const fullHour=`${hours}:${minutes}`;
     diff = currentAnswer0 - lastCheckList.answer_0;
     console.log("diff", diff);
   } 
-  else {
-      return {
-        status: 201 ,
-        data : true ,
-        message: "ok"
-      }
-  }
 
   for (let item of answers) {
       checkList['answer_' + item['number']] = item['question'];

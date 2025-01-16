@@ -40,11 +40,33 @@ export class RepairInvoiceController {
         .json({data: res.data , message: res.message});
     }
 
-    @Get('all-by-filter')
-    async allByFilter(@Res() response: Response , @Query('company') company?: string ,  @Query('zone') zone?: string){
-        const res = await this.repairInvoiceService.getInvoicesByZoneAndCompany(zone , company);
-        response
-        .status(res.status)
-        .json({data: res.data , message: res.message});
-    }
+    @Get('management-by-filter')
+    async getInvoicesWithFilters(
+        @Query('startDate') startDate: Date,
+        @Query('endDate') endDate: Date,
+        @Query('company') company: string,
+        @Query('zone') zone: string,
+        @Res() response: Response ,
+    ){
+        try {
+            const invoices = await this.repairInvoiceService.getInvoicesWithFilters(
+              new Date(startDate),
+              new Date(endDate),
+              company,
+              zone,
+            );
+      
+            response.status(200).json({
+              status: 200,
+              message: 'فاکتورها با موفقیت بازیابی شدند',
+              data: invoices,
+            });
+          } catch (error) {
+            response.status(500).json({
+              status: 500,
+              message: 'خطایی در بازیابی فاکتورها رخ داد',
+              data: null,
+            });
+          }
+        }
 }

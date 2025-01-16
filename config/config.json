@@ -13,7 +13,7 @@
     "password": "XY9n0YoCwwTmjF7W6zZPYSSm",
     "database": "nifty_diffie",
     "host": "himalayas.liara.cloud",
-    "port": 32679,
+    "port": 33766,
     "dialect": "mysql",
     "logging": false
   }

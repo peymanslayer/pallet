@@ -4,9 +4,10 @@ import { RepairInvoiceController } from './repair-invoice.controller';
 import { RepairInvoiceProviders } from './repair-invoice.provider';
 import { TruckBreakDownProviders } from 'src/truck-break-down/truck-break-down.provider';
 import { AuthProviders } from 'src/auth/auth.provider';
+import { TruckInfoProviders } from 'src/truck-info/truck-info.provider';
 
 @Module({
-  providers: [RepairInvoiceService , ...RepairInvoiceProviders , ...TruckBreakDownProviders , ...AuthProviders],
+  providers: [RepairInvoiceService , ...RepairInvoiceProviders , ...TruckBreakDownProviders , ...AuthProviders , ...TruckInfoProviders],
   controllers: [RepairInvoiceController ],
 })
 export class RepairInvoiceModule {}

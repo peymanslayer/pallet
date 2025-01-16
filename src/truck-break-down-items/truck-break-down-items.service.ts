@@ -188,22 +188,17 @@ async insertTruckBreakDownItems(body: any) {
       where: { driverId: body['id'] },
     });
 
-    // const activeBreakdowns = await this.checkActiveTruckBreakDown(body['id']);
     // if (activeBreakdowns !== 0) {
-    //   console.log('Active Breakdowns Count:', activeBreakdowns);
-    //   return {
-    //     status: 200,
-    //     message: MESSAGE_ALERT.truckBreakDown_limit_register,
-    //   };
-    // }
-
-    const activeBreakdowns = await this.truckBreakDownRepository.findAndCountAll({
-      where: {
-        driverDeliveryConfirm: false,
-        driverId: body['id'],
-      },
-    });
-
+      //   console.log('Active Breakdowns Count:', activeBreakdowns);
+      //   return {
+        //     status: 200,
+        //     message: MESSAGE_ALERT.truckBreakDown_limit_register,
+        //   };
+        // }
+        
+        
+        
+    const activeBreakdowns = await this.checkActiveTruckBreakDown(body['id']);
     if(activeBreakdowns.count !== 0){
       return {
             status: 200,
@@ -386,16 +381,15 @@ if(affectedCount==0){
     }
   }
 
-  async checkActiveTruckBreakDown(driverId: number): Promise<number> {
+  async checkActiveTruckBreakDown(driverId: number){
     try {
-      const count = await this.truckBreakDownRepository.count({
+      const activeBreakdowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {
+          driverDeliveryConfirm: false,
           driverId: driverId,
-          driverDeliveryConfirm: { [Op.eq]: true }, 
         },
       });
-      console.log(`Active truck breakdowns for driver ${driverId}:`, count);
-      return count;
+      return activeBreakdowns;
     } catch (error) {
       console.error(`Error counting active truck breakdowns for driver ${driverId}:`, error);
       throw new Error('Failed to count active truck breakdowns.');

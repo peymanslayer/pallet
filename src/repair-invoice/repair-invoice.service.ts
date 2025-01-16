@@ -4,6 +4,7 @@ import { TruckBreakDown } from 'src/truck-break-down/truck-break-down.entity';
 import { Op } from 'sequelize';
 import { AuthService } from 'src/auth/services/auth.service';
 import { Auth } from 'src/auth/auth.entity';
+import { TruckInfo } from 'src/truck-info/truck-info.entity';
 
 @Injectable()
 export class RepairInvoiceService {
@@ -12,6 +13,8 @@ export class RepairInvoiceService {
         private readonly repairInvoiceRepository: typeof RepairInvoice,
         @Inject('TRUCKBREAKDOWN_REPOSITORY')
         private readonly truckBreakdownRepository: typeof TruckBreakDown,
+        @Inject('TRUCKINFO_REPOSITORY')
+        private readonly truckInfoRepository: typeof TruckInfo,
         @Inject('AUTH_REPOSITORY')
         private readonly authRepository: typeof Auth,
         
@@ -104,47 +107,58 @@ export class RepairInvoiceService {
       
     }
 
-    async getInvoicesByZoneAndCompany(
-      zone?: string ,
-      company?: string
+    async getInvoicesWithFilters(
+      startDate: Date,
+      endDate: Date,
+      company?: string,
+      zone?: string,
     ) {
-    
-      const driverFilter: any = {};
-      if (zone) driverFilter.zone = { [Op.eq]: zone };
-      if (company) driverFilter.company = { [Op.eq]: company };
-    
-      const drivers = await this.authRepository.findAll({
-        where: driverFilter,
-        attributes: ['id'],
-      });
-
-    
-      const driverIds = drivers.map((driver) => driver.id);
-    
-      const breakDownFilter: any = {};
-      if (driverIds.length > 0) breakDownFilter.driverId = { [Op.in]: driverIds };
-    
-      const breakdowns = await this.truckBreakdownRepository.findAll({
-        where: breakDownFilter,
-        attributes: ['id'], 
-      });
-
-      const breakdownIds = breakdowns.map((breakdown) => breakdown.id);
-    
-      const invoiceFilter: any = {};
-      if (breakdownIds.length > 0)
-        invoiceFilter.truckBreakDownId = { [Op.in]: breakdownIds };
-    
+      const startOfPreviousDay = new Date(startDate);
+      startOfPreviousDay.setDate(startOfPreviousDay.getDate() - 1);
+      startOfPreviousDay.setHours(0, 0, 0, 0);
+  
+      const endOfNextDay = new Date(endDate);
+      endOfNextDay.setDate(endOfNextDay.getDate() + 1);
+      endOfNextDay.setHours(23, 59, 59, 999);
+  
       const invoices = await this.repairInvoiceRepository.findAll({
-        where: invoiceFilter,
+        where: {
+          createdAt: {
+            [Op.between]: [startOfPreviousDay, endOfNextDay],
+          },
+        },
       });
-    
-      return {
-        status: 200 ,
-        data : invoices ,
-        message: "فاکتور ها با موفقیت بازیابی شدند"
-      }
+  
+      const carNumbers = invoices.map((invoice) => invoice.carNumber);
+  
+
+      const truckInfos = await this.truckInfoRepository.findAll({
+        where: {
+          carNumber: {
+            [Op.in]: carNumbers,
+          },
+          ...(company && { company }),
+          ...(zone && { zone }),
+        },
+      });
+  
+      const filteredInvoices = invoices.filter((invoice) =>
+        truckInfos.some((truckInfo) => truckInfo.carNumber === invoice.carNumber),
+      );
+  
+      return filteredInvoices.map((invoice) => {
+        const truckInfo = truckInfos.find(
+          (info) => info.carNumber === invoice.carNumber,
+        );
+        return {
+          ...invoice.get(),
+          company: truckInfo?.company,
+          zone: truckInfo?.zone,
+        };
+      });
     }
+  }
+
+
     
 
-}

@@ -7,6 +7,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { TruckBreakDown } from 'src/truck-break-down/truck-break-down.entity';
+import { TruckInfo } from 'src/truck-info/truck-info.entity';
 
 @Table
 export class RepairInvoice extends Model {
@@ -15,6 +16,9 @@ export class RepairInvoice extends Model {
 
   @Column
   typeActivity: string;
+
+  @Column({type : DataType.TEXT})
+  comment:string
 
   @Column
   carNumber: string;
@@ -38,3 +42,4 @@ export class RepairInvoice extends Model {
   @BelongsTo(() => TruckBreakDown, 'truckBreakDownId')
   truckBreakDown: TruckBreakDown;
 }
+

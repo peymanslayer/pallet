@@ -257,6 +257,7 @@ export class TruckBreakDownService {
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {
           [Op.and]: {
+            status : { [Op.eq] : 'opened'} ,
             transportComment: { [Op.ne]: null },
             historyReciveToRepair: { [Op.eq]: null },
             logisticConfirm: { [Op.ne]: false },
@@ -266,6 +267,16 @@ export class TruckBreakDownService {
         order: [['id', 'DESC']],
         limit: 20,
       });
+
+      for (let item of breakDowns.rows) {
+        if (item.transportComment === 'notNecessary') {
+          await this.truckBreakDownRepository.update(
+            { status: 'closed' },
+            { where: { id: item.id } },
+          );
+  
+        }
+        }
     }
     // get list of "Activity done"
     else if (repairDone === 'true') {
@@ -282,6 +293,16 @@ export class TruckBreakDownService {
         order: [['id', 'DESC']],
         limit: 20,
       });
+
+      for (let item of breakDowns.rows) {
+        if (item.transportComment === 'notNecessary') {
+          await this.truckBreakDownRepository.update(
+            { status: 'closed' },
+            { where: { id: item.id } },
+          );
+  
+        }
+        }
       // get list of "Activity necessary to do"
     } else {
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
@@ -295,6 +316,16 @@ export class TruckBreakDownService {
         order: [['id', 'DESC']],
         limit: 20,
       });
+
+      for (let item of breakDowns.rows) {
+        if (item.transportComment === 'notNecessary') {
+          await this.truckBreakDownRepository.update(
+            { status: 'closed' },
+            { where: { id: item.id } },
+          );
+  
+        }
+        }
     }
     // console.log(breakDowns); // #Debug
     if (count === 'true') {
@@ -629,6 +660,7 @@ export class TruckBreakDownService {
         breakDowns = await this.truckBreakDownRepository.findAndCountAll({
             where: {
                 [Op.and]: {
+                    status: { [Op.eq]: 'opened' },
                     logisticConfirm: { [Op.eq]: true },
                     historyReciveToRepair: { [Op.eq]: null },
                     driverId: { [Op.in]: usersIdFilter },
@@ -638,6 +670,14 @@ export class TruckBreakDownService {
             order: [['id', 'DESC']],
             limit: 20,
         });
+        for (let item of breakDowns.rows) {
+          if (item.logisticConfirm === false) {
+            await this.truckBreakDownRepository.update(
+              { status: 'closed' },
+              { where: { id: item.id } },
+            );
+            }
+          }
     } else if (repairDone === 'true') {
         breakDowns = await this.truckBreakDownRepository.findAndCountAll({
             where: {
@@ -652,6 +692,14 @@ export class TruckBreakDownService {
             order: [['id', 'DESC']],
             limit: 20,
         });
+        for (let item of breakDowns.rows) {
+          if (item.logisticConfirm === false) {
+            await this.truckBreakDownRepository.update(
+              { status: 'closed' },
+              { where: { id: item.id } },
+            );
+            }
+          }
     } else {
         breakDowns = await this.truckBreakDownRepository.findAndCountAll({
             where: {
@@ -664,6 +712,14 @@ export class TruckBreakDownService {
             order: [['id', 'DESC']],
             limit: 20,
         });
+        for (let item of breakDowns.rows) {
+          if (item.logisticConfirm === false) {
+            await this.truckBreakDownRepository.update(
+              { status: 'closed' },
+              { where: { id: item.id } },
+            );
+            }
+          }
     }
 
     if (count === 'true') {

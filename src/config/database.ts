@@ -27,7 +27,7 @@ export const databaseProviders = [
 
         //-------------------------------db-chstseven/liara
         host: 'himalayas.liara.cloud',
-        port: 32679,
+        port: 33766,
         username: 'root',
         password: 'XY9n0YoCwwTmjF7W6zZPYSSm',
         database: 'nifty_diffie',
@@ -35,8 +35,6 @@ export const databaseProviders = [
         // host: 'localhost',
         // port: 3306,
         // username: 'root',
-        // password: 'Peyman1378P$',
-        // database: 'nifty_diffie',
         // password: '001Zein@b',
         // database: 'test',
 

@@ -223,7 +223,7 @@ export class CheckListController {
   async checkTodayChecklist(@Param('id') id: number , @Res() response: Response){
     try {
       const res = await this.checkListService.checkTodayChecklist(id);
-      response.status(res.status).json({ data: res.data , message: res.message });
+      response.status(res.status).json({ data: res.date , message: res.message });
     } catch (err) {
       console.log(err);
       response.status(500).json(err);

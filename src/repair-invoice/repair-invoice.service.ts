@@ -108,30 +108,34 @@ export class RepairInvoiceService {
     }
 
     async getInvoicesWithFilters(
-      startDate: Date,
-      endDate: Date,
+      startDate?: Date,
+      endDate?: Date,
       company?: string,
       zone?: string,
     ) {
-      const startOfPreviousDay = new Date(startDate);
-      startOfPreviousDay.setDate(startOfPreviousDay.getDate() - 1);
-      startOfPreviousDay.setHours(0, 0, 0, 0);
-  
-      const endOfNextDay = new Date(endDate);
-      endOfNextDay.setDate(endOfNextDay.getDate() + 1);
-      endOfNextDay.setHours(23, 59, 59, 999);
-  
+      // تنظیم شرط فیلتر تاریخ به‌صورت پویا
+      const dateFilter = startDate && endDate ? {
+        createdAt: {
+          [Op.between]: [
+            new Date(startDate.setHours(0, 0, 0, 0)),
+            new Date(endDate.setHours(23, 59, 59, 999)),
+          ],
+        },
+      } : {};
+    
+      // واکشی فاکتورها با اعمال فیلترهای تاریخ، شرکت و منطقه در صورت وجود
       const invoices = await this.repairInvoiceRepository.findAll({
         where: {
-          createdAt: {
-            [Op.between]: [startOfPreviousDay, endOfNextDay],
-          },
+          ...dateFilter,
+          ...(company && { company }),
+          ...(zone && { zone }),
         },
       });
-  
+    
+      // استخراج شماره خودروها از فاکتورها
       const carNumbers = invoices.map((invoice) => invoice.carNumber);
-  
-
+    
+      // واکشی اطلاعات کامیون‌ها با اعمال فیلترهای شرکت و منطقه در صورت وجود
       const truckInfos = await this.truckInfoRepository.findAll({
         where: {
           carNumber: {
@@ -141,12 +145,14 @@ export class RepairInvoiceService {
           ...(zone && { zone }),
         },
       });
-  
+    
+      // فیلتر کردن فاکتورها بر اساس اطلاعات کامیون‌ها
       const filteredInvoices = invoices.filter((invoice) =>
         truckInfos.some((truckInfo) => truckInfo.carNumber === invoice.carNumber),
       );
-  
-      return filteredInvoices.map((invoice) => {
+    
+      // ساختاردهی داده‌های خروجی
+      const result = filteredInvoices.map((invoice) => {
         const truckInfo = truckInfos.find(
           (info) => info.carNumber === invoice.carNumber,
         );
@@ -156,6 +162,13 @@ export class RepairInvoiceService {
           zone: truckInfo?.zone,
         };
       });
+    
+      // بازگرداندن نتیجه با وضعیت و پیام مناسب
+      return {
+        status: 200,
+        message: 'اطلاعات با موفقیت بازیابی شد',
+        data: result,
+      };
     }
   }
 

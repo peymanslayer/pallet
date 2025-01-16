@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { Inject, Injectable } from '@nestjs/common';
 import { Comment } from '../comment..entity';
 import { InsertCommentDto } from '../dto/insert.comment.dto';

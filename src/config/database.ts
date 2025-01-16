@@ -35,8 +35,6 @@ export const databaseProviders = [
         // host: 'localhost',
         // port: 3306,
         // username: 'root',
-        // password: 'Peyman1378P$',
-        // database: 'nifty_diffie',
         // password: '001Zein@b',
         // database: 'test',
 

@@ -363,8 +363,9 @@ export class CheckListService {
     console.log(formattedYesteradyDate);
     
     const formatToday = today.toISOString().split('T')[0];
-
-    let ckeckInHolidaysOrNot = await this.checkInHoliday(getHoliday, '2025-01-13');
+    console.log(formatToday);
+    
+    let ckeckInHolidaysOrNot = await this.checkInHoliday(getHoliday,formatToday);
     if(ckeckInHolidaysOrNot==' شما در تعطیلات هستید'){
       Holidaykilometer=0
     }else{

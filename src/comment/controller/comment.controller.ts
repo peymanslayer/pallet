@@ -15,4 +15,3 @@ export class CommentController{
     response.status(500).json('internal server errror')
   }
 }
-}

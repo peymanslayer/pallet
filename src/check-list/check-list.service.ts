@@ -344,6 +344,7 @@ export class CheckListService {
   //   };
   // }
   async insertCheckList(body: Object) {
+    let diffCheckList:number=0
     let kilometerPerviousNumber:number;
     const checkList = {};
     const checkListComment = {};
@@ -366,11 +367,11 @@ export class CheckListService {
     console.log(formatToday);
     
     let ckeckInHolidaysOrNot = await this.checkInHoliday(getHoliday,formatToday);
-    if(ckeckInHolidaysOrNot==' شما در تعطیلات هستید'){
-      Holidaykilometer=0
-    }else{
-      Holidaykilometer=2000
-    }
+    // if(ckeckInHolidaysOrNot.message==' شما در تعطیلات هستید'){
+    //   Holidaykilometer=0
+    // }else{
+    //   Holidaykilometer=2000*ckeckInHolidaysOrNot.numberOfHoliday;
+    // }
     const checkListCheck = await this.checkTodayChecklist(body['id']);
     if (checkListCheck.message == "مجاز برای ثبت چک لیست") {
 
@@ -394,10 +395,18 @@ export class CheckListService {
         where: { userId: body['id'] },
         order: [['createdAt', 'DESC']],
       });
+      console.log(lastCheckList,'ois log');
+      
       if(lastCheckList){
      for(const item of lastCheckList){
       kilometerPerviousNumber=+item.answer_0;
      }
+    }
+    console.log(lastCheckList.length,'is lenght');
+    if(lastCheckList.length>1){
+     diffCheckList=lastCheckList[0].answer_0-lastCheckList[1].answer_0;
+    }else{
+     diffCheckList=1
     }
       const currentAnswer0 = body['answers'].find((a) => a.number === 0)?.question;
      
@@ -405,11 +414,11 @@ export class CheckListService {
       
       if(lastCheckLis){
       
-      if (lastCheckLis.history != formattedYesteradyDate &&  currentAnswer0 > Holidaykilometer+kilometerPerviousNumber  ) {
+      if (lastCheckLis.history != formattedYesteradyDate &&  currentAnswer0 > 1000*diffCheckList+kilometerPerviousNumber  ) {
         return {
           status: 200,
           data: [],
-          message: 'مقدار کیلومتر جاری باید بیشتر از مقدار آخرین رکورد و کمتر از 2000 کیلومتر باشد',
+          message: 'شرایط کیلومتر اشتباه است'
         };
 
       }
@@ -417,13 +426,12 @@ export class CheckListService {
         if (
           !lastCheckLis.isDeleted &&
           (currentAnswer0 <= lastCheckLis.answer_0 ||
-            //  currentAnswer0 - lastCheckList.answer_0 < 50000 || 
             currentAnswer0 - lastCheckLis.answer_0 > 1000 || currentAnswer0>1000 || currentAnswer0>2000)
         ) {
           return {
             status: 200,
             data: [],
-            message: 'مقدار کیلومتر جاری باید بیشتر از مقدار آخرین رکورد و کمتر از 1000 کیلومتر باشد',
+            message: 'شرایط کیلومتر اشتباه است',
           };
         }
 
@@ -462,7 +470,6 @@ export class CheckListService {
         },
       });
 
-      console.log(unresolvedBreakdowns);
 
       if (unresolvedBreakdowns.length > 0) {
         for (const breakdown of unresolvedBreakdowns) {
@@ -1974,6 +1981,7 @@ export class CheckListService {
 
   async checkInHoliday(holiadys: Array<Holiday>, todayDate: string) {
     let message: string;
+    let numberOfHoliday:number=0
     for (let item of holiadys) {
       console.log(item);
       
@@ -1984,14 +1992,17 @@ export class CheckListService {
       
       if (todayDate == formattedDate) {
         console.log("in hd");
-        
+        numberOfHoliday++
         message = ' شما در تعطیلات هستید'
       } else {
         message = 'ادامه'
       }
 
     }
-    return message
+    return {
+      message,
+      numberOfHoliday
+    }
   }
 }
 

@@ -25,12 +25,18 @@ export const databaseProviders = [
       const sequelize = new Sequelize({
         dialect: 'mysql',
 
+
+        host : 'himalayas.liara.cloud' ,
+        port : 33766 ,
+        username : 'root' ,
+        password : 'XY9n0YoCwwTmjF7W6zZPYSSm' ,
+        database : 'nifty_diffie' ,
         //-------------------------------db-chstseven/liara
-        host: 'himalayas.liara.cloud',
-        port: 33766,
-        username: 'root',
-        password: 'XY9n0YoCwwTmjF7W6zZPYSSm',
-        database: 'nifty_diffie',
+        // host: 'localhost',
+        // port: 3306,
+        // username: 'root',
+        // password: 'Peyman1378P$',
+        // database: 'nifty_diffie',
         //---------------------------------------db local
         // host: 'localhost',
         // port: 3306,

@@ -1184,7 +1184,7 @@ export class TruckBreakDownService {
     let year = parts[0];
     let month = parts[1];
     let day = parseInt(parts[2], 10) + 1; // تبدیل به عدد و اضافه کردن یک روز
-
+    let result;
     // بازسازی رشته تاریخ جدید
 
     let beforeparts = String(before).split("/");
@@ -1197,12 +1197,17 @@ export class TruckBreakDownService {
     let newBeforeDateString = `${year}/${month}/${String(beforeDay).padStart(2, '0')}`;
     console.log(newAfterDateString,newBeforeDateString);
     
-    const breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+      result = await this.truckBreakDownRepository.findAndCountAll({
       where: {
         driverId: driverId,
         historyDriverRegister: {
-          [Op.between]: [newBeforeDateString,newAfterDateString ]
-        }
+          [Op.gt]: [newBeforeDateString],
+          [Op.lt]:[newAfterDateString],
+          [Op.not]:null
+        },
+
+
+
       },
       order: [
         ['updatedAt', 'DESC'],
@@ -1210,9 +1215,7 @@ export class TruckBreakDownService {
       ],
       limit: 20,
     });
-    console.log(breakDowns.count);
-
-    for (let item of breakDowns.rows) {
+    for (let item of result.rows) {
       console.log(2);
 
       const res = await this.truckBreakDownItemsRepository.findOne({

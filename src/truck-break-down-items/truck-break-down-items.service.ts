@@ -219,7 +219,7 @@ async insertTruckBreakDownItems(body: any) {
     }
 
     breakDown['hoursDriverRegister'] = body['hours'];
-    breakDown['historyDriverRegister'] = body['date'];
+    breakDown['historyDriverRegister'] = formattedDate;
     breakDown['driverName'] = body['name'];
     breakDown['driverId'] = body['id'];
     breakDown['carLife'] = lastCheckList ? lastCheckList.answer_0 : null;

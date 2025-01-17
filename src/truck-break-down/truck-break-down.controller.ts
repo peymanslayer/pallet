@@ -18,9 +18,9 @@ export class TruckBreakDownController {
   constructor(private truckBreakDownService: TruckBreakDownService) {}
   // list breakdown of panel "Driver"
   @Get('/api/truckbreakdown/')
-  async getByUserId(@Query('userId') userId: any, @Res() response: Response) {
+  async getByUserId(@Query('userId') userId: any , @Query('beforeHistory') before:string ,@Query('afterHistory') after:string , @Res() response: Response) {
     try {
-      const res = await this.truckBreakDownService.getByDriverId(userId);
+      const res = await this.truckBreakDownService.getByDriverId(userId,before,after);
       response.status(res.status).json(res.data);
     } catch (err) {
       console.log(err);

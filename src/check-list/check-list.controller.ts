@@ -247,7 +247,7 @@ export class CheckListController {
   async insertCheckListDriver(@Body() body: any, @Res() response: Response) {
     try {
       const res = await this.checkListService.insertCheckList(body);
-      response.status(res.status).json({ data: res.data , message: res.message });
+      response.status(res.status).json( res.message);
     } catch (err) {
       console.log(err);
       response.status(500).json(err);

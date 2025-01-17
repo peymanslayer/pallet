@@ -1,4 +1,3 @@
-
 import { Controller, Get,Body,Res ,Post, Delete } from '@nestjs/common';
 import { CommentService } from '../services/comment.service';
 import { InsertCommentDto } from '../dto/insert.comment.dto';
@@ -15,4 +14,5 @@ export class CommentController{
   }catch(err){
     response.status(500).json('internal server errror')
   }
-  }}
+}
+}

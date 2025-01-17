@@ -108,30 +108,31 @@ export class RepairInvoiceService {
     }
 
     async getInvoicesWithFilters(
-      startDate: Date,
-      endDate: Date,
+      startDate?: Date,
+      endDate?: Date,
       company?: string,
       zone?: string,
     ) {
-      const startOfPreviousDay = new Date(startDate);
-      startOfPreviousDay.setDate(startOfPreviousDay.getDate() - 1);
-      startOfPreviousDay.setHours(0, 0, 0, 0);
-  
-      const endOfNextDay = new Date(endDate);
-      endOfNextDay.setDate(endOfNextDay.getDate() + 1);
-      endOfNextDay.setHours(23, 59, 59, 999);
+      const start = startDate ? new Date(startDate) : undefined;
+      const end = endDate ? new Date(endDate) : undefined;
+    
+      const dateFilter = start && end ? {
+        createdAt: {
+          [Op.between]: [
+            new Date(start.setHours(0, 0, 0, 0)),
+            new Date(end.setHours(23, 59, 59, 999)),
+          ],
+        },
+      } : {};
   
       const invoices = await this.repairInvoiceRepository.findAll({
         where: {
-          createdAt: {
-            [Op.between]: [startOfPreviousDay, endOfNextDay],
-          },
+          ...dateFilter,
         },
       });
-  
+      
       const carNumbers = invoices.map((invoice) => invoice.carNumber);
-  
-
+    
       const truckInfos = await this.truckInfoRepository.findAll({
         where: {
           carNumber: {
@@ -141,12 +142,12 @@ export class RepairInvoiceService {
           ...(zone && { zone }),
         },
       });
-  
+    
       const filteredInvoices = invoices.filter((invoice) =>
         truckInfos.some((truckInfo) => truckInfo.carNumber === invoice.carNumber),
       );
-  
-      return filteredInvoices.map((invoice) => {
+    
+      const result = filteredInvoices.map((invoice) => {
         const truckInfo = truckInfos.find(
           (info) => info.carNumber === invoice.carNumber,
         );
@@ -156,6 +157,12 @@ export class RepairInvoiceService {
           zone: truckInfo?.zone,
         };
       });
+    
+      return {
+        status: 200,
+        message: 'اطلاعات با موفقیت بازیابی شد',
+        data: result,
+      };
     }
   }
 

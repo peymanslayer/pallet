@@ -40,33 +40,20 @@ export class RepairInvoiceController {
         .json({data: res.data , message: res.message});
     }
 
-    @Get('management-by-filter')
+    @Get('management/filter')
     async getInvoicesWithFilters(
-        @Query('startDate') startDate: Date,
-        @Query('endDate') endDate: Date,
-        @Query('company') company: string,
-        @Query('zone') zone: string,
         @Res() response: Response ,
+        @Query('startDate') startDate?: string,
+        @Query('endDate') endDate?: string,
+        @Query('company') company?: string,
+        @Query('zone') zone?: string,
     ){
-        try {
-            const invoices = await this.repairInvoiceService.getInvoicesWithFilters(
-              new Date(startDate),
-              new Date(endDate),
-              company,
-              zone,
-            );
-      
-            response.status(200).json({
-              status: 200,
-              message: 'فاکتورها با موفقیت بازیابی شدند',
-              data: invoices,
-            });
-          } catch (error) {
-            response.status(500).json({
-              status: 500,
-              message: 'خطایی در بازیابی فاکتورها رخ داد',
-              data: null,
-            });
-          }
-        }
+        const res = await this.repairInvoiceService.getInvoicesWithFilters(new Date(startDate), new Date(endDate), company, zone);
+        response
+        .status(res.status)
+        .json({data: res.data , message: res.message});
+
+    }
+
+    
 }

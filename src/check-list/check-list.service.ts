@@ -348,7 +348,7 @@ export class CheckListService {
     const checkList = {};
     const today = new Date();
     const formattedDate = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
-    const checkListComment = {};
+    let checkListComment = {};
     const answers: [] = body['answers'];
     let Holidaykilometer:number;
     checkList['userId'] = body['id'];
@@ -363,7 +363,7 @@ export class CheckListService {
       for (let item of answers) {
         checkList['answer_' + item['number']] = item['question'];
         if (item['comment']) {
-          checkListComment['comment_' + item['number']] = item['comment'];
+          checkListComment['answer_' + item['number']] = item['comment'];
         }
       }
 
@@ -375,10 +375,17 @@ export class CheckListService {
       if(lastCheckLis){
        diff = currentAnswer0 - lastCheckLis.answer_0;
       }
+      console.log(insertCheckList);
+      
 
-      if (Object.entries(checkListComment).length !== 0) {
+      if (Object.entries(checkListComment).length != 0) {
+        console.log('imn');
+        console.log(checkListComment);
+        
         checkListComment['checkListId'] = insertCheckList.id;
-        await this.checkListCommentRepository.create<CheckListComment>(checkListComment);
+       const Res= await this.checkListCommentRepository.create<CheckListComment>(checkListComment);
+       console.log(Res);
+       
       }
 
       const unresolvedBreakdowns = await this.truckBreakDownRepository.findAll({
@@ -1108,7 +1115,8 @@ export class CheckListService {
         checkListId: checkListId,
       },
     });
-
+    console.log(comment);
+    
     for (let item = 0; item <= 20; item++) {
       let check = {};
       check['answer'] = checkList[`answer_${item}`];
@@ -1116,7 +1124,7 @@ export class CheckListService {
       if (!comment) {
         check['comment'] = null;
       } else {
-        check['comment'] = comment[`comment_${item}`];
+        check['comment'] = comment[`answer_${item}`];
       }
       check['number'] = item;
       data.push(check);

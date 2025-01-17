@@ -113,29 +113,26 @@ export class RepairInvoiceService {
       company?: string,
       zone?: string,
     ) {
-      // تنظیم شرط فیلتر تاریخ به‌صورت پویا
-      const dateFilter = startDate && endDate ? {
+      const start = startDate ? new Date(startDate) : undefined;
+      const end = endDate ? new Date(endDate) : undefined;
+    
+      const dateFilter = start && end ? {
         createdAt: {
           [Op.between]: [
-            new Date(startDate.setHours(0, 0, 0, 0)),
-            new Date(endDate.setHours(23, 59, 59, 999)),
+            new Date(start.setHours(0, 0, 0, 0)),
+            new Date(end.setHours(23, 59, 59, 999)),
           ],
         },
       } : {};
-    
-      // واکشی فاکتورها با اعمال فیلترهای تاریخ، شرکت و منطقه در صورت وجود
+  
       const invoices = await this.repairInvoiceRepository.findAll({
         where: {
           ...dateFilter,
-          ...(company && { company }),
-          ...(zone && { zone }),
         },
       });
-    
-      // استخراج شماره خودروها از فاکتورها
+      
       const carNumbers = invoices.map((invoice) => invoice.carNumber);
     
-      // واکشی اطلاعات کامیون‌ها با اعمال فیلترهای شرکت و منطقه در صورت وجود
       const truckInfos = await this.truckInfoRepository.findAll({
         where: {
           carNumber: {
@@ -146,12 +143,10 @@ export class RepairInvoiceService {
         },
       });
     
-      // فیلتر کردن فاکتورها بر اساس اطلاعات کامیون‌ها
       const filteredInvoices = invoices.filter((invoice) =>
         truckInfos.some((truckInfo) => truckInfo.carNumber === invoice.carNumber),
       );
     
-      // ساختاردهی داده‌های خروجی
       const result = filteredInvoices.map((invoice) => {
         const truckInfo = truckInfos.find(
           (info) => info.carNumber === invoice.carNumber,
@@ -163,7 +158,6 @@ export class RepairInvoiceService {
         };
       });
     
-      // بازگرداندن نتیجه با وضعیت و پیام مناسب
       return {
         status: 200,
         message: 'اطلاعات با موفقیت بازیابی شد',

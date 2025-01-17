@@ -344,8 +344,7 @@ export class CheckListService {
   //   };
   // }
   async insertCheckList(body: Object) {
-    let diffCheckList:number=0
-    let kilometerPerviousNumber:number;
+    let diff:number=0
     const checkList = {};
     const checkListComment = {};
     const answers: [] = body['answers'];
@@ -355,96 +354,9 @@ export class CheckListService {
     checkList['name'] = body['name'];
     checkList['hours'] = body['hours'];
     checkList['history'] = body['date'];
-    const hd = new Holidays('IR')
-    const getHoliday = hd.getHolidays('2025');
-    const today = new Date();
-
-    const formattedDate = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
-    const formattedYesteradyDate = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate() - 1}`;
-    console.log(formattedYesteradyDate);
-    
-    const formatToday = today.toISOString().split('T')[0];
-    console.log(formatToday);
-    
-    let ckeckInHolidaysOrNot = await this.checkInHoliday(getHoliday,formatToday);
-    // if(ckeckInHolidaysOrNot.message==' شما در تعطیلات هستید'){
-    //   Holidaykilometer=0
-    // }else{
-    //   Holidaykilometer=2000*ckeckInHolidaysOrNot.numberOfHoliday;
-    // }
+    const currentAnswer0 = body['answers'].find((a) => a.number === 0)?.question;
     const checkListCheck = await this.checkTodayChecklist(body['id']);
     if (checkListCheck.message == "مجاز برای ثبت چک لیست") {
-
-
-
-
-
-
-      checkList['history'] = formattedDate
-      const currentTime = new Date();
-      let hours = currentTime.getHours();
-      let minutes = currentTime.getMinutes();
-      const fullHour = `${hours}:${minutes}`;
-      checkList['hours'] = fullHour
-
-      const lastCheckLis = await this.checkListRepository.findOne({
-        where: { userId: body['id'] },
-        order: [['createdAt', 'DESC']],
-      });
-      const lastCheckList = await this.checkListRepository.findAll({
-        where: { userId: body['id'] },
-        order: [['createdAt', 'DESC']],
-      });
-      console.log(lastCheckList,'ois log');
-      
-      if(lastCheckList){
-     for(const item of lastCheckList){
-      kilometerPerviousNumber=+item.answer_0;
-     }
-    }
-    console.log(lastCheckList.length,'is lenght');
-    if(lastCheckList.length>1){
-     diffCheckList=lastCheckList[0].answer_0-lastCheckList[1].answer_0;
-    }else{
-     diffCheckList=1
-    }
-      const currentAnswer0 = body['answers'].find((a) => a.number === 0)?.question;
-     
-      let diff = 0
-      
-      if(lastCheckLis){
-      
-      if (lastCheckLis.history != formattedYesteradyDate &&  currentAnswer0 > 1000*diffCheckList+kilometerPerviousNumber  ) {
-        return {
-          status: 200,
-          data: [],
-          message: 'شرایط کیلومتر اشتباه است'
-        };
-
-      }
-        // اگر رکورد قبلی وجود دارد
-        if (
-          !lastCheckLis.isDeleted &&
-          (currentAnswer0 <= lastCheckLis.answer_0 ||
-            currentAnswer0 - lastCheckLis.answer_0 > 1000 || currentAnswer0>1000 || currentAnswer0>2000)
-        ) {
-          return {
-            status: 200,
-            data: [],
-            message: 'شرایط کیلومتر اشتباه است',
-          };
-        }
-
-        diff = currentAnswer0 - lastCheckLis.answer_0;
-    }else{
-      if(currentAnswer0>1000){
-        return {
-          status: 200,
-          data: [],
-          message:'مقدار بیشتر از 1000 است',
-        };
-      }
-    }
 
       for (let item of answers) {
         checkList['answer_' + item['number']] = item['question'];
@@ -453,8 +365,14 @@ export class CheckListService {
         }
       }
 
+      const lastCheckLis = await this.checkListRepository.findOne({
+        where: { userId: body['id'] },
+        order: [['createdAt', 'DESC']],
+      });
       const insertCheckList = await this.checkListRepository.create<CheckList>(checkList);
-      const kilometer = await this.kilometerDetailsService.create(body['truckId'], body['id'], diff)
+      if(lastCheckLis){
+       diff = currentAnswer0 - lastCheckLis.answer_0;
+      }
 
       if (Object.entries(checkListComment).length !== 0) {
         checkListComment['checkListId'] = insertCheckList.id;
@@ -487,7 +405,8 @@ export class CheckListService {
       const truckInfo = await this.truckInfoRepository.findOne({
         where: { driverId: checkList['userId'] },
       });
-
+      console.log(truckInfo);
+      
       if (truckInfo) {
         await this.truckInfoRepository.update(
           { lastCarLife: checkList['answer_0'], lastCarLifeBackup: truckInfo?.lastCarLife || checkList['answer_0'] },
@@ -1952,31 +1871,99 @@ export class CheckListService {
   }
 
   async checkKilometer(body: Object) {
+    let Holidaykilometer;
+    let diffCheckList:number=0
+    let kilometerPerviousNumber:number;
+    const currentAnswer = body['kilometer'];
     const checkList = {};
-    checkList['truckId'] = body['truckId'];
-    const lastCheckList = await this.checkListRepository.findOne({
-      where: { truckId: body['truckId'] },
-      order: [['createdAt', 'DESC']],
-    });
+    const hd = new Holidays('IR')
+    const getHoliday = hd.getHolidays('2025');
+    const today = new Date();
+    const formattedDate = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
+    const formattedYesteradyDate = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate() - 1}`;
+    console.log(formattedYesteradyDate);
+    
+    const formatToday = today.toISOString().split('T')[0];
+    console.log(formatToday);
+    
+    let ckeckInHolidaysOrNot = await this.checkInHoliday(getHoliday,formatToday);
+    if(ckeckInHolidaysOrNot.message==' شما در تعطیلات هستید'){
+      Holidaykilometer=0
+    }else{
+      Holidaykilometer=2000*ckeckInHolidaysOrNot.numberOfHoliday;
+    }
 
-    const currentAnswer0 = body['kilometer'];
-    if (
-      lastCheckList &&
-      !lastCheckList.isDeleted &&
-      (currentAnswer0 <= lastCheckList.answer_0 || currentAnswer0 - lastCheckList.answer_0 > 800)
-    ) {
-      return {
-        status: 200,
-        data: [],
-        message: 'مقدار کیلومتر جاری باید حداکثر 800 کیلومتر بیشتر از مقدار آخرین رکورد باشد',
-      };
+    const currentTime = new Date();
+      let hours = currentTime.getHours();
+      let minutes = currentTime.getMinutes();
+      const fullHour = `${hours}:${minutes}`;
+      checkList['hours'] = fullHour
+
+      const lastCheckLis = await this.checkListRepository.findOne({
+        where: { userId: body['id'] },
+        order: [['createdAt', 'DESC']],
+      });
+      const lastCheckList = await this.checkListRepository.findAll({
+        where: { userId: body['id'] },
+        order: [['createdAt', 'DESC']],
+      });
+      console.log(lastCheckList,'ois log');
+      
+      if(lastCheckList){
+     for(const item of lastCheckList){
+      kilometerPerviousNumber=+item.answer_0;
+     }
     }
-    else {
-      return {
-        status: 200,
-        message: 'ok!'
+    console.log(lastCheckList.length,'is lenght');
+    if(lastCheckList.length>1){
+     diffCheckList=lastCheckList[0].answer_0-lastCheckList[1].answer_0;
+    }else{
+     diffCheckList=1
+    }
+
+     
+      let diff = 0
+      
+        
+      if(lastCheckLis){
+      console.log(lastCheckLis.history != formattedYesteradyDate ,  currentAnswer > 1000*diffCheckList+kilometerPerviousNumber ,
+        !lastCheckLis.isDeleted);
+      console.log(currentAnswer <= lastCheckLis.answer_0 ,currentAnswer - lastCheckLis.answer_0 > 1000);
+      
+        if (lastCheckLis.history != formattedYesteradyDate &&  currentAnswer > 1000*diffCheckList+kilometerPerviousNumber && 
+          !lastCheckLis.isDeleted &&
+            (currentAnswer <= lastCheckLis.answer_0 ||
+              currentAnswer - lastCheckLis.answer_0 > 1000 || currentAnswer>1000)
+         ) {
+          return {
+            status: 200,
+            data: [],
+            message: 'شرایط کیلومتر اشتباه است'
+          };
+  
+        }
+        else{
+          return{
+            status:200,
+            message:'ادامه'
+          }
+        }
+          // اگر رکورد قبلی وجود دارد
+  
+      }else{
+        if(currentAnswer>1000){
+          return {
+            status: 200,
+            data: [],
+            message:'مقدار بیشتر از 1000 است',
+          };
+        }else{
+          return{
+            status:200,
+            message:'ادامه'
+          }
+        }
       }
-    }
   }
 
   async checkInHoliday(holiadys: Array<Holiday>, todayDate: string) {

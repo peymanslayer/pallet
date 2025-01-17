@@ -396,4 +396,24 @@ if(affectedCount==0){
     }
   }
   
+  async checkInsertedBreakdownOnceADay(driverId: number){
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const existingBreakdown = await this.truckBreakDownRepository.findOne({
+      where: {
+        driverId: driverId,
+        createdAt: {
+          [Op.gte]: today,
+        },
+      },
+    });
+
+    if (existingBreakdown) {
+      return {
+        status: 400,
+        message: 'شما قبلاً یک خرابی در امروز ثبت کرده‌اید.',
+      };
+    }
+  }
 }

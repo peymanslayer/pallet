@@ -43,12 +43,12 @@ export class RepairInvoiceController {
     @Get('management/filter')
     async getInvoicesWithFilters(
         @Res() response: Response ,
-        @Query('startDate') startDate?: Date,
-        @Query('endDate') endDate?: Date,
+        @Query('startDate') startDate?: string,
+        @Query('endDate') endDate?: string,
         @Query('company') company?: string,
         @Query('zone') zone?: string,
     ){
-        const res = await this.repairInvoiceService.getInvoicesWithFilters(startDate, endDate, company, zone);
+        const res = await this.repairInvoiceService.getInvoicesWithFilters(new Date(startDate), new Date(endDate), company, zone);
         response
         .status(res.status)
         .json({data: res.data , message: res.message});

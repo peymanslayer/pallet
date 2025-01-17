@@ -346,6 +346,8 @@ export class CheckListService {
   async insertCheckList(body: Object) {
     let diff:number=0
     const checkList = {};
+    const today = new Date();
+    const formattedDate = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
     const checkListComment = {};
     const answers: [] = body['answers'];
     let Holidaykilometer:number;
@@ -353,7 +355,7 @@ export class CheckListService {
     checkList['truckId'] = body['truckId'];
     checkList['name'] = body['name'];
     checkList['hours'] = body['hours'];
-    checkList['history'] = body['date'];
+    checkList['history'] = formattedDate
     const currentAnswer0 = body['answers'].find((a) => a.number === 0)?.question;
     const checkListCheck = await this.checkTodayChecklist(body['id']);
     if (checkListCheck.message == "مجاز برای ثبت چک لیست") {
@@ -1900,7 +1902,7 @@ export class CheckListService {
       checkList['hours'] = fullHour
 
       const lastCheckLis = await this.checkListRepository.findOne({
-        where: { userId: body['id'] },
+        where: { userId: body['id'],history:formattedYesteradyDate },
         order: [['createdAt', 'DESC']],
       });
       const lastCheckList = await this.checkListRepository.findAll({
@@ -1927,11 +1929,10 @@ export class CheckListService {
         
       if(lastCheckLis){
       console.log(lastCheckLis.history != formattedYesteradyDate ,  currentAnswer > 1000*diffCheckList+kilometerPerviousNumber ,
-        !lastCheckLis.isDeleted);
+        !lastCheckLis.isDeleted,formattedYesteradyDate,lastCheckLis.history);
       console.log(currentAnswer <= lastCheckLis.answer_0 ,currentAnswer - lastCheckLis.answer_0 > 1000);
       
-        if (lastCheckLis.history != formattedYesteradyDate &&  currentAnswer > 1000*diffCheckList+kilometerPerviousNumber && 
-          !lastCheckLis.isDeleted &&
+        if (lastCheckLis.history != formattedYesteradyDate &&  currentAnswer > 1000*diffCheckList+kilometerPerviousNumber &&
             (currentAnswer <= lastCheckLis.answer_0 ||
               currentAnswer - lastCheckLis.answer_0 > 1000 || currentAnswer>1000)
          ) {

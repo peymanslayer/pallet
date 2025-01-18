@@ -172,8 +172,10 @@ async insertTruckBreakDownItems(body: any) {
     console.log('Formatted Date:', formattedDate);
     console.log('Body:', body);
 
+    const truckInfo = await this.truckInfoRepository.findOne({where : {driverId : body['id']}})
+
     const todayCheckList = await this.checkListRepository.findOne({
-      where: { history: formattedDate, userId: body.id },
+      where: { history: formattedDate, truckId: truckInfo.id },
     });
     console.log('Today Checklist:', todayCheckList);
 
@@ -182,11 +184,7 @@ async insertTruckBreakDownItems(body: any) {
         status: 400,
         message: 'شما هنوز چک لیستی ثبت نکردید',
       };
-    }
-
-    const truckInfo = await this.truckInfoRepository.findOne({
-      where: { driverId: body['id'] },
-    });
+    };
 
     // if (activeBreakdowns !== 0) {
       //   console.log('Active Breakdowns Count:', activeBreakdowns);
@@ -197,8 +195,7 @@ async insertTruckBreakDownItems(body: any) {
         // }
         
         
-        
-    const activeBreakdowns = await this.checkActiveTruckBreakDown(body['id']);
+    const activeBreakdowns = await this.checkActiveTruckBreakDown(truckInfo.carNumber);
     if(activeBreakdowns.count !== 0){
       return {
             status: 200,
@@ -206,10 +203,8 @@ async insertTruckBreakDownItems(body: any) {
           };
     }
     
-
-
     const lastCheckList = await this.checkListRepository.findOne({
-      where: { userId: body['id'] },
+      where: { carNumber: truckInfo.carNumber },
       order: [['createdAt', 'DESC']],
     });
 
@@ -247,7 +242,6 @@ async insertTruckBreakDownItems(body: any) {
       breakDownItems['type_' + item['number']] = item['type'];
       breakDownItems['number_' + item['number']] = item['number'];
     
-      console.log('Breakdown Items:', breakDownItems);
     }
     
 
@@ -255,7 +249,6 @@ async insertTruckBreakDownItems(body: any) {
     const insertItems = await this.truckBreakDownItemsRepository.create<TruckBreakDownItems>(
       breakDownItems, { isNewRecord: true }
     );
-    console.log('Insert Items Result:', insertItems);
 
     if (insertItems) {
       breakDown['truckBreakDownItemsId'] = insertItems.id;
@@ -275,6 +268,121 @@ async insertTruckBreakDownItems(body: any) {
     };
   }
 }
+// async insertTruckBreakDownItems(body: any) {
+//   try {
+//     let insertBreakDown;
+//     const breakDownItems = {};
+//     const breakDown = {};
+//     const answers: [] = body['answers'];
+//     const today = new Date();
+//     const formattedDate = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
+
+//     console.log('Formatted Date:', formattedDate);
+//     console.log('Body:', body);
+
+//     const todayCheckList = await this.checkListRepository.findOne({
+//       where: { history: formattedDate, userId: body.id },
+//     });
+//     console.log('Today Checklist:', todayCheckList);
+
+//     if (!todayCheckList) {
+//       return {
+//         status: 400,
+//         message: 'شما هنوز چک لیستی ثبت نکردید',
+//       };
+//     }
+
+//     const truckInfo = await this.truckInfoRepository.findOne({
+//       where: { driverId: body['id'] },
+//     });
+
+//     // if (activeBreakdowns !== 0) {
+//       //   console.log('Active Breakdowns Count:', activeBreakdowns);
+//       //   return {
+//         //     status: 200,
+//         //     message: MESSAGE_ALERT.truckBreakDown_limit_register,
+//         //   };
+//         // }
+        
+        
+        
+//     const activeBreakdowns = await this.checkActiveTruckBreakDown(body['id']);
+//     if(activeBreakdowns.count !== 0){
+//       return {
+//             status: 200,
+//             message: MESSAGE_ALERT.truckBreakDown_limit_register,
+//           };
+//     }
+    
+
+
+//     const lastCheckList = await this.checkListRepository.findOne({
+//       where: { userId: body['id'] },
+//       order: [['createdAt', 'DESC']],
+//     });
+
+//     // اعتبارسنجی مقادیر مورد نیاز
+//     if (!truckInfo) {
+//       console.warn('Truck information not found for driver:', body['id']);
+//     }
+
+//     breakDown['hoursDriverRegister'] = body['hours'];
+//     breakDown['historyDriverRegister'] = formattedDate;
+//     breakDown['driverName'] = body['name'];
+//     breakDown['driverId'] = body['id'];
+//     breakDown['carLife'] = lastCheckList ? lastCheckList.answer_0 : null;
+//     breakDown['carNumber'] = truckInfo ? truckInfo.carNumber : 'نامشخص';
+//     breakDown['driverMobile'] = body['mobile'];
+//     breakDown['numberOfBreakDown'] = (await this.lastNumberOfBreakDown()) + 1;
+
+//     console.log('Breakdown Data Before Validation:', breakDown);
+
+//     // اعتبارسنجی داده‌های Breakdown
+//     if (!breakDown['carNumber']) {
+//       breakDown['carNumber'] = 'نامشخص';
+//       console.warn('Car number is missing, setting to default value.');
+//     }
+
+//     for (let item of answers) {
+//       console.log('Processing item:', item);
+    
+//       if (!item['number'] || !item['comment'] || !item['type']) {
+//         console.warn('Invalid answer item:', item);
+//         continue;
+//       }
+    
+//       breakDownItems['answer_' + item['number']] = item['comment'];
+//       breakDownItems['type_' + item['number']] = item['type'];
+//       breakDownItems['number_' + item['number']] = item['number'];
+    
+//       console.log('Breakdown Items:', breakDownItems);
+//     }
+    
+
+//     // ذخیره اطلاعات Breakdown Items
+//     const insertItems = await this.truckBreakDownItemsRepository.create<TruckBreakDownItems>(
+//       breakDownItems, { isNewRecord: true }
+//     );
+//     console.log('Insert Items Result:', insertItems);
+
+//     if (insertItems) {
+//       breakDown['truckBreakDownItemsId'] = insertItems.id;
+//       insertBreakDown = await this.truckBreakDownRepository.create<TruckBreakDown>(breakDown , { isNewRecord: true });
+//       console.log('Insert Breakdown Result:', insertBreakDown);
+//     }
+
+//     return {
+//       status: 201,
+//       message: [insertBreakDown],
+//     };
+//   } catch (error) {
+//     console.error('Error inserting truck breakdown:', error);
+//     return {
+//       status: 500,
+//       message: 'خطایی در ثبت خرابی رخ داده است.',
+//     };
+//   }
+// }
 
 
 
@@ -381,17 +489,17 @@ if(affectedCount==0){
     }
   }
 
-  async checkActiveTruckBreakDown(driverId: number){
+  async checkActiveTruckBreakDown(carNumber: string){
     try {
       const activeBreakdowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {
           driverDeliveryConfirm: false,
-          driverId: driverId,
+          carNumber,
         },
       });
       return activeBreakdowns;
     } catch (error) {
-      console.error(`Error counting active truck breakdowns for driver ${driverId}:`, error);
+      console.error(`Error counting active truck breakdowns for truck ${carNumber}:`, error);
       throw new Error('Failed to count active truck breakdowns.');
     }
   }

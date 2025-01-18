@@ -29,26 +29,12 @@ export class TruckInfoService {
   async add(body: TruckInfoInsertDto) {
     try {
       const {driverId , state , type , zone , carNumber} = body
-      const validCarNumber = await this.combineCarNumber(carNumber)
-      console.log(validCarNumber);
-      
-      const truckInfoAdd = await this.truckInfoRepository.create({driverId , state , type , zone , carNumber: validCarNumber });
+      const truckInfoAdd = await this.truckInfoRepository.create({driverId , state , type , zone , carNumber });
     } catch (err) {
       console.log(err);
     }
   }
 
-  async combineCarNumber(carNumber: { firstPart: number; secondPart: number; thirdPart: number; fourthPart: number }): Promise<string> {
-    const { firstPart, secondPart, thirdPart, fourthPart } = carNumber;
-
-    const secondPartLetter = PersianLetterMap[secondPart];
-    if (!secondPartLetter) {
-      throw new Error('مقدار نامعتبر برای secondPart');
-    }
-
-    const combinedCarNumber = `${firstPart}-${secondPartLetter}-${thirdPart}-${fourthPart}`;
-    return combinedCarNumber;
-  }
   async update(driverId: number, body: any) {
     try {
       if (body['carNumber']) {

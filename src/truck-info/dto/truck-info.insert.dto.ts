@@ -1,29 +1,12 @@
 import { Type } from "class-transformer";
 import { IsNumber, IsObject, IsString, ValidateNested } from "class-validator";
 
-export class CarNumberPartsDto {
-  @IsNumber()
-  firstPart: number;
-
-  @IsNumber()
-  secondPart: number;
-
-  @IsNumber()
-  thirdPart: number;
-
-  @IsNumber()
-  fourthPart: number;
-}
-
 
 export class TruckInfoInsertDto {
   @IsNumber()
   driverId: number;
 
-  @IsObject()
-  @ValidateNested()
-  @Type(() => CarNumberPartsDto)
-  carNumber: CarNumberPartsDto;
+  carNumber: string;
 
   type: string;
 

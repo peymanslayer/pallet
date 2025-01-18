@@ -1187,6 +1187,8 @@ export class TruckBreakDownService {
     let result;
     // بازسازی رشته تاریخ جدید
 
+    const truckInfo = await this.truckInfoRepository.findOne({where : {driverId}})
+
     let beforeparts = String(before).split("/");
     let beforeYear = parts[0];
     let beforeMonth = parts[1];
@@ -1199,15 +1201,12 @@ export class TruckBreakDownService {
     
       result = await this.truckBreakDownRepository.findAndCountAll({
       where: {
-        driverId: driverId,
+        carNumber: truckInfo.carNumber,
         historyDriverRegister: {
           [Op.gt]: [newBeforeDateString],
           [Op.lt]:[newAfterDateString],
           [Op.not]:null
         },
-
-
-
       },
       order: [
         ['updatedAt', 'DESC'],

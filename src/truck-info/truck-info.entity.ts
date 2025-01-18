@@ -39,6 +39,7 @@ export class TruckInfo extends Model<TruckInfo> {
   @HasMany(() => CheckList)
   checklists: CheckList[];
 
+
   @HasMany(() => PeriodicTruckCheck)
   periodicTruckCheck: PeriodicTruckCheck[];
     truckInfo: any;

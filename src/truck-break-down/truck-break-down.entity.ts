@@ -131,8 +131,6 @@ export class TruckBreakDown extends Model {
   @HasMany(() => RepairInvoice, 'truckBreakDownId')
   repairInvoices: RepairInvoice[];
 
-
-
   // MID: manage filter "TruckBreakDown"
   // @Column
   // status: TruckBreakDownStatus;

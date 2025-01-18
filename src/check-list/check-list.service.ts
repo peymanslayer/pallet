@@ -1917,12 +1917,15 @@ export class CheckListService {
         where: { userId: body['id'] },
         order: [['createdAt', 'DESC']],
       });
-      console.log(lastCheckList,'ois log');
       
       if(lastCheckList){
      for(const item of lastCheckList){
-      kilometerPerviousNumber=+item.answer_0;
+      if(item.dataValues.answer_0!=null){
+      kilometerPerviousNumber=+Number(item.dataValues.answer_0);
+      console.log(item.dataValues.answer_0,'is data');
+      
      }
+    }
     }
     console.log(lastCheckList.length,'is lenght');
     if(lastCheckList.length>1){
@@ -1952,19 +1955,28 @@ export class CheckListService {
   
         }
         else{
+          if(currentAnswer-Number(kilometerPerviousNumber)>1000){
+            return{
+              status:200,
+              message:'شرایط کیلومتر اشتباه است'
+            }
+          }else{
           return{
             status:200,
             message:'ادامه'
           }
         }
+      }
           // اگر رکورد قبلی وجود دارد
   
       }else{
-        if(currentAnswer>1000){
+        console.log(kilometerPerviousNumber,currentAnswer);
+        
+        if((currentAnswer>1000 && kilometerPerviousNumber==undefined) || currentAnswer-kilometerPerviousNumber>1000){
           return {
             status: 200,
             data: [],
-            message:'مقدار بیشتر از 1000 است',
+            message:'شرایط کیلومتر اشتباه است',
           };
         }else{
           return{

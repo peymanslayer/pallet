@@ -1055,10 +1055,8 @@ export class TruckBreakDownService {
         id: id,
       },
     });
-
-    console.log(breakDowns, "fghjkl");
+    
     for (let item of breakDowns) {
-      console.log(item);
 
       const status = {
         logisticConfirm: !!item?.isLogisticConfirmed,
@@ -1071,11 +1069,12 @@ export class TruckBreakDownService {
           id: item.truckBreakDownItemsId,
         },
       });
-
+     
 
       const truckInfo = await this.truckInfoRepository.findOne({
         where: { driverId: item.driverId },
       });
+      
 
       data = item.dataValues;
       data['dateDriver'] = item.historyDriverRegister;
@@ -1094,7 +1093,6 @@ export class TruckBreakDownService {
           const ans: any = {};
           ans['type'] = value;
           ans['comment'] = answers[i - 1]?.[1] || null;
-          console.log(ans);
 
           ans['number'] = parseInt(key.split('_')[1], 10);
           arrAns.push(ans);
@@ -1104,6 +1102,8 @@ export class TruckBreakDownService {
       data['answers'] = arrAns;
       data['status'] = status;
       finalResult.push(data)
+      console.log(data);
+      
     }
 
 

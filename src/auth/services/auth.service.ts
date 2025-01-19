@@ -781,21 +781,23 @@ export class AuthService {
     let attribute = {};
 
     if (!attributes.length) attribute['attributes'] = { exclude: [] };
-    else attribute['attributes'] = attributes;
-    if (!zone) zone = '%';
-    if (!role) role = '%';
-    if (!company) company = '%';
+    // else attribute['attributes'] = attributes;
+    // if (!zone) zone = '%';
+    // if (!role) role = '%';
+    // if (!company) company = '%';
     console.log('attributes: ', attributes);
     console.log('role', role);
     console.log('zone', zone);
-    return await this.authRepository.findAll({
+  const result= await this.authRepository.findAll({
       where: {
-        zone: { [Op.like]: zone },
-        role: { [Op.like]: role },
-        company: { [Op.like]: company },
+        zone:  role ,
+        role:zone,
+        company: company
       },
-      ...attribute,
     });
+    console.log(result);
+    return result
+    
   }
   async getUsersByCompanyName(companyName: string) {
     try {

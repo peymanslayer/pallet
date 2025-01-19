@@ -344,13 +344,13 @@ export class CheckListService {
   //   };
   // }
   async insertCheckList(body: Object) {
-    let diff:number=0
+    let diff: number = 0
     const checkList = {};
     const today = new Date();
     const formattedDate = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
     let checkListComment = {};
     const answers: [] = body['answers'];
-    let Holidaykilometer:number;
+    let Holidaykilometer: number;
     checkList['userId'] = body['id'];
     checkList['truckId'] = body['truckId'];
     checkList['name'] = body['name'];
@@ -372,20 +372,20 @@ export class CheckListService {
         order: [['createdAt', 'DESC']],
       });
       const insertCheckList = await this.checkListRepository.create<CheckList>(checkList);
-      if(lastCheckLis){
-       diff = currentAnswer0 - lastCheckLis.answer_0;
+      if (lastCheckLis) {
+        diff = currentAnswer0 - lastCheckLis.answer_0;
       }
       console.log(insertCheckList);
-      
+
 
       if (Object.entries(checkListComment).length != 0) {
         console.log('imn');
         console.log(checkListComment);
-        
+
         checkListComment['checkListId'] = insertCheckList.id;
-       const Res= await this.checkListCommentRepository.create<CheckListComment>(checkListComment);
-       console.log(Res);
-       
+        const Res = await this.checkListCommentRepository.create<CheckListComment>(checkListComment);
+        console.log(Res);
+
       }
 
       const unresolvedBreakdowns = await this.truckBreakDownRepository.findAll({
@@ -415,7 +415,7 @@ export class CheckListService {
         where: { driverId: checkList['userId'] },
       });
       console.log(truckInfo);
-      
+
       if (truckInfo) {
         await this.truckInfoRepository.update(
           { lastCarLife: checkList['answer_0'], lastCarLifeBackup: truckInfo?.lastCarLife || checkList['answer_0'] },
@@ -1116,7 +1116,7 @@ export class CheckListService {
       },
     });
     console.log(comment);
-    
+
     for (let item = 0; item <= 20; item++) {
       let check = {};
       check['answer'] = checkList[`answer_${item}`];
@@ -1565,18 +1565,23 @@ export class CheckListService {
 
       if (date) where['history'] = date;
 
-      if (zone || company) {
+      if (zone && company) {
         driversIdInSameZone = await this.getUsersSameZone(
           zone,
           'companyDriver',
           ['id'],
           company,
         );
+        
         driversIdInSameZone.forEach((user) => {
           usersIdInSameZone.push(user.dataValues['id']);
         });
+        console.log(driversIdInSameZone);
+        
         // console.log('userIdInSameZone  :', usersIdInSameZone); // #DEBUG
         where['userId'] = { [Op.in]: usersIdInSameZone };
+        console.log(where['userId']);
+        
         if (zone) filter['zone'] = zone;
         if (company) filter['company'] = company;
       }
@@ -1586,6 +1591,7 @@ export class CheckListService {
       const userRegister = await this.checkListRepository.findAndCountAll({
         where: { ...where },
       });
+
 
       data['countRegister'] = userRegister.count;
       message = "count of register check list by driver's ";
@@ -1646,14 +1652,8 @@ export class CheckListService {
       const breakdowns = await this.truckBreakDownRepository.findAll({
         where: {
           ...repairmentWhere,
-          [Op.or]: [
-            {
-              [Op.or]: [
-                { histroyDeliveryTruck: null },
-                { histroyDeliveryTruck: "" },
-              ],
-            },
-          ],
+             histroyDeliveryTruck: null,
+
         },
         attributes: ['id', 'driverId'],
       });
@@ -1882,8 +1882,8 @@ export class CheckListService {
 
   async checkKilometer(body: Object) {
     let Holidaykilometer;
-    let diffCheckList:number=0
-    let kilometerPerviousNumber:number;
+    let diffCheckList: number = 0
+    let kilometerPerviousNumber: number;
     const currentAnswer = body['kilometer'];
     const checkList = {};
     const hd = new Holidays('IR')
@@ -1892,112 +1892,112 @@ export class CheckListService {
     const formattedDate = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
     const formattedYesteradyDate = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate() - 1}`;
     console.log(formattedYesteradyDate);
-    
+
     const formatToday = today.toISOString().split('T')[0];
     console.log(formatToday);
-    
-    let ckeckInHolidaysOrNot = await this.checkInHoliday(getHoliday,formatToday);
-    if(ckeckInHolidaysOrNot.message==' شما در تعطیلات هستید'){
-      Holidaykilometer=0
-    }else{
-      Holidaykilometer=2000*ckeckInHolidaysOrNot.numberOfHoliday;
+
+    let ckeckInHolidaysOrNot = await this.checkInHoliday(getHoliday, formatToday);
+    if (ckeckInHolidaysOrNot.message == ' شما در تعطیلات هستید') {
+      Holidaykilometer = 0
+    } else {
+      Holidaykilometer = 2000 * ckeckInHolidaysOrNot.numberOfHoliday;
     }
 
     const currentTime = new Date();
-      let hours = currentTime.getHours();
-      let minutes = currentTime.getMinutes();
-      const fullHour = `${hours}:${minutes}`;
-      checkList['hours'] = fullHour
+    let hours = currentTime.getHours();
+    let minutes = currentTime.getMinutes();
+    const fullHour = `${hours}:${minutes}`;
+    checkList['hours'] = fullHour
 
-      const lastCheckLis = await this.checkListRepository.findOne({
-        where: { userId: body['id'],history:formattedYesteradyDate },
-        order: [['createdAt', 'DESC']],
-      });
-      const lastCheckList = await this.checkListRepository.findAll({
-        where: { userId: body['id'] },
-        order: [['createdAt', 'DESC']],
-      });
-      
-      if(lastCheckList){
-     for(const item of lastCheckList){
-      if(item.dataValues.answer_0!=null){
-      kilometerPerviousNumber=+Number(item.dataValues.answer_0);
-      console.log(item.dataValues.answer_0,'is data');
-      
-     }
+    const lastCheckLis = await this.checkListRepository.findOne({
+      where: { userId: body['id'], history: formattedYesteradyDate },
+      order: [['createdAt', 'DESC']],
+    });
+    const lastCheckList = await this.checkListRepository.findAll({
+      where: { userId: body['id'] },
+      order: [['createdAt', 'DESC']],
+    });
+
+    if (lastCheckList) {
+      for (const item of lastCheckList) {
+        if (item.dataValues.answer_0 != null) {
+          kilometerPerviousNumber = +Number(item.dataValues.answer_0);
+          console.log(item.dataValues.answer_0, 'is data');
+
+        }
+      }
     }
-    }
-    console.log(lastCheckList.length,'is lenght');
-    if(lastCheckList.length>1){
-     diffCheckList=lastCheckList[0].answer_0-lastCheckList[1].answer_0;
-    }else{
-     diffCheckList=1
+    console.log(lastCheckList.length, 'is lenght');
+    if (lastCheckList.length > 1) {
+      diffCheckList = lastCheckList[0].answer_0 - lastCheckList[1].answer_0;
+    } else {
+      diffCheckList = 1
     }
 
-     
-      let diff = 0
-      
-        
-      if(lastCheckLis){
-      console.log(lastCheckLis.history != formattedYesteradyDate ,  currentAnswer > 1000*diffCheckList+kilometerPerviousNumber ,
-        !lastCheckLis.isDeleted,formattedYesteradyDate,lastCheckLis.history);
-      console.log(currentAnswer <= lastCheckLis.answer_0 ,currentAnswer - lastCheckLis.answer_0 > 1000);
-      
-        if (lastCheckLis.history != formattedYesteradyDate &&  currentAnswer > 1000*diffCheckList+kilometerPerviousNumber &&
-            (currentAnswer <= lastCheckLis.answer_0 ||
-              currentAnswer - lastCheckLis.answer_0 > 1000 || currentAnswer>1000)
-         ) {
+
+    let diff = 0
+
+
+    if (lastCheckLis) {
+      console.log(lastCheckLis.history != formattedYesteradyDate, currentAnswer > 1000 * diffCheckList + kilometerPerviousNumber,
+        !lastCheckLis.isDeleted, formattedYesteradyDate, lastCheckLis.history);
+      console.log(currentAnswer <= lastCheckLis.answer_0, currentAnswer - lastCheckLis.answer_0 > 1000);
+
+      if (lastCheckLis.history != formattedYesteradyDate && currentAnswer > 1000 * diffCheckList + kilometerPerviousNumber &&
+        (currentAnswer <= lastCheckLis.answer_0 ||
+          currentAnswer - lastCheckLis.answer_0 > 1000 || currentAnswer > 1000)
+      ) {
+        return {
+          status: 200,
+          data: [],
+          message: 'شرایط کیلومتر اشتباه است'
+        };
+
+      }
+      else {
+        if (currentAnswer - Number(kilometerPerviousNumber) > 1000) {
           return {
             status: 200,
-            data: [],
             message: 'شرایط کیلومتر اشتباه است'
-          };
-  
-        }
-        else{
-          if(currentAnswer-Number(kilometerPerviousNumber)>1000){
-            return{
-              status:200,
-              message:'شرایط کیلومتر اشتباه است'
-            }
-          }else{
-          return{
-            status:200,
-            message:'ادامه'
           }
-        }
-      }
-          // اگر رکورد قبلی وجود دارد
-  
-      }else{
-        console.log(kilometerPerviousNumber,currentAnswer);
-        
-        if((currentAnswer>1000 && kilometerPerviousNumber==undefined) || currentAnswer-kilometerPerviousNumber>1000){
+        } else {
           return {
             status: 200,
-            data: [],
-            message:'شرایط کیلومتر اشتباه است',
-          };
-        }else{
-          return{
-            status:200,
-            message:'ادامه'
+            message: 'ادامه'
           }
         }
       }
+      // اگر رکورد قبلی وجود دارد
+
+    } else {
+      console.log(kilometerPerviousNumber, currentAnswer);
+
+      if ((currentAnswer > 1000 && kilometerPerviousNumber == undefined) || currentAnswer - kilometerPerviousNumber > 1000) {
+        return {
+          status: 200,
+          data: [],
+          message: 'شرایط کیلومتر اشتباه است',
+        };
+      } else {
+        return {
+          status: 200,
+          message: 'ادامه'
+        }
+      }
+    }
   }
 
   async checkInHoliday(holiadys: Array<Holiday>, todayDate: string) {
     let message: string;
-    let numberOfHoliday:number=0
+    let numberOfHoliday: number = 0
     for (let item of holiadys) {
       console.log(item);
-      
+
       const date = new Date(item.date);
       const formattedDate = date.toISOString().split('T')[0];
-   
-      console.log(formattedDate,todayDate);
-      
+
+      console.log(formattedDate, todayDate);
+
       if (todayDate == formattedDate) {
         console.log("in hd");
         numberOfHoliday++
@@ -2011,6 +2011,83 @@ export class CheckListService {
       message,
       numberOfHoliday
     }
+  }
+
+  async checkNumberOfCheckList(id: number) {
+    let day: number;
+    const checkNumberOfCheckList = await this.checkListRepository.findAll({
+      where: { userId: id }
+    });
+    if (checkNumberOfCheckList.length > 1) {
+
+      const getMonth = new Date();
+      const numberGetMonth = getMonth.getMonth() + 1
+      const lastHistory = checkNumberOfCheckList[checkNumberOfCheckList.length - 1].dataValues.history;
+      const latestHistory = checkNumberOfCheckList[checkNumberOfCheckList.length - 2].dataValues.history;
+      const splitLastHistory = lastHistory.split("/");
+      const splitLatestHistory = latestHistory.split("/");
+      console.log(lastHistory, latestHistory, numberGetMonth, splitLastHistory[2], splitLatestHistory[2]);
+      switch (Number(splitLastHistory[1])-1) {
+        case 0:
+          day = 31
+          break;
+        case 1:
+          day = 31
+          break;
+        case 2:
+          day = 28
+          break;
+        case 3:
+          day = 31
+          break;
+        case 4:
+          day = 30
+          break;
+        case 5:
+          day = 31
+          break;
+        case 6:
+          day = 30
+          break;
+        case 7:
+          day = 31
+          break;
+        case 8:
+          day = 31
+          break;
+        case 9:
+          day = 30
+          break;
+        case 10:
+          day = 31
+          break;
+        case 11:
+          day = 30
+          break;
+
+        default:
+          break;
+      }
+      if (Number(splitLastHistory[1]) == Number(splitLatestHistory[1])) {
+        return {
+          status: 200,
+          message: Number(splitLastHistory[2]) - Number(splitLatestHistory[2])-1
+        }
+      } else {
+         const resultNumber=day+Number(splitLastHistory[2])-Number(splitLatestHistory[2])-1;
+         return{
+          status:200,
+          message:resultNumber
+         }
+      }
+
+    } else {
+      return {
+        status: 200,
+        message: 1
+      }
+    }
+
   }
 }
 

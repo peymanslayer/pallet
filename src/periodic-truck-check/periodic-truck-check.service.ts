@@ -75,7 +75,8 @@ export class PeriodicTruckCheckService {
           },
         ],
       });
-  
+     console.log(rows);
+     
       const periodicTypes = await this.periodicTypeRepository.findAll({
         attributes: ['name', 'type'],
       });

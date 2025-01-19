@@ -293,4 +293,16 @@ export class CheckListController {
     const checkedKilometer= await this.checkListService.checkKilometer(body);
     response.status(checkedKilometer.status).json(checkedKilometer.message);
   }
+
+  @Get('checkNumberOfCheckList/:id')
+  async numberOfCheckList(@Param('id') id: number, @Res() response: Response){
+    try{
+      const numberOfCheckList=await this.checkListService.checkNumberOfCheckList(id);
+      response.status(numberOfCheckList.status).json(numberOfCheckList.message);
+    }catch(err){
+      console.log(err);
+      
+      response.status(500).json("ارور سرور")
+    }
+  }
 }

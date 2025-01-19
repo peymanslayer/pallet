@@ -55,5 +55,14 @@ export class RepairInvoiceController {
 
     }
 
+    @Post('listOfinvoice')
+    async listOfInvoice(@Body() input: any , @Res() response: Response){
+     try{
+       const listOfInvoice=await this.repairInvoiceService.listOfInvoice(input);
+     }catch(err){
+        response.status(500).json('internal server error')
+     }
+    }
+
     
 }

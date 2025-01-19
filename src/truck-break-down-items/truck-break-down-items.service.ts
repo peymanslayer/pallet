@@ -172,10 +172,12 @@ async insertTruckBreakDownItems(body: any) {
     console.log('Formatted Date:', formattedDate);
     console.log('Body:', body);
 
-    const truckInfo = await this.truckInfoRepository.findOne({where : {driverId : body['id']}})
+    const truckInfo = await this.truckInfoRepository.findOne({where : {driverId : body['id']}});
+    console.log(truckInfo);
+    
 
     const todayCheckList = await this.checkListRepository.findOne({
-      where: { history: formattedDate, truckId: truckInfo.id },
+      where: { history: formattedDate, userId: truckInfo.driverId },
     });
     console.log('Today Checklist:', todayCheckList);
 
@@ -196,7 +198,9 @@ async insertTruckBreakDownItems(body: any) {
         
         
     const activeBreakdowns = await this.checkActiveTruckBreakDown(truckInfo.carNumber);
-    if(activeBreakdowns.count !== 0){
+    console.log(activeBreakdowns);
+    
+    if(activeBreakdowns.count!=0){
       return {
             status: 200,
             message: MESSAGE_ALERT.truckBreakDown_limit_register,

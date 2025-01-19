@@ -5,6 +5,7 @@ import { Op } from 'sequelize';
 import { AuthService } from 'src/auth/services/auth.service';
 import { Auth } from 'src/auth/auth.entity';
 import { TruckInfo } from 'src/truck-info/truck-info.entity';
+import { TruckBreakDownItems } from 'src/truck-break-down-items/truck-break-down-items.entity';
 
 @Injectable()
 export class RepairInvoiceService {
@@ -17,7 +18,8 @@ export class RepairInvoiceService {
         private readonly truckInfoRepository: typeof TruckInfo,
         @Inject('AUTH_REPOSITORY')
         private readonly authRepository: typeof Auth,
-        
+        @Inject('TRUCKBREAKDOWNITEMS_REPOSITORY') 
+        private readonly truckBreakDownItems:typeof TruckBreakDownItems
     ){}
 
     async createRepairInvoices(inputData: any) {
@@ -163,6 +165,19 @@ export class RepairInvoiceService {
         message: 'اطلاعات با موفقیت بازیابی شد',
         data: result,
       };
+    }
+    async listOfInvoice(body:any){
+      const findTruckBreakDown=await this.truckBreakdownRepository.findOne({
+        where:{id:body.id},
+      });
+      if(findTruckBreakDown){
+        const findTruckBreakDownList=await this.truckBreakDownItems.findOne({
+          where:{id:findTruckBreakDown.truckBreakDownItemsId},
+          attributes:{
+            exclude:['question_3','question_10']
+          }
+        });
+      }
     }
   }
 

@@ -1203,8 +1203,8 @@ export class TruckBreakDownService {
       where: {
         carNumber: truckInfo.carNumber,
         historyDriverRegister: {
-          [Op.gt]: [newBeforeDateString],
-          [Op.lt]:[newAfterDateString],
+          [Op.gt]: ["2025/1/19"],
+          [Op.lt]:["2025/1/19"],
           [Op.not]:null
         },
       },

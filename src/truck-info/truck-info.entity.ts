@@ -23,19 +23,7 @@ export class TruckInfo extends Model<TruckInfo> {
   @Column
   state: string;
 
-  // @Column
-  // carNumber: string;
-
-  @Column({
-    type: DataTypes.STRING,
-    set(value: string) {
-      this.setDataValue('carNumber', convertPersianToLatin(value));
-    },
-    // get() {
-    //   const storedValue = this.getDataValue('carNumber');
-    //   return convertLatinToPersian(storedValue);
-    // },
-  })
+  @Column
   carNumber: string;
 
   @Column

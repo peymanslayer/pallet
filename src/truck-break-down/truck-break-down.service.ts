@@ -941,44 +941,57 @@ export class TruckBreakDownService {
     if (count === 'true') {
       countList = breakDowns.count;
     } else {
-      for (let item of breakDowns.rows) {
-        let breakDown = {};
-        let row = {};
+        breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+          where: {
+            [Op.and]: {
+              // transportComment: { [Op.in]: ['necessary', 'immediately'] },
+              // logisticComment: { [Op.ne]: null },
+              historyReciveToRepair: { [Op.eq]: null },
+              repairmanComment: { [Op.eq]: null },
+              // piece: { [Op.eq]: null },
+              status: { [Op.eq]: 'opened' },
+              logisticConfirm: { [Op.ne]: 0 },
+            },
+          },
+          order: [['id', 'DESC']],
+          limit: 20,
+        });
+        for(let item of breakDowns.rows){
+          const carPiecesHistory = await this.getCarPiecesHistory(
+            item['carNumber'],
+          );
+  
+          // item['id'] = breakDown['id'];
+          // item['numberOfBreakDown'] = breakDown['numberOfBreakDown'];
+          // item['hours'] = breakDown['hoursDriverRegister'];
+          // item['history'] = breakDown['historyDriverRegister'];
+          // item['driverName'] = breakDown['driverName'];
+          // item['driverMobile'] = breakDown['driverMobile'];
+          // item['carNumber'] = breakDown['carNumber'];
+          // item['kilometer'] = breakDown['carLife']; // carLife set value when driver register daily check list
+          // item['transportComment'] = breakDown['transportComment'];
+          // item['logisticConfirm'] = breakDown['logisticConfirm'];
+          // item['repairmanComment'] = breakDown['repairmanComment'];
+          // item['historySendToRepair'] = breakDown['historySendToRepair'];
+          // item['historyReciveToRepair'] = breakDown['historyReciveToRepair'];
+          // item['histroyDeliveryTruck'] = breakDown['histroyDeliveryTruck'];
+          // item['historyDeliveryDriver'] = breakDown['historyDeliveryDriver'];
+          // item['piece'] = breakDown['piece'];
+          // item['piecesReplacementHistory'] = carPiecesHistory;
+  
+          // // console.log('itemsId to fetch: ', breakDown['truckBreakDownItemsId']); // #Debug
+          // item['answers'] = await this.getBreakDownItemsById(
+          //   breakDown['truckBreakDownItemsId'],
+          // );
+          // row['carType'] = breakDown['type']; // depricated
+          // row['checkListStatus'] = breakDown['state']; // depricated
+          // row['breakDownStatus'] = breakDown['repairComment']; // depricated
+  
+          data.push(item);
+        }
 
-        breakDown = item.dataValues;
+    
 
-        const carPiecesHistory = await this.getCarPiecesHistory(
-          breakDown['carNumber'],
-        );
-
-        row['id'] = breakDown['id'];
-        row['numberOfBreakDown'] = breakDown['numberOfBreakDown'];
-        row['hours'] = breakDown['hoursDriverRegister'];
-        row['history'] = breakDown['historyDriverRegister'];
-        row['driverName'] = breakDown['driverName'];
-        row['driverMobile'] = breakDown['driverMobile'];
-        row['carNumber'] = breakDown['carNumber'];
-        row['kilometer'] = breakDown['carLife']; // carLife set value when driver register daily check list
-        row['transportComment'] = breakDown['transportComment'];
-        row['logisticConfirm'] = breakDown['logisticConfirm'];
-        row['repairmanComment'] = breakDown['repairmanComment'];
-        row['historySendToRepair'] = breakDown['historySendToRepair'];
-        row['historyReciveToRepair'] = breakDown['historyReciveToRepair'];
-        row['histroyDeliveryTruck'] = breakDown['histroyDeliveryTruck'];
-        row['historyDeliveryDriver'] = breakDown['historyDeliveryDriver'];
-        row['piece'] = breakDown['piece'];
-        row['piecesReplacementHistory'] = carPiecesHistory;
-
-        // console.log('itemsId to fetch: ', breakDown['truckBreakDownItemsId']); // #Debug
-        row['answers'] = await this.getBreakDownItemsById(
-          breakDown['truckBreakDownItemsId'],
-        );
-        // row['carType'] = breakDown['type']; // depricated
-        // row['checkListStatus'] = breakDown['state']; // depricated
-        // row['breakDownStatus'] = breakDown['repairComment']; // depricated
-
-        data.push(row);
-      }
     }
 
     return {

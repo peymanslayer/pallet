@@ -198,9 +198,17 @@ async insertTruckBreakDownItems(body: any) {
     const activeBreakdowns = await this.checkActiveTruckBreakDown(truckInfo.carNumber);
     if(activeBreakdowns.count !== 0){
       return {
-            status: 200,
+            status: 400,
             message: MESSAGE_ALERT.truckBreakDown_limit_register,
           };
+    }
+
+    const existingBreakdown = await this.checkInsertedBreakdownOnceADay(truckInfo.carNumber)
+    if (existingBreakdown) {
+      return {
+        status: 400,
+        message: 'شما قبلاً یک خرابی در امروز ثبت کرده‌اید.',
+      };
     }
     
     const lastCheckList = await this.checkListRepository.findOne({
@@ -504,24 +512,19 @@ if(affectedCount==0){
     }
   }
   
-  async checkInsertedBreakdownOnceADay(driverId: number){
+  async checkInsertedBreakdownOnceADay(carNumber: string){
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const existingBreakdown = await this.truckBreakDownRepository.findOne({
       where: {
-        driverId: driverId,
+        carNumber,
         createdAt: {
           [Op.gte]: today,
         },
       },
     });
 
-    if (existingBreakdown) {
-      return {
-        status: 400,
-        message: 'شما قبلاً یک خرابی در امروز ثبت کرده‌اید.',
-      };
-    }
+    return existingBreakdown
   }
 }

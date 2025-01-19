@@ -1,5 +1,7 @@
+import { DataTypes } from 'sequelize';
 import { Column, HasMany, Model, Table } from 'sequelize-typescript';
 import { CheckList } from 'src/check-list/check-list.entity';
+import { convertLatinToPersian, convertPersianToLatin } from 'src/common/function';
 import { PeriodicTruckCheck } from 'src/periodic-truck-check/periodic-truck-check.entity';
 import { TruckBreakDown } from 'src/truck-break-down/truck-break-down.entity';
 
@@ -21,7 +23,19 @@ export class TruckInfo extends Model<TruckInfo> {
   @Column
   state: string;
 
-  @Column
+  // @Column
+  // carNumber: string;
+
+  @Column({
+    type: DataTypes.STRING,
+    set(value: string) {
+      this.setDataValue('carNumber', convertPersianToLatin(value));
+    },
+    get() {
+      const storedValue = this.getDataValue('carNumber');
+      return convertLatinToPersian(storedValue);
+    },
+  })
   carNumber: string;
 
   @Column

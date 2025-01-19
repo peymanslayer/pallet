@@ -300,7 +300,7 @@ export class TruckBreakDownService {
         where: {
           [Op.and]: {
             transportComment: { [Op.eq]: null },
-            logisticConfirm: { [Op.eq]: false },
+            logisticConfirm: { [Op.eq]: true },
             ...filter,
           },
         },

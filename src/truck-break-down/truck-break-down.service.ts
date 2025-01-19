@@ -139,16 +139,6 @@ export class TruckBreakDownService {
         breakDown['answers'] = null;
       }
 
-      if (item.logisticComment === "موردی نیست ادامه فعالیت") {
-        breakDown['status'] = 'closed';
-      }
-      if (item.transportComment === "موردی نیست ادامه فعالیت") {
-        breakDown['status'] = 'closed';
-      }
-      if (item.repairmanComment === "موردی نیست ادامه فعالیت") {
-        breakDown['status'] = 'closed';
-      }
-
       data.push(breakDown);
     }
 

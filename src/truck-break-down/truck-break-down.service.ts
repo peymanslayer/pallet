@@ -305,11 +305,12 @@ export class TruckBreakDownService {
       }
       // get list of "Activity necessary to do"
     } else {
+      
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {
           [Op.and]: {
             transportComment: { [Op.eq]: null },
-            logisticConfirm: { [Op.ne]: false },
+            logisticConfirm: { [Op.eq]: false },
             ...filter,
           },
         },
@@ -1223,8 +1224,8 @@ export class TruckBreakDownService {
       where: {
         carNumber: truckInfo.carNumber,
         historyDriverRegister: {
-          [Op.gt]: ["2025/1/19"],
-          [Op.lt]:["2025/1/19"],
+          [Op.gt]: [newBeforeDateString],
+          [Op.lt]:[newAfterDateString],
           [Op.not]:null
         },
       },

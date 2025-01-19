@@ -10,6 +10,7 @@ import { generateDataExcel } from 'src/utility/export_excel';
 import { FIELDS_OF_EXCEL_REPORT_TRANSPORT_AND_LOGISTIC_ADMIN } from 'src/static/enum';
 import { COLUMNS_NAME_EXCEL_REPORT_TRANSPORT_AND_LOGISTIC_ADMIN } from 'src/static/fields-excelFile';
 import { Auth } from 'src/auth/auth.entity';
+import { RepairInvoice } from 'src/repair-invoice/rapair-invoice.entity';
 @Injectable()
 export class TruckBreakDownService {
   constructor(
@@ -20,6 +21,7 @@ export class TruckBreakDownService {
     @Inject('TRUCKINFO_REPOSITORY')
     private readonly truckInfoRepository: typeof TruckInfo,
     private readonly authService: AuthService,
+    @Inject('REPAIRINVOICE_REPOSITORY') private readonly repairInvoice: typeof RepairInvoice
     //comment : better solution inject "truckBreakDownItem Service" instead inject "truckBreakDownItemsRepository"
     // @Inject('TRUCKBREAKDOWNITEMS_REPOSITORY')
     // private truckBreakDownItemService: typeof TruckBreakDownService,
@@ -207,6 +209,7 @@ export class TruckBreakDownService {
     company?: string,
     zone?: string,
   ) {
+    let findFactor=[];
     let filter = {}; // filter by "date" or "carNumber"
     let data = [];
     // const driversId = [];
@@ -283,13 +286,29 @@ export class TruckBreakDownService {
         order: [['id', 'DESC']],
         limit: 20,
       });
+      
+      if(breakDowns.count!=0){
+        for(let item of breakDowns.rows){
+          console.log(item.dataValues.id);
+          
+        const find= await this.repairInvoice.findOne({
+            where:{truckBreakDownId:item.dataValues.id}
+          });
+          console.log(find);
+          
+          if(find){
+            findFactor.push(find)
+          }
+        }
+        }
+ 
 
       for (let item of breakDowns.rows) {
         if (item.transportComment === 'notNecessary') {
-          await this.truckBreakDownRepository.update(
-            { status: 'closed' },
-            { where: { id: item.id } },
-          );
+          // await this.truckBreakDownRepository.update(
+          //   { status: 'closed' },
+          //   { where: { id: item.id } },
+          // );
 
         }
       }
@@ -310,10 +329,10 @@ export class TruckBreakDownService {
 
       for (let item of breakDowns.rows) {
         if (item.transportComment === 'notNecessary') {
-          await this.truckBreakDownRepository.update(
-            { status: 'closed' },
-            { where: { id: item.id } },
-          );
+          // await this.truckBreakDownRepository.update(
+          //   { status: 'closed' },
+          //   { where: { id: item.id } },
+          // );
 
         }
       }
@@ -333,7 +352,7 @@ export class TruckBreakDownService {
         const carPiecesHistory = await this.getCarPiecesHistory(
           breakDown['carNumber'],
         );
-
+        row['factor']=findFactor
         row['id'] = breakDown['id'];
         row['numberOfBreakDown'] = breakDown['numberOfBreakDown'];
         row['hours'] = breakDown['hoursDriverRegister'];

@@ -36,9 +36,9 @@ export class RepairInvoiceService {
         console.log((inputData.truckBreakDownId));
         
       
-        await RepairInvoice.bulkCreate(repairInvoices);
+       const factor= await RepairInvoice.bulkCreate(repairInvoices);
       
-        return { status: 200 , message: 'فاکتور با موفقیت ثبت شد' };
+        return { status: 200 , message: factor };
       }
 
     async getAllPieces(){

@@ -41,6 +41,20 @@ export enum SwaggerConsumes {
 }
 
 
+export enum persianToLatinMap  {
+  'ع' = 'ein' ,
+  'الف' = 'alef' ,
+  'ل' = 'lam'
+};
+
+
+export enum latinToPersianMap {
+  'ein' = 'ع',
+  'alef' = 'الف',
+  'lam' = 'ل',
+}
+
+
 // export enum PeriodicTruckCheckType {
 //   engineOil = 'روغن موتور',
 

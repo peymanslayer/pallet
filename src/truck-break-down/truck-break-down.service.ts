@@ -604,6 +604,8 @@ export class TruckBreakDownService {
     company: string,
     zone: string,
   ) {
+    console.log(company);
+    
     let filter = {}; // filter by "date" or "carNumber"
     let data = [];
     let countList: number;
@@ -611,8 +613,8 @@ export class TruckBreakDownService {
       rows: TruckBreakDown[];
       count: number;
     };
-    const usersIdInSameZone = [];
-    const usersIdInCompany = [];
+    let usersIdInSameZone = [];
+    let usersIdInCompany = [];
     let usersIdFilter = [];
 
     if (beforeHistory || afterHistory) {
@@ -636,32 +638,35 @@ export class TruckBreakDownService {
       filter['carNumber'] = carNumber;
     }
 
-    const driversInZone = await this.getUsersSameZone(zone, 'companyDriver');
+    const driversInZone = await this.getUsersSameZone(zone, 'companyDriver',company);
     driversInZone.forEach((driver) => {
-      usersIdInSameZone.push(driver.dataValues['id']);
+      usersIdInSameZone.push(driver.dataValues.id);
     });
 
     if (company) {
       const filterUserByCompany =
         await this.getUserIdListByCompanyName(company);
-
-      filterUserByCompany.forEach((driver) => {
-        usersIdInCompany.push(driver.dataValues['id']);
-      });
-      usersIdFilter = usersIdInSameZone.filter((item) => {
-        return usersIdInCompany.includes(item);
-      });
+      
+      for(let item of filterUserByCompany){
+        usersIdInCompany.push(item.dataValues.id);
+    };
+      // usersIdFilter = usersIdInSameZone.filter((item) => {
+      //   return usersIdInCompany.includes(item);
+      // });
+      
     } else {
       usersIdFilter.push(...usersIdInSameZone);
     }
 
     // Get list of "Activity in Progress"
+    
     if (logisticComment === 'true') {
+      
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {
           [Op.and]: {
             status: { [Op.eq]: 'opened' },
-            logisticConfirm: { [Op.eq]: true },
+            logisticConfirm: { [Op.eq]: 1 },
             historyReciveToRepair: { [Op.eq]: null },
             driverId: { [Op.in]: usersIdFilter },
             ...filter,
@@ -672,10 +677,10 @@ export class TruckBreakDownService {
       });
       for (let item of breakDowns.rows) {
         if (item.logisticConfirm === false) {
-          await this.truckBreakDownRepository.update(
-            { status: 'closed' },
-            { where: { id: item.id } },
-          );
+          // await this.truckBreakDownRepository.update(
+          //   { status: 'closed' },
+          //   { where: { id: item.id } },
+          // );
         }
       }
     } else if (repairDone === 'true') {
@@ -694,18 +699,20 @@ export class TruckBreakDownService {
       });
       for (let item of breakDowns.rows) {
         if (item.logisticConfirm === false) {
-          await this.truckBreakDownRepository.update(
-            { status: 'closed' },
-            { where: { id: item.id } },
-          );
+          // await this.truckBreakDownRepository.update(
+          //   { status: 'closed' },
+          //   { where: { id: item.id } },
+          // );
         }
       }
     } else {
+      console.log('out');
+      
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {
           [Op.and]: {
-            logisticConfirm: { [Op.eq]: false },
-            driverId: { [Op.in]: usersIdFilter },
+            logisticConfirm: { [Op.eq]: 0 },
+            driverId: { [Op.in]: usersIdInCompany },
             ...filter,
           },
         },
@@ -714,10 +721,10 @@ export class TruckBreakDownService {
       });
       for (let item of breakDowns.rows) {
         if (item.logisticConfirm === false) {
-          await this.truckBreakDownRepository.update(
-            { status: 'closed' },
-            { where: { id: item.id } },
-          );
+          // await this.truckBreakDownRepository.update(
+          //   { status: 'closed' },
+          //   { where: { id: item.id } },
+          // );
         }
       }
     }
@@ -1454,9 +1461,9 @@ export class TruckBreakDownService {
   async getUsersSameZone(
     zone: string,
     role: string,
-    attributes: Array<string> = [],
+    company:string
   ) {
-    return await this.authService.userSameZone(zone, role, attributes);
+    return await this.authService.userSameZones(zone, role,company);
   }
 
   async getUserIdListByCompanyName(companyName: string) {

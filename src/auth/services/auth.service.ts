@@ -776,7 +776,8 @@ export class AuthService {
     zone: string,
     role: string = '',
     attributes: Array<string> = [],
-    company?: string,
+    company?:string
+  
   ) {
     let attribute = {};
 
@@ -786,6 +787,31 @@ export class AuthService {
     // if (!role) role = '%';
     // if (!company) company = '%';
     console.log('attributes: ', attributes);
+    console.log('role', role);
+    console.log('zone', zone);
+  const result= await this.authRepository.findAll({
+      where: {
+        zone:  role ,
+        role:zone,
+        company: company
+      },
+    });
+    console.log(result);
+    return result
+    
+  }
+  async userSameZones(
+    zone: string,
+    role: string = '',
+    company: string,
+  
+  ) {
+    let attribute = {};
+
+    // else attribute['attributes'] = attributes;
+    // if (!zone) zone = '%';
+    // if (!role) role = '%';
+    // if (!company) company = '%';
     console.log('role', role);
     console.log('zone', zone);
   const result= await this.authRepository.findAll({

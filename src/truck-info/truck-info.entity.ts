@@ -31,10 +31,10 @@ export class TruckInfo extends Model<TruckInfo> {
     set(value: string) {
       this.setDataValue('carNumber', convertPersianToLatin(value));
     },
-    get() {
-      const storedValue = this.getDataValue('carNumber');
-      return convertLatinToPersian(storedValue);
-    },
+    // get() {
+    //   const storedValue = this.getDataValue('carNumber');
+    //   return convertLatinToPersian(storedValue);
+    // },
   })
   carNumber: string;
 

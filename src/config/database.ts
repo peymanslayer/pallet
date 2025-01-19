@@ -38,11 +38,11 @@ export const databaseProviders = [
         // password: 'Peyman1378P$',
         // database: 'nifty_diffie',
         //---------------------------------------db local
-        host: 'localhost',
-        port: 3306,
+        host: 'himalayas.liara.cloud',
+        port: 33766,
         username: 'root',
-        password: '001Zein@b',
-        database: 'test',
+        password: 'XY9n0YoCwwTmjF7W6zZPYSSm',
+        database: 'nifty_diffie',
 
         logging: false,
         pool: {

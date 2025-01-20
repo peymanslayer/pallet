@@ -199,6 +199,204 @@ export class TruckBreakDownService {
   // query: "repairDone" ---> list of "Activity in Done state" //#Hint
   // query: "transportComment" ---> list of "Activity in Doing state" // #Hint
   // list of dashboard role "transportAdmin" // #Hint
+  // async transportUserGetAll(
+  //   transportComment: string,
+  //   repairDone: string,
+  //   count: string,
+  //   beforeHistory?: string,
+  //   afterHistory?: string,
+  //   carNumber?: string,
+  //   company?: string,
+  //   zone?: string,
+  // ) {
+  //   let findFactor=[];
+  //   let filter = {}; // filter by "date" or "carNumber"
+  //   let data = [];
+  //   // const driversId = [];
+  //   let countList: number;
+  //   let breakDowns: {
+  //     rows: TruckBreakDown[];
+  //     count: number;
+  //   };
+  //   if (beforeHistory || afterHistory) {
+  //     if (!afterHistory) {
+  //       afterHistory = '2400/0/0';
+  //     }
+  //     if (!beforeHistory) {
+  //       beforeHistory = '2023/0/0';
+  //     }
+  //     // comment; handle filter date on "historyDeliveryDriver" instead "historyDriverRegister" in "ActivityDone" list
+  //     if (repairDone == undefined) {
+  //       filter['historyDriverRegister'] = {
+  //         [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
+  //       };
+  //     } else {
+  //       filter['historyDeliveryDriver'] = {
+  //         [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
+  //       };
+  //     }
+  //   }
+
+  //   if (carNumber) {
+  //     filter['carNumber'] = carNumber;
+  //   }
+
+  //   if (company) {
+  //     const usersInCompany = await this.getUserIdListByCompanyName(company);
+  //     filter['driverId'] = { [Op.in]: usersInCompany };
+  //   }
+
+  //   if (transportComment === 'true') {
+  //     breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+  //       where: {
+  //         [Op.and]: {
+  //           status: { [Op.eq]: 'opened' },
+  //           transportComment: { [Op.ne]: null },
+  //           historyReciveToRepair: { [Op.eq]: null },
+  //           logisticConfirm: { [Op.ne]: false },
+  //           ...filter,
+  //         },
+  //       },
+  //       order: [['id', 'DESC']],
+  //       limit: 20,
+  //     });
+
+  //     for (let item of breakDowns.rows) {
+  //       if (item.transportComment === 'notNecessary') {
+  //         await this.truckBreakDownRepository.update(
+  //           { status: 'closed' },
+  //           { where: { id: item.id } },
+  //         );
+
+  //       }
+  //     }
+  //   }
+  //   // get list of "Activity done"
+  //   else if (repairDone === 'true') {
+  //     // console.log('filter: ', filter); // #DEBUG
+  //     breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+  //       where: {
+  //         [Op.and]: {
+  //           logisticConfirm: { [Op.ne]: false },
+  //           transportComment: { [Op.in]: ['necessary', 'immediately'] },
+  //           historyDeliveryDriver: { [Op.ne]: null },
+  //           ...filter,
+  //         },
+  //       },
+  //       order: [['id', 'DESC']],
+  //       limit: 20,
+  //     });
+      
+  //     if(breakDowns.count!=0){
+  //       for(let item of breakDowns.rows){
+  //         console.log(item.dataValues.id);
+          
+  //       const find= await this.repairInvoice.findOne({
+  //           where:{truckBreakDownId:item.dataValues.id}
+  //         });
+  //         console.log(find);
+          
+  //         if(find){
+  //           findFactor.push(find)
+  //         }
+  //       }
+  //       }
+ 
+
+  //     for (let item of breakDowns.rows) {
+  //       if (item.transportComment === 'notNecessary') {
+  //         // await this.truckBreakDownRepository.update(
+  //         //   { status: 'closed' },
+  //         //   { where: { id: item.id } },
+  //         // );
+
+  //       }
+  //     }
+  //     // get list of "Activity necessary to do"
+  //   } else {
+      
+  //     breakDowns = await this.truckBreakDownRepository.findAndCountAll({
+  //       where: {
+  //         [Op.and]: {
+  //           transportComment: { [Op.eq]: null },
+  //           logisticConfirm: { [Op.eq]: true },
+  //           ...filter,
+  //         },
+  //       },
+  //       order: [['id', 'DESC']],
+  //       limit: 20,
+  //     });
+
+  //     for (let item of breakDowns.rows) {
+  //       if (item.transportComment === 'notNecessary') {
+  //         // await this.truckBreakDownRepository.update(
+  //         //   { status: 'closed' },
+  //         //   { where: { id: item.id } },
+  //         // );
+
+  //       }
+  //     }
+  //   }
+  //   // console.log(breakDowns); // #Debug
+  //   if (count === 'true') {
+  //     countList = breakDowns.count;
+  //   } else {
+  //     for (let item of breakDowns.rows) {
+  //       let breakDown = {};
+  //       let row = {};
+
+  //       breakDown = item.dataValues;
+
+  //       const userInfo = await this.authService.getById(breakDown['driverId']);
+
+  //       const carPiecesHistory = await this.getCarPiecesHistory(
+  //         breakDown['carNumber'],
+  //       );
+  //       row['factor']=findFactor
+  //       row['id'] = breakDown['id'];
+  //       row['numberOfBreakDown'] = breakDown['numberOfBreakDown'];
+  //       row['hours'] = breakDown['hoursDriverRegister'];
+  //       row['history'] = breakDown['historyDriverRegister'];
+  //       row['driverName'] = breakDown['driverName'];
+  //       row['driverMobile'] = breakDown['driverMobile'];
+  //       row['carNumber'] = breakDown['carNumber'];
+  //       row['kilometer'] = breakDown['carLife']; // carLife set value when driver register daily check list
+  //       row['transportComment'] = breakDown['transportComment'];
+  //       row['logisticConfirm'] = breakDown['logisticConfirm'];
+  //       row['logisticComment'] = breakDown['logisticComment'];
+  //       row['historySendToRepair'] = breakDown['historySendToRepair'];
+  //       row['historyReciveToRepair'] = breakDown['historyReciveToRepair'];
+  //       row['histroyDeliveryTruck'] = breakDown['histroyDeliveryTruck'];
+  //       row['historyDeliveryDriver'] = breakDown['historyDeliveryDriver'];
+  //       row['hoursRepairComment'] = breakDown['hoursRepairComment'];
+  //       row['historyRepairComment'] = breakDown['historyRepairComment'];
+
+  //       if (userInfo) {
+  //         row['personalCode'] = userInfo.personelCode;
+  //         row['company'] = userInfo.company;
+  //         row['zone'] = userInfo.zone;
+  //       }
+
+  //       row['piece'] = breakDown['piece'];
+  //       row['piecesReplacementHistory'] = carPiecesHistory;
+  //       // console.log('itemsId to fetch: ', breakDown['truckBreakDownItemsId']); // #Debug
+
+  //       row['answers'] = await this.getBreakDownItemsById(
+  //         breakDown['truckBreakDownItemsId'],
+  //       );
+
+  //       data.push(row);
+  //     }
+  //   }
+
+  //   return {
+  //     status: 200,
+  //     data: countList === 0 || countList ? countList : data,
+  //     count: breakDowns.count,
+  //   };
+  // }
+
+
   async transportUserGetAll(
     transportComment: string,
     repairDone: string,
@@ -209,15 +407,15 @@ export class TruckBreakDownService {
     company?: string,
     zone?: string,
   ) {
-    let findFactor=[];
-    let filter = {}; // filter by "date" or "carNumber"
+    let findFactor = [];
+    let filter = {};
     let data = [];
-    // const driversId = [];
     let countList: number;
     let breakDowns: {
       rows: TruckBreakDown[];
       count: number;
     };
+  
     if (beforeHistory || afterHistory) {
       if (!afterHistory) {
         afterHistory = '2400/0/0';
@@ -225,7 +423,7 @@ export class TruckBreakDownService {
       if (!beforeHistory) {
         beforeHistory = '2023/0/0';
       }
-      // comment; handle filter date on "historyDeliveryDriver" instead "historyDriverRegister" in "ActivityDone" list
+  
       if (repairDone == undefined) {
         filter['historyDriverRegister'] = {
           [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
@@ -236,16 +434,16 @@ export class TruckBreakDownService {
         };
       }
     }
-
+  
     if (carNumber) {
       filter['carNumber'] = carNumber;
     }
-
+  
     if (company) {
       const usersInCompany = await this.getUserIdListByCompanyName(company);
       filter['driverId'] = { [Op.in]: usersInCompany };
     }
-
+  
     if (transportComment === 'true') {
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {
@@ -260,20 +458,17 @@ export class TruckBreakDownService {
         order: [['id', 'DESC']],
         limit: 20,
       });
-
+  
       for (let item of breakDowns.rows) {
         if (item.transportComment === 'notNecessary') {
           await this.truckBreakDownRepository.update(
             { status: 'closed' },
             { where: { id: item.id } },
           );
-
         }
       }
     }
-    // get list of "Activity done"
     else if (repairDone === 'true') {
-      // console.log('filter: ', filter); // #DEBUG
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {
           [Op.and]: {
@@ -286,35 +481,20 @@ export class TruckBreakDownService {
         order: [['id', 'DESC']],
         limit: 20,
       });
-      
-      if(breakDowns.count!=0){
-        for(let item of breakDowns.rows){
-          console.log(item.dataValues.id);
-          
-        const find= await this.repairInvoice.findOne({
-            where:{truckBreakDownId:item.dataValues.id}
+  
+      if (breakDowns.count != 0) {
+        for (let item of breakDowns.rows) {
+          const find = await this.repairInvoice.findOne({
+            where: { truckBreakDownId: item.dataValues.id },
           });
-          console.log(find);
-          
-          if(find){
-            findFactor.push(find)
+  
+          if (find) {
+            findFactor.push(find);
           }
         }
-        }
- 
-
-      for (let item of breakDowns.rows) {
-        if (item.transportComment === 'notNecessary') {
-          // await this.truckBreakDownRepository.update(
-          //   { status: 'closed' },
-          //   { where: { id: item.id } },
-          // );
-
-        }
       }
-      // get list of "Activity necessary to do"
-    } else {
-      
+    } 
+    else {
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {
           [Op.and]: {
@@ -326,33 +506,32 @@ export class TruckBreakDownService {
         order: [['id', 'DESC']],
         limit: 20,
       });
-
+  
       for (let item of breakDowns.rows) {
         if (item.transportComment === 'notNecessary') {
-          // await this.truckBreakDownRepository.update(
-          //   { status: 'closed' },
-          //   { where: { id: item.id } },
-          // );
-
+          await this.truckBreakDownRepository.update(
+            { status: 'closed' },
+            { where: { id: item.id } },
+          );
         }
       }
     }
-    // console.log(breakDowns); // #Debug
+  
     if (count === 'true') {
       countList = breakDowns.count;
     } else {
       for (let item of breakDowns.rows) {
         let breakDown = {};
         let row = {};
-
+  
         breakDown = item.dataValues;
-
+  
         const userInfo = await this.authService.getById(breakDown['driverId']);
-
+  
         const carPiecesHistory = await this.getCarPiecesHistory(
           breakDown['carNumber'],
         );
-        row['factor']=findFactor
+  
         row['id'] = breakDown['id'];
         row['numberOfBreakDown'] = breakDown['numberOfBreakDown'];
         row['hours'] = breakDown['hoursDriverRegister'];
@@ -360,7 +539,7 @@ export class TruckBreakDownService {
         row['driverName'] = breakDown['driverName'];
         row['driverMobile'] = breakDown['driverMobile'];
         row['carNumber'] = breakDown['carNumber'];
-        row['kilometer'] = breakDown['carLife']; // carLife set value when driver register daily check list
+        row['kilometer'] = breakDown['carLife']; 
         row['transportComment'] = breakDown['transportComment'];
         row['logisticConfirm'] = breakDown['logisticConfirm'];
         row['logisticComment'] = breakDown['logisticComment'];
@@ -370,31 +549,38 @@ export class TruckBreakDownService {
         row['historyDeliveryDriver'] = breakDown['historyDeliveryDriver'];
         row['hoursRepairComment'] = breakDown['hoursRepairComment'];
         row['historyRepairComment'] = breakDown['historyRepairComment'];
-
+  
         if (userInfo) {
           row['personalCode'] = userInfo.personelCode;
           row['company'] = userInfo.company;
           row['zone'] = userInfo.zone;
         }
-
+  
         row['piece'] = breakDown['piece'];
         row['piecesReplacementHistory'] = carPiecesHistory;
-        // console.log('itemsId to fetch: ', breakDown['truckBreakDownItemsId']); // #Debug
-
+  
         row['answers'] = await this.getBreakDownItemsById(
           breakDown['truckBreakDownItemsId'],
         );
-
+  
+        const repairInvoice = await this.repairInvoice.findOne({
+          where: { truckBreakDownId: breakDown['id'] },
+        });
+        if (repairInvoice) {
+          row['repairInvoice'] = repairInvoice.dataValues;
+        }
+  
         data.push(row);
       }
     }
-
+  
     return {
       status: 200,
       data: countList === 0 || countList ? countList : data,
       count: breakDowns.count,
     };
   }
+  
 
   async exportReportTransportAdmin(
     transportComment: string,

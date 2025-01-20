@@ -1518,22 +1518,24 @@ export class CheckListService {
 
     for (let item of driversQuery) {
       let checkInfo = { ...item.dataValues };
-
+    
       if (done === 'true') {
         const driverCheckList = checkListRegisterByDriver.find(
           (done) => done.userId === item.id
         );
         if (driverCheckList) {
+          checkInfo['checklistId'] = driverCheckList.id; // Include checklist ID
           checkInfo['hours'] = driverCheckList.hours;
           checkInfo['history'] = driverCheckList.history;
         }
       }
-
+    
       const truckInfo = truckInfoMap[item.id] || {};
       Object.assign(checkInfo, truckInfo);
-
+    
       data.push(checkInfo);
     }
+    
 
     message = done === 'true' ? 'list of driver done checklist today' : 'list of driver undone checklist today';
 
@@ -1879,7 +1881,6 @@ export class CheckListService {
   ) {
     return await this.authService.userSameZone(zone, role, attributes, company);
   }
-
   async checkKilometer(body: Object) {
     let Holidaykilometer;
     let diffCheckList: number = 0

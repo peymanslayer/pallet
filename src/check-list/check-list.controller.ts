@@ -220,9 +220,9 @@ export class CheckListController {
 
 
   @Get('/api/checklist/checkTodayChecklist/:id')
-  async checkTodayChecklist(@Param('id') id: number , @Res() response: Response){
+  async checkTodayChecklist(@Param('userId') userId: number , @Param('truckId') truckId: number , @Res() response: Response){
     try {
-      const res = await this.checkListService.checkTodayChecklist(id);
+      const res = await this.checkListService.checkTodayChecklist(userId , truckId);
       response.status(res.status).json({ data: res.date , message: res.message });
     } catch (err) {
       console.log(err);

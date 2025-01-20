@@ -222,14 +222,15 @@ export class CheckListService {
   //   };
   // }
 
-  async checkTodayChecklist(id: number) {
+  async checkTodayChecklist(userId: number , truckId: number) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     // بررسی چک‌لیست امروز
     const todayCheckList = await this.checkListRepository.findOne({
       where: {
-        userId: id,
+        userId,
+        truckId,
         createdAt: {
           [Op.gte]: today,
         },
@@ -343,61 +344,163 @@ export class CheckListService {
   //       message: 'چک‌لیست با موفقیت ثبت شد',
   //   };
   // }
+
+
+
+
+  // async insertCheckList(body: Object) {
+  //   let diff: number = 0
+  //   const checkList = {};
+  //   const today = new Date();
+  //   const formattedDate = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
+  //   let checkListComment = {};
+  //   const answers: [] = body['answers'];
+  //   let Holidaykilometer: number;
+  //   checkList['userId'] = body['id'];
+  //   checkList['truckId'] = body['truckId'];
+  //   checkList['name'] = body['name'];
+  //   checkList['hours'] = body['hours'];
+  //   checkList['history'] = formattedDate
+  //   const currentAnswer0 = body['answers'].find((a) => a.number === 0)?.question;
+  //   const checkListCheck = await this.checkTodayChecklist(body['id'] , body['truckId']);
+  //   if (checkListCheck.message == "مجاز برای ثبت چک لیست") {
+
+  //     for (let item of answers) {
+  //       checkList['answer_' + item['number']] = item['question'];
+  //       if (item['comment']) {
+  //         checkListComment['answer_' + item['number']] = item['comment'];
+  //       }
+  //     }
+
+  //     const lastCheckLis = await this.checkListRepository.findOne({
+  //       where: { userId: body['id'] , truckId : body['truckId'] },
+  //       order: [['createdAt', 'DESC']],
+  //     });
+  //     const insertCheckList = await this.checkListRepository.create<CheckList>(checkList);
+  //     if (lastCheckLis) {
+  //       diff = currentAnswer0 - lastCheckLis.answer_0;
+  //     }
+  //     console.log(insertCheckList);
+
+
+  //     if (Object.entries(checkListComment).length != 0) {
+  //       console.log('imn');
+  //       console.log(checkListComment);
+
+  //       checkListComment['checkListId'] = insertCheckList.id;
+  //       const Res = await this.checkListCommentRepository.create<CheckListComment>(checkListComment);
+  //       console.log(Res);
+
+  //     }
+
+  //     const unresolvedBreakdowns = await this.truckBreakDownRepository.findAll({
+  //       where: {
+  //         driverId: body['id'],
+  //         historySendToRepair: {
+  //           [Op.not]: null,
+  //         },
+  //       },
+  //     });
+
+
+  //     if (unresolvedBreakdowns.length > 0) {
+  //       for (const breakdown of unresolvedBreakdowns) {
+  //         await this.truckBreakDownRepository.update(
+  //           {
+  //             carLife: currentAnswer0,
+  //           },
+  //           { where: { id: breakdown.id } }
+  //         );
+  //         console.log(breakdown);
+
+  //       }
+  //     }
+
+  //     const truckInfo = await this.truckInfoRepository.findOne({
+  //       where: { driverId: checkList['userId'] },
+  //     });
+  //     console.log(truckInfo);
+
+  //     if (truckInfo) {
+  //       await this.truckInfoRepository.update(
+  //         { lastCarLife: checkList['answer_0'], lastCarLifeBackup: truckInfo?.lastCarLife || checkList['answer_0'] },
+  //         { where: { driverId: checkList['userId'] } }
+  //       );
+  //     }
+
+  //     return {
+  //       status: 201,
+  //       message: 'چک‌لیست با موفقیت ثبت شد',
+  //     };
+  //   } else {
+  //     return {
+  //       status: 200,
+  //       message: 'مجاز برای ثبت چک لیست نیستید'
+  //     }
+  //   }
+  // }
+
   async insertCheckList(body: Object) {
-    let diff: number = 0
+    let diff: number = 0;
     const checkList = {};
     const today = new Date();
     const formattedDate = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
     let checkListComment = {};
     const answers: [] = body['answers'];
-    let Holidaykilometer: number;
     checkList['userId'] = body['id'];
     checkList['truckId'] = body['truckId'];
     checkList['name'] = body['name'];
     checkList['hours'] = body['hours'];
-    checkList['history'] = formattedDate
+    checkList['history'] = formattedDate;
     const currentAnswer0 = body['answers'].find((a) => a.number === 0)?.question;
-    const checkListCheck = await this.checkTodayChecklist(body['id']);
-    if (checkListCheck.message == "مجاز برای ثبت چک لیست") {
-
+  
+    const truckInfo = await this.truckInfoRepository.findOne({
+      where: { id: body['truckId'] },
+    });
+  
+    if (!truckInfo) {
+      return {
+        status: 404,
+        message: 'وسیله نقلیه‌ای با این مشخصات یافت نشد',
+      };
+    }
+  
+    const carNumber = truckInfo.carNumber;
+  
+    const checkListCheck = await this.checkTodayChecklist(body['id'], body['truckId']);
+    if (checkListCheck.message == 'مجاز برای ثبت چک لیست') {
       for (let item of answers) {
         checkList['answer_' + item['number']] = item['question'];
         if (item['comment']) {
           checkListComment['answer_' + item['number']] = item['comment'];
         }
       }
-
+  
       const lastCheckLis = await this.checkListRepository.findOne({
-        where: { userId: body['id'] },
+        where: { userId: body['id'], truckId: body['truckId'] },
         order: [['createdAt', 'DESC']],
       });
+  
       const insertCheckList = await this.checkListRepository.create<CheckList>(checkList);
       if (lastCheckLis) {
         diff = currentAnswer0 - lastCheckLis.answer_0;
       }
-      console.log(insertCheckList);
-
-
+  
       if (Object.entries(checkListComment).length != 0) {
-        console.log('imn');
-        console.log(checkListComment);
-
         checkListComment['checkListId'] = insertCheckList.id;
-        const Res = await this.checkListCommentRepository.create<CheckListComment>(checkListComment);
-        console.log(Res);
-
+        await this.checkListCommentRepository.create<CheckListComment>(checkListComment);
       }
-
+  
       const unresolvedBreakdowns = await this.truckBreakDownRepository.findAll({
         where: {
           driverId: body['id'],
           historySendToRepair: {
             [Op.not]: null,
           },
+          carNumber: carNumber,
         },
       });
-
-
+  
       if (unresolvedBreakdowns.length > 0) {
         for (const breakdown of unresolvedBreakdowns) {
           await this.truckBreakDownRepository.update(
@@ -406,23 +509,19 @@ export class CheckListService {
             },
             { where: { id: breakdown.id } }
           );
-          console.log(breakdown);
-
         }
       }
-
-      const truckInfo = await this.truckInfoRepository.findOne({
-        where: { driverId: checkList['userId'] },
-      });
-      console.log(truckInfo);
-
+  
       if (truckInfo) {
         await this.truckInfoRepository.update(
-          { lastCarLife: checkList['answer_0'], lastCarLifeBackup: truckInfo?.lastCarLife || checkList['answer_0'] },
-          { where: { driverId: checkList['userId'] } }
+          { 
+            lastCarLife: checkList['answer_0'], 
+            lastCarLifeBackup: truckInfo?.lastCarLife || checkList['answer_0'] 
+          },
+          { where: { id: body['truckId'] } }
         );
       }
-
+  
       return {
         status: 201,
         message: 'چک‌لیست با موفقیت ثبت شد',
@@ -430,10 +529,11 @@ export class CheckListService {
     } else {
       return {
         status: 200,
-        message: 'مجاز برای ثبت چک لیست نیستید'
-      }
+        message: 'مجاز برای ثبت چک لیست نیستید',
+      };
     }
   }
+  
   // async insertCheckList(body: Object) {
   //   const checkList = {};
   //   const checkListComment = {};
@@ -1911,11 +2011,11 @@ export class CheckListService {
     checkList['hours'] = fullHour
 
     const lastCheckLis = await this.checkListRepository.findOne({
-      where: { userId: body['id'], history: formattedYesteradyDate },
+      where: { userId: body['userId'] , truckId : body['truckId'] , history: formattedYesteradyDate },
       order: [['createdAt', 'DESC']],
     });
     const lastCheckList = await this.checkListRepository.findAll({
-      where: { userId: body['id'] },
+      where: {  userId: body['userId'] , truckId : body['truckId'] },
       order: [['createdAt', 'DESC']],
     });
 

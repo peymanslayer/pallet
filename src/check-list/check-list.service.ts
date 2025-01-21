@@ -495,7 +495,7 @@ export class CheckListService {
         where: {
           driverId: body['id'],
           historySendToRepair: {
-            [Op.not]: null,
+            [Op.eq]: null,
           },
           carNumber: carNumber,
         },

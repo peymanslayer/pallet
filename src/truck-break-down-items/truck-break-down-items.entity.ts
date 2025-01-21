@@ -41,8 +41,8 @@ export class TruckBreakDownItems extends Model<TruckBreakDownItems> {
   @Column({ type: DataType.TEXT })
   type_3: string;
 
-  @ApiProperty({ description: 'Question 3, e.g., "Oil service"', default: 'سرویس روغن' })
-  @Column({ type: DataType.TEXT, defaultValue: 'سرویس روغن' })
+  @ApiProperty({ description: 'Question 3, e.g., "Service fee"', default: 'اجرت خدمات' })
+  @Column({ type: DataType.TEXT, defaultValue: 'اجرت خدمات' })
   question_3: string;
 
   @ApiProperty({ description: 'Answer to question 4' })
@@ -413,7 +413,8 @@ export class TruckBreakDownItems extends Model<TruckBreakDownItems> {
   @Column({ type: DataType.TEXT })
   type_34: string;
 
-  @ApiProperty({ description: 'Question 34, e.g., "Service fee"', default: 'اجرت خدمات' })
-  @Column({ type: DataType.TEXT, defaultValue: 'اجرت خدمات' })
+  @ApiProperty({ description: 'Question 34, e.g., "Oil service"', default: 'روغن موتور' })
+  @Column({ type: DataType.TEXT, defaultValue: 'روغن موتور' })
   question_34: string;
+
 }

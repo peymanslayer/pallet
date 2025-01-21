@@ -177,7 +177,7 @@ async insertTruckBreakDownItems(body: any) {
     
 
     const todayCheckList = await this.checkListRepository.findOne({
-      where: { history: formattedDate, userId: truckInfo.driverId },
+      where: { history: formattedDate, userId: truckInfo.driverId , truckId : truckInfo.id},
     });
     console.log('Today Checklist:', todayCheckList);
 
@@ -216,9 +216,11 @@ async insertTruckBreakDownItems(body: any) {
     }
     
     const lastCheckList = await this.checkListRepository.findOne({
-      where: { carNumber: truckInfo.carNumber },
+      where: { truckId : truckInfo.id },
       order: [['createdAt', 'DESC']],
     });
+    console.log(lastCheckList.answer_0);
+    
 
     // اعتبارسنجی مقادیر مورد نیاز
     if (!truckInfo) {
@@ -252,8 +254,7 @@ async insertTruckBreakDownItems(body: any) {
     
       breakDownItems['answer_' + item['number']] = item['comment'];
       breakDownItems['type_' + item['number']] = item['type'];
-      breakDownItems['number_' + item['number']] = item['number'];
-    
+      breakDownItems['number_' + item['number']] = item['number']; 
     }
     
 

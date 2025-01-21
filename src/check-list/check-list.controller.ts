@@ -219,7 +219,7 @@ export class CheckListController {
 
 
 
-  @Get('/api/checklist/checkTodayChecklist/:id')
+  @Get('/api/checklist/checkTodayChecklist/:userId/:truckId')
   async checkTodayChecklist(@Param('userId') userId: number , @Param('truckId') truckId: number , @Res() response: Response){
     try {
       const res = await this.checkListService.checkTodayChecklist(userId , truckId);

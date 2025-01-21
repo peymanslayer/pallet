@@ -2042,7 +2042,7 @@ export class CheckListService {
       //   !lastCheckLis.isDeleted, formattedYesteradyDate, lastCheckLis.history);
       if(lastCheckLis){
       console.log(currentAnswer <= lastCheckLis.answer_0, currentAnswer - lastCheckLis.answer_0 > 1000);
-       if( currentAnswer <= lastCheckLis.answer_0 ||( currentAnswer < kilometerPerviousNumber  || currentAnswer>1000 * diffCheckList + kilometerPerviousNumber)){
+       if( currentAnswer <= lastCheckLis.answer_0 ||( currentAnswer <= kilometerPerviousNumber  || currentAnswer>1000 * diffCheckList + kilometerPerviousNumber)){
         console.log('in if');
         
           return{
@@ -2053,7 +2053,7 @@ export class CheckListService {
     }else{
       console.log((1000 * diffCheckList) + kilometerPerviousNumber || currentAnswer < kilometerPerviousNumber);
       
-      if( currentAnswer>1000 * diffCheckList + kilometerPerviousNumber|| currentAnswer < kilometerPerviousNumber ){
+      if( currentAnswer>1000 * diffCheckList + kilometerPerviousNumber|| currentAnswer <= kilometerPerviousNumber ){
         return{
           status:200,
           message:'شرایط کیلومتر اشتباه است'

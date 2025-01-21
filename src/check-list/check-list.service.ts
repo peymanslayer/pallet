@@ -1984,7 +1984,7 @@ export class CheckListService {
   async checkKilometer(body: Object) {
     let Holidaykilometer;
     let diffCheckList: number = 0
-    let kilometerPerviousNumber: number;
+    let kilometerPerviousNumber: number=0;
     const currentAnswer = body['kilometer'];
     const checkList = {};
     const hd = new Holidays('IR')
@@ -1998,11 +1998,13 @@ export class CheckListService {
     console.log(formatToday);
 
     let ckeckInHolidaysOrNot = await this.checkInHoliday(getHoliday, formatToday);
-    if (ckeckInHolidaysOrNot.message == ' شما در تعطیلات هستید') {
-      Holidaykilometer = 0
-    } else {
-      Holidaykilometer = 2000 * ckeckInHolidaysOrNot.numberOfHoliday;
-    }
+    // if (ckeckInHolidaysOrNot.message == ' شما در تعطیلات هستید') {
+    //   Holidaykilometer = 0
+    // } else {
+    //   console.log(ckeckInHolidaysOrNot.numberOfHoliday);
+      
+    //   Holidaykilometer = 2000 * ckeckInHolidaysOrNot.numberOfHoliday;
+    // }
 
     const currentTime = new Date();
     let hours = currentTime.getHours();
@@ -2014,78 +2016,85 @@ export class CheckListService {
       where: { userId: body['userId'] , truckId : body['truckId'] , history: formattedYesteradyDate },
       order: [['createdAt', 'DESC']],
     });
-    const lastCheckList = await this.checkListRepository.findAll({
+    const lastCheckList = await this.checkListRepository.findAndCountAll({
       where: {  userId: body['userId'] , truckId : body['truckId'] },
       order: [['createdAt', 'DESC']],
     });
 
     if (lastCheckList) {
-      for (const item of lastCheckList) {
-        if (item.dataValues.answer_0 != null) {
-          kilometerPerviousNumber = +Number(item.dataValues.answer_0);
+      for (const item of lastCheckList.rows) {
+        if (item.answer_0 != null) {
+          kilometerPerviousNumber = item.dataValues.answer_0+kilometerPerviousNumber;
           console.log(item.dataValues.answer_0, 'is data');
 
         }
       }
     }
-    console.log(lastCheckList.length, 'is lenght');
-    if (lastCheckList.length > 1) {
-      diffCheckList = lastCheckList[0].answer_0 - lastCheckList[1].answer_0;
-    } else {
-      diffCheckList = 1
-    }
-
+    // console.log(lastCheckList.length, 'is lenght');
+        const resultDifference=await this.checkNumberOfCheckList(body['userId']);
+      diffCheckList=resultDifference.message
 
     let diff = 0
 
-
-    if (lastCheckLis) {
-      console.log(lastCheckLis.history != formattedYesteradyDate, currentAnswer > 1000 * diffCheckList + kilometerPerviousNumber,
-        !lastCheckLis.isDeleted, formattedYesteradyDate, lastCheckLis.history);
+    console.log(diffCheckList,"is diff ", kilometerPerviousNumber,"is pervious");
+    
+      // console.log(lastCheckLis.history != formattedYesteradyDate, currentAnswer > 1000 * diffCheckList + kilometerPerviousNumber,
+      //   !lastCheckLis.isDeleted, formattedYesteradyDate, lastCheckLis.history);
+      if(lastCheckLis){
       console.log(currentAnswer <= lastCheckLis.answer_0, currentAnswer - lastCheckLis.answer_0 > 1000);
-
-      if (lastCheckLis.history != formattedYesteradyDate && currentAnswer > 1000 * diffCheckList + kilometerPerviousNumber &&
-        (currentAnswer <= lastCheckLis.answer_0 ||
-          currentAnswer - lastCheckLis.answer_0 > 1000 || currentAnswer > 1000)
-      ) {
-        return {
-          status: 200,
-          data: [],
-          message: 'شرایط کیلومتر اشتباه است'
-        };
-
-      }
-      else {
-        if (currentAnswer - Number(kilometerPerviousNumber) > 1000) {
-          return {
-            status: 200,
-            message: 'شرایط کیلومتر اشتباه است'
-          }
-        } else {
-          return {
-            status: 200,
-            message: 'ادامه'
+       if( currentAnswer <= lastCheckLis.answer_0 ||( currentAnswer < kilometerPerviousNumber  || currentAnswer>1000 * lastCheckList.count)){
+        console.log('in if');
+        
+          return{
+            status:200,
+            message:'شرایط کیلومتر اشتباه است'
           }
         }
+    }else{
+      console.log((1000 * diffCheckList) + kilometerPerviousNumber || currentAnswer < kilometerPerviousNumber);
+      
+      if( currentAnswer>1000 * lastCheckList.count || currentAnswer < kilometerPerviousNumber ){
+        return{
+          status:200,
+          message:'شرایط کیلومتر اشتباه است'
+        }
       }
+        return{
+          status:200,
+          message:'ادامه'
+        }
+    }
+      // else {
+      //   if (currentAnswer - Number(kilometerPerviousNumber) > 1000) {
+      //     return {
+      //       status: 200,
+      //       message: 'شرایط کیلومتر اشتباه است'
+      //     }
+      //   } else {
+      //     return {
+      //       status: 200,
+      //       message: 'ادامه'
+      //     }
+      //   }
+      // }
       // اگر رکورد قبلی وجود دارد
 
-    } else {
-      console.log(kilometerPerviousNumber, currentAnswer);
+    // } else {
+    //   console.log(kilometerPerviousNumber, currentAnswer);
 
-      if ((currentAnswer > 1000 && kilometerPerviousNumber == undefined) || currentAnswer - kilometerPerviousNumber > 1000) {
-        return {
-          status: 200,
-          data: [],
-          message: 'شرایط کیلومتر اشتباه است',
-        };
-      } else {
-        return {
-          status: 200,
-          message: 'ادامه'
-        }
-      }
-    }
+    //   if ((currentAnswer > 1000 && kilometerPerviousNumber == undefined) || currentAnswer - kilometerPerviousNumber > 1000) {
+    //     return {
+    //       status: 200,
+    //       data: [],
+    //       message: 'شرایط کیلومتر اشتباه است',
+    //     };
+    //   } else {
+    //     return {
+    //       status: 200,
+    //       message: 'ادامه'
+    //     }
+    //   }
+    // }
   }
 
   async checkInHoliday(holiadys: Array<Holiday>, todayDate: string) {
@@ -2101,9 +2110,10 @@ export class CheckListService {
 
       if (todayDate == formattedDate) {
         console.log("in hd");
-        numberOfHoliday++
+        numberOfHoliday=0
         message = ' شما در تعطیلات هستید'
       } else {
+        numberOfHoliday++
         message = 'ادامه'
       }
 
@@ -2172,7 +2182,7 @@ export class CheckListService {
       if (Number(splitLastHistory[1]) == Number(splitLatestHistory[1])) {
         return {
           status: 200,
-          message: Number(splitLastHistory[2]) - Number(splitLatestHistory[2])-1
+          message: 1
         }
       } else {
          const resultNumber=day+Number(splitLastHistory[2])-Number(splitLatestHistory[2])-1;

@@ -407,6 +407,7 @@ export class TruckBreakDownService {
     company?: string,
     zone?: string,
   ) {
+    let response;
     let findFactor = [];
     let filter = {};
     let data = [];
@@ -458,7 +459,16 @@ export class TruckBreakDownService {
         order: [['id', 'DESC']],
         limit: 20,
       });
-  
+      for(let item of breakDowns.rows){
+       if(item.truckBreakDownItemsId!=null){
+        const findBreakDown=await this.truckBreakDownItemsRepository.findOne({
+          where:{id:item.truckBreakDownItemsId}
+        });
+        data.push(item)
+        data.push(findBreakDown);
+       }
+      }
+      
       for (let item of breakDowns.rows) {
         if (item.transportComment === 'notNecessary') {
           await this.truckBreakDownRepository.update(

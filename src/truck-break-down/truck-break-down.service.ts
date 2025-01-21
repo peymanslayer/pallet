@@ -1657,10 +1657,22 @@ export class TruckBreakDownService {
   async update(id: number, body: UpdateTruckBreakDownDto) {
     const notify = {};
     if (body.transportComment) {
+      if(body.transportComment === 'notNecessary') {
+        const breakDown = await this.truckBreakDownRepository.findOne({where : {id}})
+        breakDown.status = 'closed'
+        await breakDown.save()
+      }
       notify['notifyTransportComment'] = true;
       body.transportCommentHistory = this.getTime(new Date());
     }
-    if (body.repairmanComment) notify['notifyRepairmanComment'] = true;
+    if (body.repairmanComment) {
+      if(body.repairmanComment === 'notNecessary') {
+        const breakDown = await this.truckBreakDownRepository.findOne({where : {id}})
+        breakDown.status = 'closed'
+        await breakDown.save()
+      }
+      notify['notifyRepairmanComment'] = true;
+    }
 
     const res = await this.truckBreakDownRepository.update(
       {

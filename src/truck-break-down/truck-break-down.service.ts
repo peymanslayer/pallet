@@ -1599,7 +1599,20 @@ export class TruckBreakDownService {
       notify['notifyTransportComment'] = true;
       body.transportCommentHistory = this.getTime(new Date());
     }
-    if (body.repairmanComment) notify['notifyRepairmanComment'] = true;
+    if (body.repairmanComment) {
+      if(body.repairmanComment === 'notNecessary') {
+        const breakDown = await this.truckBreakDownRepository.findOne({where : {id}})
+        breakDown.status = 'closed'
+        await breakDown.save()
+      }
+      notify['notifyRepairmanComment'] = true;
+    } else {
+      return {
+        status : 422 ,
+        data : [] ,
+        message : "سرپرست محترم لطفا نظر خود را وارد کنید."
+      }
+    }
 
     const res = await this.truckBreakDownRepository.update(
       {

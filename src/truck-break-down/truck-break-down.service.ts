@@ -407,7 +407,7 @@ export class TruckBreakDownService {
     company?: string,
     zone?: string,
   ) {
-    let response;
+    let response=[];
     let findFactor = [];
     let filter = {};
     let data = [];
@@ -464,8 +464,7 @@ export class TruckBreakDownService {
         const findBreakDown=await this.truckBreakDownItemsRepository.findOne({
           where:{id:item.truckBreakDownItemsId}
         });
-        data.push(item)
-        data.push(findBreakDown);
+        response.push(findBreakDown)
        }
       }
       
@@ -559,6 +558,7 @@ export class TruckBreakDownService {
         row['historyDeliveryDriver'] = breakDown['historyDeliveryDriver'];
         row['hoursRepairComment'] = breakDown['hoursRepairComment'];
         row['historyRepairComment'] = breakDown['historyRepairComment'];
+        row['breakDown']=response
   
         if (userInfo) {
           row['personalCode'] = userInfo.personelCode;

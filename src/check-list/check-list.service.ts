@@ -2042,7 +2042,7 @@ export class CheckListService {
       //   !lastCheckLis.isDeleted, formattedYesteradyDate, lastCheckLis.history);
       if(lastCheckLis){
       console.log(currentAnswer <= lastCheckLis.answer_0, currentAnswer - lastCheckLis.answer_0 > 1000);
-       if( currentAnswer <= lastCheckLis.answer_0 ||( currentAnswer < kilometerPerviousNumber  || currentAnswer>1000 * lastCheckList.count)){
+       if( currentAnswer <= lastCheckLis.answer_0 ||( currentAnswer < kilometerPerviousNumber  || currentAnswer>1000 * diffCheckList + kilometerPerviousNumber)){
         console.log('in if');
         
           return{
@@ -2053,7 +2053,7 @@ export class CheckListService {
     }else{
       console.log((1000 * diffCheckList) + kilometerPerviousNumber || currentAnswer < kilometerPerviousNumber);
       
-      if( currentAnswer>1000 * lastCheckList.count || currentAnswer < kilometerPerviousNumber ){
+      if( currentAnswer>1000 * diffCheckList + kilometerPerviousNumber|| currentAnswer < kilometerPerviousNumber ){
         return{
           status:200,
           message:'شرایط کیلومتر اشتباه است'
@@ -2113,7 +2113,7 @@ export class CheckListService {
         numberOfHoliday=0
         message = ' شما در تعطیلات هستید'
       } else {
-        numberOfHoliday++
+        numberOfHoliday =numberOfHoliday+1
         message = 'ادامه'
       }
 
@@ -2127,18 +2127,24 @@ export class CheckListService {
   async checkNumberOfCheckList(id: number) {
     let day: number;
     const checkNumberOfCheckList = await this.checkListRepository.findAll({
-      where: { userId: id }
+      where: { userId: id },
+      order: [['history', 'DESC']],
+      
     });
-    if (checkNumberOfCheckList.length > 1) {
+    console.log(checkNumberOfCheckList);
+    
+    // if (checkNumberOfCheckList.length > 1) {
 
       const getMonth = new Date();
       const numberGetMonth = getMonth.getMonth() + 1
-      const lastHistory = checkNumberOfCheckList[checkNumberOfCheckList.length - 1].dataValues.history;
-      const latestHistory = checkNumberOfCheckList[checkNumberOfCheckList.length - 2].dataValues.history;
-      const splitLastHistory = lastHistory.split("/");
+      // const lastHistory = checkNumberOfCheckList[checkNumberOfCheckList.length ].dataValues.history;
+      const today = new Date();
+      const formattedDate = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
+      const latestHistory = checkNumberOfCheckList[0].dataValues.history;
+      const splitLastHistory = formattedDate.split("/");
       const splitLatestHistory = latestHistory.split("/");
-      console.log(lastHistory, latestHistory, numberGetMonth, splitLastHistory[2], splitLatestHistory[2]);
-      switch (Number(splitLastHistory[1])-1) {
+      console.log(formattedDate, latestHistory, numberGetMonth, splitLastHistory[2], splitLatestHistory[2]);
+      switch (Number(splitLastHistory[1])) {
         case 0:
           day = 31
           break;
@@ -2179,27 +2185,32 @@ export class CheckListService {
         default:
           break;
       }
-      if (Number(splitLastHistory[1]) == Number(splitLatestHistory[1])) {
+      if (Number(splitLastHistory[2]) == Number(splitLatestHistory[2])) {
+        
         return {
           status: 200,
           message: 1
         }
       } else {
-         const resultNumber=day+Number(splitLastHistory[2])-Number(splitLatestHistory[2])-1;
+         const resultNumber=day-(Number(splitLastHistory[2])+Number(splitLatestHistory[2]));
+         const result= this.mirror(resultNumber);
          return{
           status:200,
-          message:resultNumber
+          message:result
          }
       }
 
-    } else {
-      return {
-        status: 200,
-        message: 1
+    } 
+
+     mirror(firstNumber:number):number{
+      if(firstNumber<0){
+        return -firstNumber
       }
+      return firstNumber
     }
 
   }
-}
+  
+
 
 

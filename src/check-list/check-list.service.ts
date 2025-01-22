@@ -2050,20 +2050,22 @@ export class CheckListService {
             message:'شرایط کیلومتر اشتباه است'
           }
         }
-    }else{
+    }if( currentAnswer>1000 * diffCheckList + kilometerPerviousNumber|| currentAnswer <= kilometerPerviousNumber ){
       console.log((1000 * diffCheckList) + kilometerPerviousNumber || currentAnswer < kilometerPerviousNumber);
       
-      if( currentAnswer>1000 * diffCheckList + kilometerPerviousNumber|| currentAnswer <= kilometerPerviousNumber ){
+      
         return{
           status:200,
           message:'شرایط کیلومتر اشتباه است'
         }
-      }
+      }else{
+        console.log('in');
+        
         return{
           status:200,
           message:'ادامه'
         }
-    }
+      }
       // else {
       //   if (currentAnswer - Number(kilometerPerviousNumber) > 1000) {
       //     return {

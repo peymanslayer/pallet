@@ -1932,37 +1932,89 @@ export class CheckListService {
       console.log(err);
     }
   }
+  // async removeCheckList(id: number) {
+  //   try {
+  //     const checklistToDelete = await this.checkListRepository.findOne({
+  //       where: { id: id },
+  //     });
+
+  //     // const removeComment = await this.checkListCommentRepository.destroy({
+  //     //   where: {
+  //     //     checkListId: id,
+  //     //   },
+  //     // });
+
+  //     const perviousCheckListOfUser = await this.checkListRepository.findOne({
+  //       where: {
+  //         userId: checklistToDelete.userId,
+  //       },
+  //       order: [['id', 'DESC']],
+  //     });
+  //     perviousCheckListOfUser.isDeleted = true
+  //     perviousCheckListOfUser.save()
+
+  //     await this.truckInfoRepository.update(
+  //       { lastCarLife: perviousCheckListOfUser.answer_0.toString() },
+  //       { where: { driverId: checklistToDelete.userId } },
+  //     );
+
+  //     return { status: 200, message: 'reomve checkList successfully' };
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // }
+
   async removeCheckList(id: number) {
     try {
       const checklistToDelete = await this.checkListRepository.findOne({
         where: { id: id },
       });
-
-      // const removeComment = await this.checkListCommentRepository.destroy({
-      //   where: {
-      //     checkListId: id,
-      //   },
-      // });
-
+  
+      if (!checklistToDelete) {
+        return { status: 404, message: 'چک لیست یافت نشد' };
+      }
+  
+      const today = new Date();
+      const formattedToday = today.toISOString().split('T')[0]; 
+  
+      const checklistDateUTC = new Date(checklistToDelete.history);
+      const checklistDateLocal = new Date(
+        checklistDateUTC.getTime() + checklistDateUTC.getTimezoneOffset() * 60000
+      );
+  
+      checklistDateLocal.setDate(checklistDateLocal.getDate() + 1);
+  
+      const formattedChecklistDate = checklistDateLocal.toISOString().split('T')[0];
+  
+      if (formattedChecklistDate !== formattedToday) {
+        return { status: 201, message: 'شما فقط قادر به حذف چک لیست امروز هستید' };
+      }
+      
       const perviousCheckListOfUser = await this.checkListRepository.findOne({
         where: {
           userId: checklistToDelete.userId,
         },
         order: [['id', 'DESC']],
       });
-      perviousCheckListOfUser.isDeleted = true
-      perviousCheckListOfUser.save()
-
+  
+      if (perviousCheckListOfUser) {
+        perviousCheckListOfUser.isDeleted = true;
+        await perviousCheckListOfUser.save();
+      }
+  
       await this.truckInfoRepository.update(
-        { lastCarLife: perviousCheckListOfUser.answer_0.toString() },
+        { lastCarLife: perviousCheckListOfUser?.answer_0?.toString() || '' },
         { where: { driverId: checklistToDelete.userId } },
       );
-
-      return { status: 200, message: 'reomve checkList successfully' };
+  
+  
+      return { status: 200, message: 'CheckList removed successfully' };
     } catch (err) {
-      console.log(err);
+      console.error('Error removing checklist:', err);
+      return { status: 500, message: 'An error occurred while removing the checklist' };
     }
   }
+  
 
   async removeAllCheckLists() {
     try {

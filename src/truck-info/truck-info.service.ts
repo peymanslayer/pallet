@@ -55,6 +55,12 @@ export class TruckInfoService {
         //======================================================================
       }
 
+      const currentDriverCarNumber = await this.truckInfoRepository.findOne({where : {carNumber : body['carNumber']}})
+      if(currentDriverCarNumber) {
+        currentDriverCarNumber.carNumber = null;
+        await currentDriverCarNumber.save()
+      }
+
       const infoUpdate = await this.truckInfoRepository.update(body, {
         where: {
           driverId: driverId,

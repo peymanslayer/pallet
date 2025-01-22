@@ -1105,7 +1105,7 @@ export class TruckBreakDownService {
         where: {
           [Op.and]: {
             transportComment: { [Op.in]: ['necessary', 'immediately'] },
-            logisticComment: { [Op.ne]: null },
+            // logisticComment: { [Op.ne]: null },
             historyReciveToRepair: { [Op.eq]: null },
             repairmanComment: { [Op.eq]: null },
             // piece: { [Op.eq]: null },
@@ -1119,7 +1119,7 @@ export class TruckBreakDownService {
         limit: 20,
       });
       return{
-        data:breakDowns,
+        data:breakDowns.rows,
         count:breakDowns.count,
         status:200
       }

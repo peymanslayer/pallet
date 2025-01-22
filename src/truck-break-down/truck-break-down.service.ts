@@ -1067,18 +1067,16 @@ export class TruckBreakDownService {
     carNumber: string,
     company: string,
   ) {
+    let final={}
     let findTruckBreakDownItem;
     let breaks=[];
     let response=[];
     let filter = {}; // filter by "date" or "carNumber"
-    let data = [];
+    let data =[];
     const usersIdInCompany = [];
     let countList: number;
-    let breakDowns: {
-      rows: TruckBreakDown[];
-      count: number;
-    };
-    if (beforeHistory || afterHistory) {
+    let breakDowns;
+        if (beforeHistory || afterHistory) {
       if (!afterHistory) {
         afterHistory = '2024/0/0';
       }
@@ -1116,24 +1114,15 @@ export class TruckBreakDownService {
             ...filter,
           },
         },
+        include:[TruckBreakDownItems],
         order: [['id', 'DESC']],
         limit: 20,
       });
-      breaks.push(breakDowns)
-      for(let item of breakDowns.rows){
-        if(item.truckBreakDownItemsId!=null){
-          console.log(item.truckBreakDownItemsId);
-          
-           findTruckBreakDownItem=await this.truckBreakDownItemsRepository.findOne({
-            where:{id:item.dataValues.truckBreakDownItemsId}
-          })
-        response.push(findTruckBreakDownItem)
-        }
-
-
+      return{
+        data:breakDowns,
+        count:breakDowns.count,
+        status:200
       }
-      
-      breaks.push(breakDowns)
   
     } else if (historySendToRepair === 'true') {
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
@@ -1149,10 +1138,15 @@ export class TruckBreakDownService {
             ...filter,
           },
         },
+        include:[TruckBreakDownItems],
         order: [['id', 'DESC']],
         limit: 20,
       });
-      console.log(breakDowns);
+      return{
+        data:breakDowns,
+        count:breakDowns.count,
+        status:200
+      }
 
     }
     // get list of "Delivery to Driver"
@@ -1169,24 +1163,32 @@ export class TruckBreakDownService {
             ...filter,
           },
         },
+        include:[TruckBreakDownItems],
         order: [['id', 'DESC']],
         limit: 20,
       });
-      breaks.push(breakDowns)
-      for(let item of breakDowns.rows){
-        if(item.truckBreakDownItemsId!=null){
-          console.log(item.truckBreakDownItemsId);
-          
-           findTruckBreakDownItem=await this.truckBreakDownItemsRepository.findOne({
-            where:{id:item.dataValues.truckBreakDownItemsId}
-          })
-        response.push(findTruckBreakDownItem)
-        }
-
-
+      // breaks.push(breakDowns)
+      console.log(breakDowns);
+      return{
+        data:breakDowns,
+        count:breakDowns.count,
+        status:200
       }
       
-      breaks.push(breakDowns)
+      // for(let item of breakDowns.rows){
+      //   if(item.truckBreakDownItemsId!=null){
+      //     console.log(item.truckBreakDownItemsId);
+          
+      //      findTruckBreakDownItem=await this.truckBreakDownItemsRepository.findOne({
+      //       where:{id:item.dataValues.truckBreakDownItemsId}
+      //     })
+      //   response.push(findTruckBreakDownItem)
+      //   }
+
+
+      // }
+      
+    
   
     }
     if (count === 'true') {
@@ -1219,63 +1221,54 @@ export class TruckBreakDownService {
               logisticConfirm: { [Op.ne]: 0 },
             },
           },
+          include:[TruckBreakDownItems],
           order: [['id', 'DESC']],
           limit: 20,
         });
-        for(let item of breakDowns.rows){
-          if(item.truckBreakDownItemsId!=null){
-            console.log(item.truckBreakDownItemsId);
-            
-             findTruckBreakDownItem=await this.truckBreakDownItemsRepository.findOne({
-              where:{id:item.dataValues.truckBreakDownItemsId}
-            })
-          response.push(findTruckBreakDownItem)
-          }
-
-
+    
+        return{
+          data:breakDowns,
+          count:breakDowns.count,
+          status:200
         }
         
-        breaks.push(breakDowns)
-    
-
     }
     // for(let item of breakDowns.rows){
     //   const carPiecesHistory = await this.getCarPiecesHistory(
     //     item['carNumber'],
     //   );
 
-      breaks['id'] = breakDowns['id'];
-      breaks['numberOfBreakDown'] = breakDowns['numberOfBreakDown'];
-      breaks['hours'] = breakDowns['hoursDriverRegister'];
-      breaks['history'] = breakDowns['historyDriverRegister'];
-      breaks['driverName'] = breakDowns['driverName'];
-      breaks['driverMobile'] = breakDowns['driverMobile'];
-      breaks['carNumber'] = breakDowns['carNumber'];
-      breaks['kilometer'] = breakDowns['carLife']; // carLife set value when driver register daily check list
-      breaks['transportComment'] = breakDowns['transportComment'];
-      breaks['logisticConfirm'] = breakDowns['logisticConfirm'];
-      breaks['repairmanComment'] = breakDowns['repairmanComment'];
-      breaks['historySendToRepair'] = breakDowns['historySendToRepair'];
-      breaks['historyReciveToRepair'] = breakDowns['historyReciveToRepair'];
-      breaks['histroyDeliveryTruck'] = breakDowns['histroyDeliveryTruck'];
-      breaks['historyDeliveryDriver'] = breakDowns['historyDeliveryDriver'];
-      breaks['piece'] = breakDowns['piece'];
-      // breaks['piecesReplacementHistory'] = carPiecesHistory;
+    //   breaks['id'] = breakDowns['id'];
+    //   breaks['numberOfBreakDown'] = breakDowns['numberOfBreakDown'];
+    //   breaks['hours'] = breakDowns['hoursDriverRegister'];
+    //   breaks['history'] = breakDowns['historyDriverRegister'];
+    //   breaks['driverName'] = breakDowns['driverName'];
+    //   breaks['driverMobile'] = breakDowns['driverMobile'];
+    //   breaks['carNumber'] = breakDowns['carNumber'];
+    //   breaks['kilometer'] = breakDowns['carLife']; // carLife set value when driver register daily check list
+    //   breaks['transportComment'] = breakDowns['transportComment'];
+    //   breaks['logisticConfirm'] = breakDowns['logisticConfirm'];
+    //   breaks['repairmanComment'] = breakDowns['repairmanComment'];
+    //   breaks['historySendToRepair'] = breakDowns['historySendToRepair'];
+    //   breaks['historyReciveToRepair'] = breakDowns['historyReciveToRepair'];
+    //   breaks['histroyDeliveryTruck'] = breakDowns['histroyDeliveryTruck'];
+    //   breaks['historyDeliveryDriver'] = breakDowns['historyDeliveryDriver'];
+    //   breaks['piece'] = breakDowns['piece'];
+    //   // breaks['piecesReplacementHistory'] = carPiecesHistory;
 
-      // console.log('itemsId to fetch: ', breakDown['truckBreakDownItemsId']); // #Debug
-      // item['answers'] = await this.getBreakDownItemsById(
-      //   breakDowns['truckBreakDownItemsId'],
-      // );
-      breaks['carType'] = breakDowns['type']; // depricated
-      breaks['checkListStatus'] = breakDowns['state']; // depricated
-      breaks['breakDownStatus'] = breakDowns['repairComment']; // depricated
-      // breaks['breakdownItems']=breaks
-
-    return {
-      status: 200,
-      data:  breaks.concat({response}),
-      count: breakDowns.count,
-    };
+    //   // console.log('itemsId to fetch: ', breakDown['truckBreakDownItemsId']); // #Debug
+    //   // item['answers'] = await this.getBreakDownItemsById(
+    //   //   breakDowns['truckBreakDownItemsId'],
+    //   // );
+    //   // breaks['carType'] = breakDowns['type']; // depricated
+    //   // breaks['checkListStatus'] = breakDowns['state']; // depricated
+    //   // breaks['breakDownStatus'] = breakDowns['repairComment']; // depricated
+    //   // breaks['breakdownItems']=breaks
+    // // for(let item of breakDowns.rows){
+    // //   for(let items;items<breakDowns.count;i++){
+    // //     data=[item]
+    // //   }
+    // // }
   }
 
 

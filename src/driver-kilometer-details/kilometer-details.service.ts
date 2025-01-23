@@ -12,13 +12,11 @@ export class KilometerDetailsService {
         private driverKilometerDetailRepository: typeof KilometerDetails,
     ){}
     async create(truckId: number, driverId: number, kilometer: number) {
-      // جستجوی ماشین با شناسه truckId
       const truck = await this.truckInfoRepository.findOne({ where: { id: +truckId } });
 
       console.log(kilometer);
       
-      
-      // اگر ماشین پیدا نشد
+
       if (!truck) {
           return {
               status: 200,
@@ -27,12 +25,10 @@ export class KilometerDetailsService {
           };
       }
       
-      // جستجوی کیلومترهای قبلی راننده
       let kilometerDetails = await this.driverKilometerDetailRepository.findOne({ where: { driverId } });
       
-      // اگر کیلومترهای راننده پیدا نشد
       if (!kilometerDetails) {
-          // ایجاد رکورد جدید برای راننده
+
           kilometerDetails = await this.driverKilometerDetailRepository.create({
               driverId,
               truckId,
@@ -47,11 +43,9 @@ export class KilometerDetailsService {
           };
       }
       
-      // اگر رکورد وجود داشت، کیلومتر جدید را به آن اضافه کنیم
       kilometerDetails.totalKilometer += kilometer;
       await kilometerDetails.save();
       
-      // برگشت پاسخ با داده‌های بروزرسانی شده
       return {
           status: 200,
           data: kilometerDetails,

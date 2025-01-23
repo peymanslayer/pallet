@@ -289,20 +289,33 @@ export class CheckListController {
       'Kilometer value does not meet the required conditions for validation',
     type: KilometerErrorResponse,
   })
-  async checkKilometer(@Body() body: any, @Res() response: Response){
+  async checkKilometer(@Body() body: Object, @Res() response: Response){
     const checkedKilometer= await this.checkListService.checkKilometer(body);
     response.status(checkedKilometer.status).json(checkedKilometer.message);
   }
 
-  @Get('checkNumberOfCheckList/:id')
-  async numberOfCheckList(@Param('id') id: number, @Res() response: Response){
-    try{
-      const numberOfCheckList=await this.checkListService.checkNumberOfCheckList(id);
-      response.status(numberOfCheckList.status).json(numberOfCheckList.message);
-    }catch(err){
-      console.log(err);
+  // @Get('checkNumberOfCheckList/:id')
+  // async numberOfCheckList(@Param('id') id: number, @Res() response: Response){
+  //   try{
+  //     const numberOfCheckList=await this.checkListService.checkNumberOfCheckList(id);
+  //     response.status(numberOfCheckList.status).json(numberOfCheckList.message);
+  //   }catch(err){
+  //     console.log(err);
       
-      response.status(500).json("ارور سرور")
-    }
+  //     response.status(500).json("ارور سرور")
+  //   }
+  // }
+  @Get('/api/checkNumberOfCheckList')
+  async getMissedWorkDays(@Query('userId') userId: number): Promise<any> {
+    const today = new Date();
+    const formattedToday = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
+
+    const missedDays = await this.checkListService.calculateMissedCheckListDays(userId, formattedToday);
+
+    return {
+      status: 200,
+      message: `تعداد روزهای کاری که چک‌لیست ثبت نشده است: ${missedDays}`,
+      missedDays,
+    };
   }
 }

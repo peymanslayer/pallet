@@ -561,7 +561,7 @@ export class TruckBreakDownService {
         row['breakDown']=response
   
         if (userInfo) {
-          row['personalCode'] = userInfo.personelCode;
+          row['personelCode'] = userInfo.personelCode;
           row['company'] = userInfo.company;
           row['zone'] = userInfo.zone;
         }
@@ -1463,18 +1463,16 @@ export class TruckBreakDownService {
     let parts = String(after).split("/");
     let year = parts[0];
     let month = parts[1];
-    let day = parseInt(parts[2], 10) + 1; // تبدیل به عدد و اضافه کردن یک روز
+    let day = parseInt(parts[2], 10) + 1; 
     let result;
-    // بازسازی رشته تاریخ جدید
 
     const truckInfo = await this.truckInfoRepository.findOne({where : {driverId}})
 
     let beforeparts = String(before).split("/");
     let beforeYear = parts[0];
     let beforeMonth = parts[1];
-    let beforeDay = parseInt(parts[2], 10) - 1; // تبدیل به عدد و اضافه کردن یک روز
+    let beforeDay = parseInt(parts[2], 10) - 1; 
 
-    // بازسازی رشته تاریخ جدید
     let newAfterDateString = `${year}/${month}/${String(day).padStart(2, '0')}`;
     let newBeforeDateString = `${year}/${month}/${String(beforeDay).padStart(2, '0')}`;
     console.log(newAfterDateString,newBeforeDateString);
@@ -1509,34 +1507,27 @@ export class TruckBreakDownService {
 
         const items = res.dataValues;
 
-        // گزارش جدید برای هر رکورد
         const report = { ...item.dataValues };
 
-        // بررسی وضعیت `notify`
         report['notify'] = item.lastFetch < item.updatedAt ? 1 : 0;
 
-        // بررسی و به‌روزرسانی `carLife` در صورت خرابی ناتمام
         if (item.historySendToRepair === null) {
-          // اگر خرابی ناتمام باشد، `carLife` را با مقدار `lastCarLife` از چک لیست به‌روزرسانی کنید
-          report['carLife'] = item.carLife; // یا هر مقدار دیگری که باید از چک لیست بگیرید
+          report['carLife'] = item.carLife;
         }
 
-        // یافتن اولین پاسخ معتبر
         for (let i = 1; i <= 34; i++) {
           const answer = items[`answer_${i}`];
           if (answer != null) {
             report['type'] = items[`type_${i}`];
             report['comment'] = answer;
             report['number'] = i;
-            break; // فقط اولین پاسخ معتبر را اضافه کنید
+            break;
           }
         }
 
-        // اضافه کردن گزارش به داده‌ها
         data.push(report);
 
 
-        // به‌روزرسانی `lastFetch`
         await this.truckBreakDownRepository.update(
           {
             lastFetch: new Date().toISOString(),
@@ -1557,6 +1548,7 @@ export class TruckBreakDownService {
       data: data
     }
   }
+
 
 
 
@@ -1587,25 +1579,27 @@ export class TruckBreakDownService {
     }
   }
 
-  async driverNotifyReplay(driverId: any) {
-    // const now = new Date().toISOString();
+  async driverNotifyReplay(driverId: number) {
     let countNotify = 0;
+
     const res = await this.truckBreakDownRepository.findAll({
       where: {
         driverId: driverId,
-        // lastFetch: { [Op.or]: [{ [Op.lte]:  }, { [Op.eq]: null }] },
+        driverDeliveryConfirm: false,  
+        lastFetch: { [Op.or]: [{ [Op.lte]: null }, { [Op.lt]: new Date() }] },  
       },
     });
-
+  
     for (let i of res) {
       if (i.lastFetch < i.updatedAt) {
-        if (i.notifyTransportComment) countNotify++;
-        if (i.notifyRepairmanComment) countNotify++;
+        if (i.notifyTransportComment) countNotify++; 
+        if (i.notifyRepairmanComment) countNotify++;  
       }
     }
-
+  
     return { data: countNotify };
   }
+  
 
   async replayTransportAdmin(driverId: any) {
     const res = await this.truckBreakDownRepository.count({
@@ -1694,23 +1688,27 @@ export class TruckBreakDownService {
   async delete(id: number) {
     let message: string;
     let status: number;
-    const deleteBreakDown = await this.truckBreakDownRepository.destroy({
-      where: {
-        id: id,
-      },
-    });
-    const deleteItems = await this.truckBreakDownItemsRepository.destroy({
-      where: {
-        id: id,
-      },
-    });
-    if (deleteBreakDown && deleteItems) {
-      message = `delete breakDown id = ${id} successfully`;
-      status = 200;
-    } else {
-      message = `delete item id = ${id} failed`;
-      status = 400;
+    const breakDown = await this.truckBreakDownRepository.findOne({where : {id}})
+    if(!breakDown) {
+      status = 404 
+      message = "breakdown not found"
     }
+    if(breakDown.logisticConfirm == false && breakDown.status == 'opened'){
+      await this.truckBreakDownRepository.destroy({where : {id: id}})
+      await this.truckBreakDownItemsRepository.destroy({where : {id: id}})
+
+      status = 200 
+      message = "deleted successfuly"
+    }
+    status = 201 
+    message = "شما دیگر مجاز به پاک کردن خرابی نیستید"
+    // if (deleteBreakDown && deleteItems) {
+    //   message = `delete breakDown id = ${id} successfully`;
+    //   status = 200;
+    // } else {
+    //   message = `delete item id = ${id} failed`;
+    //   status = 400;
+    // }
 
     return {
       status: status,

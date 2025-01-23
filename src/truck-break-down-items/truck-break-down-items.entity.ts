@@ -417,4 +417,28 @@ export class TruckBreakDownItems extends Model<TruckBreakDownItems> {
   @Column({ type: DataType.TEXT, defaultValue: 'روغن موتور' })
   question_34: string;
 
+  @ApiProperty({ description: 'Answer to question 35' })
+  @Column({ type: DataType.TEXT })
+  answer_35: string;
+
+  @ApiProperty({ description: 'Type of answer for question 35' })
+  @Column({ type: DataType.TEXT })
+  type_35: string;
+
+  @ApiProperty({ description: 'Question 35, e.g., "Oil service"', default: 'روغن ترمز' })
+  @Column({ type: DataType.TEXT, defaultValue: 'روغن ترمز' })
+  question_35: string;
+
+  @ApiProperty({ description: 'Answer to question 36' })
+  @Column({ type: DataType.TEXT })
+  answer_36: string;
+
+  @ApiProperty({ description: 'Type of answer for question 36' })
+  @Column({ type: DataType.TEXT })
+  type_36: string;
+
+  @ApiProperty({ description: 'Question 36, e.g., "Oil service"', default: 'روغن گیربکس' })
+  @Column({ type: DataType.TEXT, defaultValue: 'روغن گیربکس' })
+  question_36: string;
+
 }

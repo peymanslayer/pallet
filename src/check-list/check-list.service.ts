@@ -511,6 +511,8 @@ export class CheckListService {
           );
         }
       }
+
+      await this.kilometerDetailsService.create(body['truckId'] ,  body['id'] ,checkList['answer_0'] )
   
       if (truckInfo) {
         await this.truckInfoRepository.update(
@@ -2033,226 +2035,356 @@ export class CheckListService {
   ) {
     return await this.authService.userSameZone(zone, role, attributes, company);
   }
+  // async checkKilometer(body: Object) {
+  //   let Holidaykilometer;
+  //   let diffCheckList: number = 0
+  //   let kilometerPerviousNumber: number=0;
+  //   const currentAnswer = body['kilometer'];
+  //   const checkList = {};
+  //   const hd = new Holidays('IR')
+  //   const getHoliday = hd.getHolidays('2025');
+  //   const today = new Date();
+  //   const formattedDate = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
+  //   const formattedYesteradyDate = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate() - 1}`;
+  //   console.log(formattedYesteradyDate);
+
+  //   const formatToday = today.toISOString().split('T')[0];
+  //   console.log(formatToday);
+
+  //   let ckeckInHolidaysOrNot = await this.checkInHoliday(getHoliday, formatToday);
+  //   // if (ckeckInHolidaysOrNot.message == ' شما در تعطیلات هستید') {
+  //   //   Holidaykilometer = 0
+  //   // } else {
+  //   //   console.log(ckeckInHolidaysOrNot.numberOfHoliday);
+      
+  //   //   Holidaykilometer = 2000 * ckeckInHolidaysOrNot.numberOfHoliday;
+  //   // }
+
+  //   const currentTime = new Date();
+  //   let hours = currentTime.getHours();
+  //   let minutes = currentTime.getMinutes();
+  //   const fullHour = `${hours}:${minutes}`;
+  //   checkList['hours'] = fullHour
+
+  //   const lastCheckLis = await this.checkListRepository.findOne({
+  //     where: { userId: body['userId'] , truckId : body['truckId'] , history: formattedYesteradyDate },
+  //     order: [['createdAt', 'DESC']],
+  //   });
+  //   const lastCheckList = await this.checkListRepository.findAndCountAll({
+  //     where: {  userId: body['userId'] , truckId : body['truckId'] },
+  //     order: [['createdAt', 'DESC']],
+  //   });
+
+  //   if (lastCheckList) {
+  //     for (const item of lastCheckList.rows) {
+  //       if (item.answer_0 != null) {
+  //         kilometerPerviousNumber = item.dataValues.answer_0+kilometerPerviousNumber;
+  //         console.log(item.dataValues.answer_0, 'is data');
+
+  //       }
+  //     }
+  //   }
+  //   // console.log(lastCheckList.length, 'is lenght');
+  //       const resultDifference=await this.checkNumberOfCheckList(body['userId']);
+  //     diffCheckList=resultDifference.message
+
+  //   let diff = 0
+
+  //   console.log(diffCheckList,"is diff ", kilometerPerviousNumber,"is pervious");
+    
+  //     // console.log(lastCheckLis.history != formattedYesteradyDate, currentAnswer > 1000 * diffCheckList + kilometerPerviousNumber,
+  //     //   !lastCheckLis.isDeleted, formattedYesteradyDate, lastCheckLis.history);
+  //     if(lastCheckLis){
+  //     console.log(currentAnswer <= lastCheckLis.answer_0, currentAnswer - lastCheckLis.answer_0 > 1000);
+  //      if( currentAnswer <= lastCheckLis.answer_0 ||( currentAnswer <= kilometerPerviousNumber  || currentAnswer>1000 * diffCheckList + kilometerPerviousNumber)){
+  //       console.log('in if');
+        
+  //         return{
+  //           status:200,
+  //           message:'شرایط کیلومتر اشتباه است'
+  //         }
+  //       }
+  //   }if( currentAnswer>1000 * diffCheckList + kilometerPerviousNumber|| currentAnswer <= kilometerPerviousNumber ){
+  //     console.log((1000 * diffCheckList) + kilometerPerviousNumber || currentAnswer < kilometerPerviousNumber);
+      
+      
+  //       return{
+  //         status:200,
+  //         message:'شرایط کیلومتر اشتباه است'
+  //       }
+  //     }else{
+  //       console.log('in');
+        
+  //       return{
+  //         status:200,
+  //         message:'ادامه'
+  //       }
+  //     }
+  //     // else {
+  //     //   if (currentAnswer - Number(kilometerPerviousNumber) > 1000) {
+  //     //     return {
+  //     //       status: 200,
+  //     //       message: 'شرایط کیلومتر اشتباه است'
+  //     //     }
+  //     //   } else {
+  //     //     return {
+  //     //       status: 200,
+  //     //       message: 'ادامه'
+  //     //     }
+  //     //   }
+  //     // }
+  //     // اگر رکورد قبلی وجود دارد
+
+  //   // } else {
+  //   //   console.log(kilometerPerviousNumber, currentAnswer);
+
+  //   //   if ((currentAnswer > 1000 && kilometerPerviousNumber == undefined) || currentAnswer - kilometerPerviousNumber > 1000) {
+  //   //     return {
+  //   //       status: 200,
+  //   //       data: [],
+  //   //       message: 'شرایط کیلومتر اشتباه است',
+  //   //     };
+  //   //   } else {
+  //   //     return {
+  //   //       status: 200,
+  //   //       message: 'ادامه'
+  //   //     }
+  //   //   }
+  //   // }
+  // }
+
   async checkKilometer(body: Object) {
-    let Holidaykilometer;
-    let diffCheckList: number = 0
-    let kilometerPerviousNumber: number=0;
+    let kilometerPerviousNumber = 0;
     const currentAnswer = body['kilometer'];
-    const checkList = {};
-    const hd = new Holidays('IR')
-    const getHoliday = hd.getHolidays('2025');
+    const userId = body['userId'];
+    const truckId = body['truckId'];
     const today = new Date();
-    const formattedDate = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
-    const formattedYesteradyDate = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate() - 1}`;
-    console.log(formattedYesteradyDate);
-
-    const formatToday = today.toISOString().split('T')[0];
-    console.log(formatToday);
-
-    let ckeckInHolidaysOrNot = await this.checkInHoliday(getHoliday, formatToday);
-    // if (ckeckInHolidaysOrNot.message == ' شما در تعطیلات هستید') {
-    //   Holidaykilometer = 0
-    // } else {
-    //   console.log(ckeckInHolidaysOrNot.numberOfHoliday);
-      
-    //   Holidaykilometer = 2000 * ckeckInHolidaysOrNot.numberOfHoliday;
-    // }
-
-    const currentTime = new Date();
-    let hours = currentTime.getHours();
-    let minutes = currentTime.getMinutes();
-    const fullHour = `${hours}:${minutes}`;
-    checkList['hours'] = fullHour
-
-    const lastCheckLis = await this.checkListRepository.findOne({
-      where: { userId: body['userId'] , truckId : body['truckId'] , history: formattedYesteradyDate },
+    const formattedToday = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
+    const formattedYesterday = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate() - 1}`;
+    
+    const lastCheckListYesterday = await this.checkListRepository.findOne({
+      where: { userId, truckId, history: formattedYesterday },
       order: [['createdAt', 'DESC']],
     });
-    const lastCheckList = await this.checkListRepository.findAndCountAll({
-      where: {  userId: body['userId'] , truckId : body['truckId'] },
+  
+    const lastCheckList = await this.checkListRepository.findOne({
+      where: { userId, truckId },
       order: [['createdAt', 'DESC']],
     });
-
+  
     if (lastCheckList) {
-      for (const item of lastCheckList.rows) {
-        if (item.answer_0 != null) {
-          kilometerPerviousNumber = item.dataValues.answer_0+kilometerPerviousNumber;
-          console.log(item.dataValues.answer_0, 'is data');
-
-        }
-      }
+      kilometerPerviousNumber = lastCheckList.answer_0;
     }
-    // console.log(lastCheckList.length, 'is lenght');
-        const resultDifference=await this.checkNumberOfCheckList(body['userId']);
-      diffCheckList=resultDifference.message
-
-    let diff = 0
-
-    console.log(diffCheckList,"is diff ", kilometerPerviousNumber,"is pervious");
-    
-      // console.log(lastCheckLis.history != formattedYesteradyDate, currentAnswer > 1000 * diffCheckList + kilometerPerviousNumber,
-      //   !lastCheckLis.isDeleted, formattedYesteradyDate, lastCheckLis.history);
-      if(lastCheckLis){
-      console.log(currentAnswer <= lastCheckLis.answer_0, currentAnswer - lastCheckLis.answer_0 > 1000);
-       if( currentAnswer <= lastCheckLis.answer_0 ||( currentAnswer <= kilometerPerviousNumber  || currentAnswer>1000 * diffCheckList + kilometerPerviousNumber)){
-        console.log('in if');
-        
-          return{
-            status:200,
-            message:'شرایط کیلومتر اشتباه است'
-          }
-        }
-    }else{
-      console.log((1000 * diffCheckList) + kilometerPerviousNumber || currentAnswer < kilometerPerviousNumber);
-      
-      if( currentAnswer>1000 * diffCheckList + kilometerPerviousNumber|| currentAnswer <= kilometerPerviousNumber ){
-        return{
-          status:200,
-          message:'شرایط کیلومتر اشتباه است'
-        }
-      }
-        return{
-          status:200,
-          message:'ادامه'
-        }
-    }
-      // else {
-      //   if (currentAnswer - Number(kilometerPerviousNumber) > 1000) {
-      //     return {
-      //       status: 200,
-      //       message: 'شرایط کیلومتر اشتباه است'
-      //     }
-      //   } else {
-      //     return {
-      //       status: 200,
-      //       message: 'ادامه'
-      //     }
-      //   }
-      // }
-      // اگر رکورد قبلی وجود دارد
-
-    // } else {
-    //   console.log(kilometerPerviousNumber, currentAnswer);
-
-    //   if ((currentAnswer > 1000 && kilometerPerviousNumber == undefined) || currentAnswer - kilometerPerviousNumber > 1000) {
-    //     return {
-    //       status: 200,
-    //       data: [],
-    //       message: 'شرایط کیلومتر اشتباه است',
-    //     };
-    //   } else {
-    //     return {
-    //       status: 200,
-    //       message: 'ادامه'
-    //     }
-    //   }
-    // }
-  }
-
-  async checkInHoliday(holiadys: Array<Holiday>, todayDate: string) {
-    let message: string;
-    let numberOfHoliday: number = 0
-    for (let item of holiadys) {
-      console.log(item);
-
-      const date = new Date(item.date);
-      const formattedDate = date.toISOString().split('T')[0];
-
-      console.log(formattedDate, todayDate);
-
-      if (todayDate == formattedDate) {
-        console.log("in hd");
-        numberOfHoliday=0
-        message = ' شما در تعطیلات هستید'
-      } else {
-        numberOfHoliday =numberOfHoliday+1
-        message = 'ادامه'
-      }
-
-    }
-    return {
-      message,
-      numberOfHoliday
-    }
-  }
-
-  async checkNumberOfCheckList(id: number) {
-    let day: number;
-    const checkNumberOfCheckList = await this.checkListRepository.findAll({
-      where: { userId: id },
-      order: [['history', 'DESC']],
-      
-    });
-    console.log(checkNumberOfCheckList);
-    
-    // if (checkNumberOfCheckList.length > 1) {
-
-      const getMonth = new Date();
-      const numberGetMonth = getMonth.getMonth() + 1
-      // const lastHistory = checkNumberOfCheckList[checkNumberOfCheckList.length ].dataValues.history;
-      const today = new Date();
-      const formattedDate = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
-      const latestHistory = checkNumberOfCheckList[0].dataValues.history;
-      const splitLastHistory = formattedDate.split("/");
-      const splitLatestHistory = latestHistory.split("/");
-      console.log(formattedDate, latestHistory, numberGetMonth, splitLastHistory[2], splitLatestHistory[2]);
-      switch (Number(splitLastHistory[1])) {
-        case 0:
-          day = 31
-          break;
-        case 1:
-          day = 31
-          break;
-        case 2:
-          day = 28
-          break;
-        case 3:
-          day = 31
-          break;
-        case 4:
-          day = 30
-          break;
-        case 5:
-          day = 31
-          break;
-        case 6:
-          day = 30
-          break;
-        case 7:
-          day = 31
-          break;
-        case 8:
-          day = 31
-          break;
-        case 9:
-          day = 30
-          break;
-        case 10:
-          day = 31
-          break;
-        case 11:
-          day = 30
-          break;
-
-        default:
-          break;
-      }
-      if (Number(splitLastHistory[2]) == Number(splitLatestHistory[2])) {
-        
+  
+    if (lastCheckListYesterday) {
+      const lastKilometer = lastCheckListYesterday.answer_0;
+  
+      if (currentAnswer > lastKilometer + 1000) {
+        console.log("yesterday");
+  
         return {
           status: 200,
-          message: 1
-        }
-      } else {
-         const resultNumber=day-(Number(splitLastHistory[2])+Number(splitLatestHistory[2]));
-         const result= this.mirror(resultNumber);
-         return{
-          status:200,
-          message:result
-         }
+          message: 'شرایط کیلومتر اشتباه است',
+        };
       }
+  
+      if (currentAnswer <= lastKilometer) {
+        console.log("yesterday");
+  
+        return {
+          status: 200,
+          message: 'شرایط کیلومتر اشتباه است',
+        };
+      }
+    } else {
 
-    } 
+      const diffCheckList = await this.calculateMissedCheckListDays(userId, formattedToday);
+      if (
+        currentAnswer <= kilometerPerviousNumber || 
+        currentAnswer > 1000 * diffCheckList + kilometerPerviousNumber
+      ) {
+        console.log("not yesterday");
+        console.log(currentAnswer);
+        console.log(kilometerPerviousNumber);
+        
+  
+        return {
+          status: 200,
+          message: 'شرایط کیلومتر اشتباه است',
+        };
+      }
+    }
+  
+    return {
+      status: 200,
+      message: 'ادامه',
+    };
+  }
+  
+
+async calculateMissedCheckListDays(userId: number, formattedToday: string) {
+    const checkListRecords = await this.checkListRepository.findAll({
+      where: { userId },
+      order: [['history', 'DESC']],
+    });
+  
+    if (!checkListRecords.length) return 1;
+  
+    const latestHistory = checkListRecords[0].dataValues.history;
+    const splitToday = formattedToday.split("/");
+    const splitLatest = latestHistory.split("/");
+  
+    let totalDays = this.calculateDateDifference(splitToday, splitLatest);
+  
+    const missedDays = await this.excludeHolidaysAndFridays(totalDays, latestHistory, formattedToday);
+    return missedDays > 0 ? missedDays : 1;
+}
+
+async excludeHolidaysAndFridays(totalDays: number, startDate: string, endDate: string) {
+    const hd = new Holidays('IR');
+    const holidays = hd.getHolidays('2025'); 
+
+    let nonHolidayDays = 0;
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    for (let i = 0; i < totalDays; i++) {
+      const currentDate = new Date(start);
+      currentDate.setDate(start.getDate() + i); 
+
+      const dayOfWeek = currentDate.getDay();
+      const formattedCurrentDate = `${currentDate.getFullYear()}/${currentDate.getMonth() + 1}/${currentDate.getDate()}`;
+
+      const isHoliday = holidays.some((holiday) => holiday.date === formattedCurrentDate);
+      const isFriday = dayOfWeek === 5; 
+
+      if (!isHoliday && !isFriday) {
+        nonHolidayDays++;
+      }
+    }
+
+    return nonHolidayDays;
+}
+
+calculateDateDifference(today: string[], latest: string[]): number {
+    const [yearToday, monthToday, dayToday] = today.map(Number);
+    const [yearLatest, monthLatest, dayLatest] = latest.map(Number);
+
+    const todayDate = new Date(yearToday, monthToday - 1, dayToday);
+    const latestDate = new Date(yearLatest, monthLatest - 1, dayLatest);
+
+    const diffTime = todayDate.getTime() - latestDate.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+}
+
+  
+
+  // async checkInHoliday(holiadys: Array<Holiday>, todayDate: string) {
+  //   let message: string;
+  //   let numberOfHoliday: number = 0
+  //   for (let item of holiadys) {
+  //     console.log(item);
+
+  //     const date = new Date(item.date);
+  //     const formattedDate = date.toISOString().split('T')[0];
+
+  //     console.log(formattedDate, todayDate);
+
+  //     if (todayDate == formattedDate) {
+  //       console.log("in hd");
+  //       numberOfHoliday=0
+  //       message = ' شما در تعطیلات هستید'
+  //     } else {
+  //       numberOfHoliday =numberOfHoliday+1
+  //       message = 'ادامه'
+  //     }
+
+  //   }
+  //   return {
+  //     message,
+  //     numberOfHoliday
+  //   }
+  // }
+
+  // async checkNumberOfCheckList(id: number) {
+  //   let day: number;
+  //   const checkNumberOfCheckList = await this.checkListRepository.findAll({
+  //     where: { userId: id },
+  //     order: [['history', 'DESC']],
+      
+  //   });
+  //   console.log(checkNumberOfCheckList);
+    
+  //   // if (checkNumberOfCheckList.length > 1) {
+
+  //     const getMonth = new Date();
+  //     const numberGetMonth = getMonth.getMonth() + 1
+  //     // const lastHistory = checkNumberOfCheckList[checkNumberOfCheckList.length ].dataValues.history;
+  //     const today = new Date();
+  //     const formattedDate = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
+  //     const latestHistory = checkNumberOfCheckList[0].dataValues.history;
+  //     const splitLastHistory = formattedDate.split("/");
+  //     const splitLatestHistory = latestHistory.split("/");
+  //     console.log(formattedDate, latestHistory, numberGetMonth, splitLastHistory[2], splitLatestHistory[2]);
+  //     switch (Number(splitLastHistory[1])) {
+  //       case 0:
+  //         day = 31
+  //         break;
+  //       case 1:
+  //         day = 31
+  //         break;
+  //       case 2:
+  //         day = 28
+  //         break;
+  //       case 3:
+  //         day = 31
+  //         break;
+  //       case 4:
+  //         day = 30
+  //         break;
+  //       case 5:
+  //         day = 31
+  //         break;
+  //       case 6:
+  //         day = 30
+  //         break;
+  //       case 7:
+  //         day = 31
+  //         break;
+  //       case 8:
+  //         day = 31
+  //         break;
+  //       case 9:
+  //         day = 30
+  //         break;
+  //       case 10:
+  //         day = 31
+  //         break;
+  //       case 11:
+  //         day = 30
+  //         break;
+
+  //       default:
+  //         break;
+  //     }
+  //     if (Number(splitLastHistory[2]) == Number(splitLatestHistory[2])) {
+        
+  //       return {
+  //         status: 200,
+  //         message: 1
+  //       }
+  //     } else {
+  //        const resultNumber=day-(Number(splitLastHistory[2])+Number(splitLatestHistory[2]));
+  //        const result= this.mirror(resultNumber);
+  //        return{
+  //         status:200,
+  //         message:result
+  //        }
+  //     }
+
+  //   } 
 
      mirror(firstNumber:number):number{
       if(firstNumber<0){

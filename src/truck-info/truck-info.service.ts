@@ -37,37 +37,21 @@ export class TruckInfoService {
 
   async update(driverId: number, body: any) {
     try {
-      if (body['carNumber']) {
-        body['updateCarNumber'] = true; // #HINT: it is used for logic "checkCarLifeMoreThanLast()" in "check-list.service"
-
-        //======================================================================[solution solve carNumber by array]
-        // const arrayCarNumber: Array<string> = body['carNumber'];
-        // let convertCarNumberToString = '';
-
-        // arrayCarNumber.forEach((item, index) => {
-        //   if (index === 1) {
-        //     convertCarNumberToString += '-';
-        //   }
-        //   convertCarNumberToString += item;
-        // });
-
-        // body['carNumber'] = convertCarNumberToString;
-        //======================================================================
-      }
-
       const currentDriverCarNumber = await this.truckInfoRepository.findOne({where : {carNumber : body['carNumber']}})
-      let driverId = null ;
+      let driverIds = null ;
       if(currentDriverCarNumber) {
         currentDriverCarNumber.carNumber = null;
-        driverId = currentDriverCarNumber.driverId
+        driverIds = currentDriverCarNumber.driverId
         await currentDriverCarNumber.save()
       }
-
-      const infoUpdate = await this.truckInfoRepository.update(body, {
+      console.log(body.updateCarNumber);
+      
+      const infoUpdate = await this.truckInfoRepository.update({carNumber:body.updateCarNumber}, {
         where: {
           driverId: driverId,
         },
       });
+console.log(infoUpdate.length);
 
       return { status: 200, data: driverId , message: 'update successfully' };
     } catch (err) {

@@ -451,7 +451,7 @@ export class TruckBreakDownService {
           [Op.and]: {
             status: { [Op.eq]: 'opened' },
             transportComment: { [Op.ne]: null },
-            historyReciveToRepair: { [Op.eq]: null },
+            historyReciveToRepair: { [Op.ne]: null },
             logisticConfirm: { [Op.ne]: false },
             ...filter,
           },
@@ -873,7 +873,7 @@ export class TruckBreakDownService {
         where: {
           [Op.and]: {
             status: { [Op.eq]: 'opened' },
-            logisticConfirm: { [Op.eq]: 1 },
+            logisticConfirm: { [Op.eq]: true },
             historyReciveToRepair: { [Op.eq]: null },
             driverId: { [Op.in]: usersIdInSameZone },
             historyDriverRegister:{
@@ -1078,7 +1078,7 @@ export class TruckBreakDownService {
     let breakDowns;
         if (beforeHistory || afterHistory) {
       if (!afterHistory) {
-        afterHistory = '2024/0/0';
+        afterHistory = '2400/0/0';
       }
       if (!beforeHistory) {
         beforeHistory = '2023/0/0';
@@ -1157,9 +1157,9 @@ export class TruckBreakDownService {
             transportComment: { [Op.in]: ['necessary', 'immediately'] },
             historyReciveToRepair: { [Op.ne]: null },
             logisticConfirm: { [Op.ne]: false },
-            repairmanComment: { [Op.eq]: null },
+            // repairmanComment: { [Op.eq]: null },
             historyDeliveryDriver: { [Op.ne]: null },
-            // status: {[Op.eq] : 'opened' } ,
+            status: {[Op.eq] : 'opened' } ,
             ...filter,
           },
         },

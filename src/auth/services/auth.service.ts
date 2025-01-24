@@ -802,7 +802,7 @@ export class AuthService {
   }
   async userSameZones(
     zone: string,
-    role: string = '',
+    role: string,
     company: string,
   
   ) {
@@ -816,12 +816,11 @@ export class AuthService {
     console.log('zone', zone);
   const result= await this.authRepository.findAll({
       where: {
-        zone:  role ,
-        role:zone,
+        zone:zone ,
+        role:role,
         company: company
       },
     });
-    console.log(result);
     return result
     
   }

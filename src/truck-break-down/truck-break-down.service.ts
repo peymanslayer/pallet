@@ -823,7 +823,6 @@ export class TruckBreakDownService {
     let usersIdInCompany = [];
     let usersIdFilter = [];
 
-    if (beforeHistory || afterHistory) {
       if (!afterHistory) {
         afterHistory = '2400/0/0';
       }
@@ -834,16 +833,16 @@ export class TruckBreakDownService {
         filter['historyDriverRegister'] = {
           [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
         };
-      } else {
+      } 
         filter['historyDeliveryDriver'] = {
-          [Op.between]: [`${beforeHistory}`, `${afterHistory}`],
-        };
+          [Op.gte]: [beforeHistory],
+          [Op.lte]:[afterHistory]
       }
-    }
     if (carNumber) {
       filter['carNumber'] = carNumber;
     }
-
+     console.log(zone,'is zone');
+     
     const driversInZone = await this.getUsersSameZone(zone, 'companyDriver',company);
     driversInZone.forEach((driver) => {
       usersIdInSameZone.push(driver.dataValues.id);
@@ -867,6 +866,8 @@ export class TruckBreakDownService {
     // Get list of "Activity in Progress"
     
     if (logisticComment === 'true') {
+      console.log(beforeHistory,afterHistory);
+      
       
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {
@@ -874,21 +875,20 @@ export class TruckBreakDownService {
             status: { [Op.eq]: 'opened' },
             logisticConfirm: { [Op.eq]: 1 },
             historyReciveToRepair: { [Op.eq]: null },
-            driverId: { [Op.in]: usersIdFilter },
-            ...filter,
+            driverId: { [Op.in]: usersIdInSameZone },
+            historyDriverRegister:{
+              [Op.and]:{
+               [Op.gte]:[beforeHistory],
+               [Op.lte]:[afterHistory]
+              }
+            }
           },
         },
         order: [['id', 'DESC']],
         limit: 20,
       });
-      for (let item of breakDowns.rows) {
-        if (item.logisticConfirm === false) {
-          // await this.truckBreakDownRepository.update(
-          //   { status: 'closed' },
-          //   { where: { id: item.id } },
-          // );
-        }
-      }
+      console.log(breakDowns);
+      
     } else if (repairDone === 'true') {
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {

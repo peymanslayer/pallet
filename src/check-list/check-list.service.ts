@@ -2161,26 +2161,36 @@ export class CheckListService {
     const today = new Date();
     const formattedToday = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
     const formattedYesterday = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate() - 1}`;
-    
+  
+    // بررسی چک‌لیست دیروز
     const lastCheckListYesterday = await this.checkListRepository.findOne({
-      where: { userId, truckId, history: formattedYesterday },
+      where: { userId, truckId, history: formattedYesterday, isDeleted: false },
       order: [['createdAt', 'DESC']],
     });
   
+    // بررسی آخرین چک‌لیست ثبت شده
     const lastCheckList = await this.checkListRepository.findOne({
-      where: { userId, truckId },
+      where: { userId, truckId, isDeleted: false },
       order: [['createdAt', 'DESC']],
     });
   
-    if (lastCheckList) {
-      kilometerPerviousNumber = lastCheckList.answer_0;
+    // اگر کاربر برای اولین بار چک‌لیست ثبت می‌کند، بدون محدودیت ادامه می‌دهد
+    if (!lastCheckList) {
+      return {
+        status: 200,
+        message: 'ادامه', // تابع بدون اعمال محدودیت اجرا می‌شود
+      };
     }
+  
+    // مقدار کیلومتر قبلی
+    kilometerPerviousNumber = lastCheckList.answer_0;
   
     if (lastCheckListYesterday) {
       const lastKilometer = lastCheckListYesterday.answer_0;
   
       if (currentAnswer > lastKilometer + 1000) {
-        console.log("yesterday");
+        console.log(lastKilometer);
+        console.log(currentAnswer);
   
         return {
           status: 200,
@@ -2189,7 +2199,8 @@ export class CheckListService {
       }
   
       if (currentAnswer <= lastKilometer) {
-        console.log("yesterday");
+        console.log(lastKilometer);
+        console.log(currentAnswer);
   
         return {
           status: 200,
@@ -2197,16 +2208,15 @@ export class CheckListService {
         };
       }
     } else {
-
+      // محاسبه روزهای گذشته برای چک‌لیست‌های غایب
       const diffCheckList = await this.calculateMissedCheckListDays(userId, formattedToday);
       if (
-        currentAnswer <= kilometerPerviousNumber || 
+        currentAnswer <= kilometerPerviousNumber ||
         currentAnswer > 1000 * diffCheckList + kilometerPerviousNumber
       ) {
         console.log("not yesterday");
         console.log(currentAnswer);
         console.log(kilometerPerviousNumber);
-        
   
         return {
           status: 200,
@@ -2215,11 +2225,13 @@ export class CheckListService {
       }
     }
   
+    // تابع بدون خطا به پایان می‌رسد
     return {
       status: 200,
       message: 'ادامه',
     };
   }
+  
   
 
 async calculateMissedCheckListDays(userId: number, formattedToday: string) {

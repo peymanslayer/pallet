@@ -843,30 +843,30 @@ export class TruckBreakDownService {
     }
      console.log(zone,'is zone');
      
-    const driversInZone = await this.getUsersSameZone(zone, 'companyDriver',company);
-    driversInZone.forEach((driver) => {
-      usersIdInSameZone.push(driver.dataValues.id);
-    });
-
+     const [driversInZone, filterUserByCompany] = await Promise.all([
+      this.getUsersSameZone(zone, 'companyDriver', company),
+      company ? this.getUserIdListByCompanyName(company) : []
+  ])
     if (company) {
       const filterUserByCompany =
         await this.getUserIdListByCompanyName(company);
       
-      for(let item of filterUserByCompany){
-        usersIdInCompany.push(item.dataValues.id);
-    };
-      // usersIdFilter = usersIdInSameZone.filter((item) => {
-      //   return usersIdInCompany.includes(item);
-      // });
+    //   for(let item of filterUserByCompany){
+    //     usersIdInCompany.push(item.dataValues.id);
+    // };
       
-    } else {
-      usersIdFilter.push(...usersIdInSameZone);
-    }
+    } 
+     usersIdInSameZone = driversInZone.map(driver => driver.dataValues.id);
+     usersIdInCompany = filterUserByCompany.map(item => item.dataValues.id);
+
+    //  const userFilter = company ? 
+    //         usersIdInCompany : 
+    //         usersIdInSameZone
 
     // Get list of "Activity in Progress"
     
     if (logisticComment === 'true') {
-      console.log(beforeHistory,afterHistory);
+      console.log(beforeHistory,usersIdInSameZone);
       
       
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
@@ -925,74 +925,45 @@ export class TruckBreakDownService {
         order: [['id', 'DESC']],
         limit: 20,
       });
-      for (let item of breakDowns.rows) {
-        if (item.logisticConfirm === false) {
-          // await this.truckBreakDownRepository.update(
-          //   { status: 'closed' },
-          //   { where: { id: item.id } },
-          // );
-        }
-      }
+ 
     }
 
     if (count === 'true') {
       countList = breakDowns.count;
     } else {
-      for (let item of breakDowns.rows) {
-        let breakDown = {};
-        let row = {};
-
-        breakDown = item.dataValues;
-
-        const carPiecesHistory = await this.getCarPiecesHistory(
-          breakDown['carNumber'],
-        );
-
-        // اضافه کردن اطلاعات اضافی از uth
-        let driverDetails = null;
-        try {
-          driverDetails = await this.authService.getById(
-            breakDown['driverId'],
-          );
-        } catch (error) {
-          console.error(
-            `خطا در دریافت اطلاعات auth برای driverId: ${breakDown['driverId']}`,
-            error.message,
-          );
-        }
-
-        row['id'] = breakDown['id'];
-        row['numberOfBreakDown'] = breakDown['numberOfBreakDown'];
-        row['hours'] = breakDown['hoursDriverRegister'];
-        row['history'] = breakDown['historyDriverRegister'];
-        row['driverName'] = breakDown['driverName'];
-        row['driverMobile'] = breakDown['driverMobile'];
-        row['carNumber'] = breakDown['carNumber'];
-        row['kilometer'] = breakDown['carLife'];
-        row['logisticConfirm'] = breakDown['logisticConfirm'];
-        row['transportComment'] = breakDown['transportComment'];
-        row['historySendToRepair'] = breakDown['historySendToRepair'];
-        row['historyReciveToRepair'] = breakDown['historyReciveToRepair'];
-        row['histroyDeliveryTruck'] = breakDown['histroyDeliveryTruck'];
-        row['historyDeliveryDriver'] = breakDown['historyDeliveryDriver'];
-        row['piece'] = breakDown['piece'];
-        row['piecesReplacementHistory'] = carPiecesHistory;
-        row['answers'] = await this.getBreakDownItemsById(
-          breakDown['truckBreakDownItemsId'],
-        );
-
-        if (driverDetails) {
-          row['personelCode'] = driverDetails.personelCode;
-          row['zone'] = driverDetails.zone;
-          row['company'] = driverDetails.company;
-        } else {
-          row['personnelCode'] = null;
-          row['zone'] = null;
-          row['company'] = null;
-        }
-
-        data.push(row);
-      }
+       data = await Promise.all(breakDowns.rows.map(async (item) => {
+        const [carPiecesHistory, driverDetails, answers] = await Promise.all([
+            this.getCarPiecesHistory(item.carNumber),
+            this.authService.getById(item.driverId).catch(error => {
+                console.error(`خطا در دریافت اطلاعات راننده برای ID: ${item.driverId}`, error);
+                return null;
+            }),
+            this.getBreakDownItemsById(item.truckBreakDownItemsId)
+        ]);
+    
+        return {
+            id: item.id,
+            numberOfBreakDown: item.numberOfBreakDown,
+            hours: item.hoursDriverRegister,
+            history: item.historyDriverRegister,
+            driverName: item.driverName,
+            driverMobile: item.driverMobile,
+            carNumber: item.carNumber,
+            kilometer: item.carLife,
+            logisticConfirm: item.logisticConfirm,
+            transportComment: item.transportComment,
+            historySendToRepair: item.historySendToRepair,
+            historyReciveToRepair: item.historyReciveToRepair,
+            histroyDeliveryTruck: item.histroyDeliveryTruck,
+            historyDeliveryDriver: item.historyDeliveryDriver,
+            piece: item.piece,
+            piecesReplacementHistory: carPiecesHistory,
+            answers,
+            personelCode: driverDetails ? driverDetails.personelCode : null,
+            zone: driverDetails ? driverDetails.zone : null,
+            company: driverDetails ? driverDetails.company : null,
+        };
+    }));
     }
 
     return {
@@ -1661,16 +1632,12 @@ export class TruckBreakDownService {
       notify['notifyRepairmanComment'] = true;
     }
 
-    const res = await this.truckBreakDownRepository.update(
-      {
-        ...body,
-        ...notify,
-      },
-      {
+    const res = await this.truckBreakDownRepository.update( body, {
         where: { id: id },
       },
     );
-
+     console.log(res);
+     
     if (res[0] > 0) {
       return {
         status: 200,

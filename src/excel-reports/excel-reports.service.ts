@@ -1189,7 +1189,7 @@ export class ExcelReportsService {
       }
     
       if (pieces && pieces.length > 0) {
-        invoiceFilter.piece = { [Op.in]: pieces }
+        invoiceFilter.piece = { [Op.in]: pieces };
       }
     
       if (driverIds.length > 0) breakdownFilter.driverId = { [Op.in]: driverIds };
@@ -1211,7 +1211,7 @@ export class ExcelReportsService {
     
           const items = [];
           if (breakdownItems) {
-            for (let i = 1; i <= 34; i++) {
+            for (let i = 1; i <= 36; i++) {
               const question = breakdownItems[`question_${i}`];
               const answer = breakdownItems[`answer_${i}`];
               if (question && answer) {
@@ -1293,8 +1293,8 @@ export class ExcelReportsService {
           driverMobile: data.driverMobile,
           carLife: data.carLife,
           logisticComment: data.logisticComment,
-          transportComment: data.transportComment,
-          repairmanComment: data.repairmanComment,
+          transportComment: data.transportComment === 'notNecessary' ? 'موردی نیست ادامه فعالیت' : 'لطفا بررسی شود',
+          repairmanComment: data.repairmanComment === 'notNecessary' ? 'موردی نیست ادامه فعالیت' : 'لطفا بررسی شود',
           carNumber: data.carNumber,
           createdAt: data.createdAt,
           company: data.company,
@@ -1304,7 +1304,7 @@ export class ExcelReportsService {
     
         if (data.repairParts.length > 0) {
           data.repairParts.forEach((part) => {
-            const row = worksheet.addRow({
+            worksheet.addRow({
               ...baseRowData,
               piece: part.piece || 'بدون قطعه',
               question: 'بدون سوال',
@@ -1312,11 +1312,6 @@ export class ExcelReportsService {
               amount: part.amount || 'بدون مبلغ',
               carNumberSystem: part.carNumberSystem || 'بدون پلاک سیستمی',
             });
-            console.log(data.repairParts);
-            
-            // row.eachCell((cell) => {
-            //   cell.alignment = { vertical: 'middle', horizontal: 'center' };
-            // });
           });
         } else {
           worksheet.addRow({
@@ -1350,6 +1345,7 @@ export class ExcelReportsService {
       const buffer = await workbook.xlsx.writeBuffer();
       return buffer;
     }
+    
     
     
 

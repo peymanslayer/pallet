@@ -917,7 +917,8 @@ export class TruckBreakDownService {
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {
           [Op.and]: {
-            logisticConfirm: { [Op.eq]: 0 },
+            logisticConfirm: { [Op.eq]: false },
+            // status : { [Op.eq] : 'opened'} ,
             driverId: { [Op.in]: usersIdInCompany },
           },
         },

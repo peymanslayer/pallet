@@ -919,7 +919,6 @@ export class TruckBreakDownService {
           [Op.and]: {
             logisticConfirm: { [Op.eq]: 0 },
             driverId: { [Op.in]: usersIdInCompany },
-            ...filter,
           },
         },
         order: [['id', 'DESC']],

@@ -1436,33 +1436,36 @@ export class TruckBreakDownService {
     let month = parts[1];
     let day = parseInt(parts[2], 10) + 1; 
     let result;
-
     const truckInfo = await this.truckInfoRepository.findOne({where : {driverId}})
-
-    let beforeparts = String(before).split("/");
-    let beforeYear = parts[0];
-    let beforeMonth = parts[1];
-    let beforeDay = parseInt(parts[2], 10) - 1; 
-
-    let newAfterDateString = `${year}/${month}/${String(day).padStart(2, '0')}`;
-    let newBeforeDateString = `${year}/${month}/${String(beforeDay).padStart(2, '0')}`;
-    console.log(newAfterDateString,newBeforeDateString);
-    
+    if(after && before){
       result = await this.truckBreakDownRepository.findAndCountAll({
-      where: {
-        carNumber: truckInfo.carNumber,
-        historyDriverRegister: {
-          [Op.gte]: [before],
-          [Op.lte]:[after],
-          [Op.not]:null
+        where: {
+          carNumber: truckInfo.carNumber,
+          historyDriverRegister: {
+            [Op.gte]: [before],
+            [Op.lte]:[after],
+            [Op.not]:null
+          },
         },
-      },
-      order: [
-        ['updatedAt', 'DESC'],
-        ['id', 'DESC'],
-      ],
-      limit: 20,
-    });
+        order: [
+          ['updatedAt', 'DESC'],
+          ['id', 'DESC'],
+        ],
+        limit: 20,
+      });
+    }else{
+      result = await this.truckBreakDownRepository.findAndCountAll({
+        where: {
+          carNumber: truckInfo.carNumber
+        },
+        order: [
+          ['updatedAt', 'DESC'],
+          ['id', 'DESC'],
+        ],
+        limit: 20,
+      });
+    }
+     
     for (let item of result.rows) {
       console.log(2);
 

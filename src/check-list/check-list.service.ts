@@ -512,7 +512,7 @@ export class CheckListService {
         }
       }
 
-      await this.kilometerDetailsService.create(body['truckId'] ,  body['id'] ,checkList['answer_0'] )
+      await this.kilometerDetailsService.create(body['truckId'] ,  body['id'] , checkList['answer_0'] )
   
       if (truckInfo) {
         await this.truckInfoRepository.update(

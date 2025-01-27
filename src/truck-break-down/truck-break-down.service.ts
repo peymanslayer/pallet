@@ -446,6 +446,8 @@ export class TruckBreakDownService {
     }
   
     if (transportComment === 'true') {
+      console.log(filter);
+      
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {
           [Op.and]: {
@@ -453,7 +455,6 @@ export class TruckBreakDownService {
             transportComment: { [Op.ne]: null },
             historyReciveToRepair: { [Op.ne]: null },
             logisticConfirm: { [Op.ne]: false },
-            ...filter,
           },
         },
         order: [['id', 'DESC']],

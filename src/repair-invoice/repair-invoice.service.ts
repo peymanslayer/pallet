@@ -23,23 +23,36 @@ export class RepairInvoiceService {
     ){}
 
     async createRepairInvoices(inputData: any) {
-        const repairInvoices = inputData.repairInvoices.map((invoice) => ({
-          truckBreakDownId: Number(inputData.truckBreakDownId), 
-          carNumber: inputData.carNumber,
-          carNumberSystem: inputData.carNumberSystem,
-          providerCode: inputData.providerCode,
-          providerName: inputData.providerName,
-          piece: invoice.piece,
-          typeActivity: invoice.typeActivity,
-          amount: invoice.amount,
-        }));
-        console.log((inputData.truckBreakDownId));
-        
-      
-       const factor= await RepairInvoice.bulkCreate(repairInvoices);
-      
-        return { status: 200 , message: factor };
+      try {
+          const truckBreakDownExists = await TruckBreakDown.findOne({
+              where: { id: Number(inputData.truckBreakDownId) }
+          });
+  
+          if (!truckBreakDownExists) {
+              return { status: 400, message: 'Truck Break Down ID does not exist' };
+          }
+  
+          const repairInvoices = inputData.repairInvoices.map((invoice) => ({
+              truckBreakDownId: Number(inputData.truckBreakDownId), 
+              carNumber: inputData.carNumber,
+              carNumberSystem: inputData.carNumberSystem,
+              providerCode: inputData.providerCode,
+              providerName: inputData.providerName,
+              piece: invoice.piece,
+              typeActivity: invoice.typeActivity,
+              amount: Number(invoice.amount), 
+          }));
+  
+          console.log(`Truck Break Down ID: ${inputData.truckBreakDownId}`);
+          
+          const factors = await RepairInvoice.bulkCreate(repairInvoices);
+          
+          return { status: 200, message: factors };
+      } catch (error) {
+          console.error('Error creating repair invoices:', error);
+          return { status: 500, message: 'Internal Server Error', error: error.message };
       }
+  }
 
     async getAllPieces(){
       const pieces = await this.repairInvoiceRepository.findAll({

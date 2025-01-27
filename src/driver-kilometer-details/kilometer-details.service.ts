@@ -122,4 +122,19 @@ export class KilometerDetailsService {
         }
       }
       
+
+      async updateKilometerDetails(driverId: number, truckId: number , answer0Value: number) {
+        try {
+            const kilometerDetails = await this.driverKilometerDetailRepository.findOne({
+                where: { driverId , truckId },
+            });
+    
+            if (kilometerDetails) {
+                kilometerDetails.totalKilometer -= answer0Value;
+                await kilometerDetails.save();
+            }
+        } catch (err) {
+            console.error('Error updating kilometer details:', err);
+        }
+    }
 }

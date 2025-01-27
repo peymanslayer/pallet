@@ -2003,6 +2003,8 @@ export class CheckListService {
         perviousCheckListOfUser.isDeleted = true;
         await perviousCheckListOfUser.save();
       }
+
+      await this.kilometerDetailsService.updateKilometerDetails(checklistToDelete.userId , checklistToDelete.truckId , checklistToDelete.answer_0)
   
       await this.truckInfoRepository.update(
         { lastCarLife: perviousCheckListOfUser?.answer_0?.toString() || '' },

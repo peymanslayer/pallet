@@ -490,19 +490,26 @@ export class TruckBreakDownService {
         order: [['id', 'DESC']],
         limit: 20,
       });
-  
-      if (breakDowns.count != 0) {
-        for (let item of breakDowns.rows) {
-          const find = await this.repairInvoice.findOne({
+    
+      if (breakDowns.count !== 0) {
+        const promises = breakDowns.rows.map(async (item) => {
+          console.log(`Processing Truck Breakdown ID: ${item.dataValues.id}`);
+          
+          const finds = await this.repairInvoice.findAll({
             where: { truckBreakDownId: item.dataValues.id },
           });
-  
-          if (find) {
-            findFactor.push(find);
+          
+          console.log(finds);
+          
+          if (finds.length > 0) {
+            findFactor.push(...finds);
           }
-        }
+        });
+      
+        await Promise.all(promises);
       }
-    } 
+      
+    }
     else {
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {

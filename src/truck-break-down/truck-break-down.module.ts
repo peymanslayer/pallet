@@ -6,6 +6,7 @@ import { TruckBreakDownItemsProviders } from 'src/truck-break-down-items/truck-b
 import { TruckInfoProviders } from 'src/truck-info/truck-info.provider';
 import { AuthModule } from 'src/auth/auth.module';
 import { RepairInvoiceProviders } from 'src/repair-invoice/repair-invoice.provider';
+import { DatabaseModule } from 'src/auth/database.module';
 @Module({
   imports: [AuthModule],
   controllers: [TruckBreakDownController],

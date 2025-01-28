@@ -17,5 +17,9 @@ export class UpdateTruckBreakDownDto {
 
   historyLogisticComment: string
 
+  hoursTransportComment: string
+
+  hoursLogisticComment: string
+
   piece: string;
 }

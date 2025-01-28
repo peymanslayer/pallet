@@ -51,6 +51,12 @@ export class TruckBreakDown extends Model {
   @Column({ defaultValue: false })
   logisticConfirm: boolean;
 
+  @Column
+  hoursLogisticComment: string; //new
+
+  @Column
+  historyLogisticComment: string; //new
+
   @Column({
     type: DataType.VIRTUAL,
     get() {
@@ -61,7 +67,7 @@ export class TruckBreakDown extends Model {
   isLogisticConfirmed: boolean;
 
   @Column
-  logisticComment: string;
+  logisticComment: string; 
 
   @Column(DataType.ENUM('necessary', 'notNecessary', 'immediately'))
   transportComment: string;
@@ -76,6 +82,9 @@ export class TruckBreakDown extends Model {
 
   @Column
   transportCommentHistory: string;
+
+  @Column
+  hoursTransportComment: string; //new
 
   @Column({ defaultValue: false })
   notifyTransportComment: boolean;

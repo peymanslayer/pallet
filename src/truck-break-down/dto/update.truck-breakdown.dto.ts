@@ -15,5 +15,7 @@ export class UpdateTruckBreakDownDto {
 
   logisticComment: string;
 
+  historyLogisticComment: string
+
   piece: string;
 }

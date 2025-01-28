@@ -446,6 +446,8 @@ export class TruckBreakDownService {
     }
   
     if (transportComment === 'true') {
+      console.log(filter);
+      
       breakDowns = await this.truckBreakDownRepository.findAndCountAll({
         where: {
           [Op.and]: {
@@ -453,7 +455,6 @@ export class TruckBreakDownService {
             transportComment: { [Op.ne]: null },
             historyReciveToRepair: { [Op.ne]: null },
             logisticConfirm: { [Op.ne]: false },
-            ...filter,
           },
         },
         order: [['id', 'DESC']],
@@ -1443,33 +1444,36 @@ export class TruckBreakDownService {
     let month = parts[1];
     let day = parseInt(parts[2], 10) + 1; 
     let result;
-
     const truckInfo = await this.truckInfoRepository.findOne({where : {driverId}})
-
-    let beforeparts = String(before).split("/");
-    let beforeYear = parts[0];
-    let beforeMonth = parts[1];
-    let beforeDay = parseInt(parts[2], 10) - 1; 
-
-    let newAfterDateString = `${year}/${month}/${String(day).padStart(2, '0')}`;
-    let newBeforeDateString = `${year}/${month}/${String(beforeDay).padStart(2, '0')}`;
-    console.log(newAfterDateString,newBeforeDateString);
-    
+    if(after && before){
       result = await this.truckBreakDownRepository.findAndCountAll({
-      where: {
-        carNumber: truckInfo.carNumber,
-        historyDriverRegister: {
-          [Op.gte]: [before],
-          [Op.lte]:[after],
-          [Op.not]:null
+        where: {
+          carNumber: truckInfo.carNumber,
+          historyDriverRegister: {
+            [Op.gte]: [before],
+            [Op.lte]:[after],
+            [Op.not]:null
+          },
         },
-      },
-      order: [
-        ['updatedAt', 'DESC'],
-        ['id', 'DESC'],
-      ],
-      limit: 20,
-    });
+        order: [
+          ['updatedAt', 'DESC'],
+          ['id', 'DESC'],
+        ],
+        limit: 20,
+      });
+    }else{
+      result = await this.truckBreakDownRepository.findAndCountAll({
+        where: {
+          carNumber: truckInfo.carNumber
+        },
+        order: [
+          ['updatedAt', 'DESC'],
+          ['id', 'DESC'],
+        ],
+        limit: 20,
+      });
+    }
+     
     for (let item of result.rows) {
       console.log(2);
 
@@ -1638,6 +1642,14 @@ export class TruckBreakDownService {
       }
       notify['notifyRepairmanComment'] = true;
     }
+    // if(body.logisticComment){
+    //   // if(body.logisticComment === 'notNecessary') {
+    //   //   const breakDown = await this.truckBreakDownRepository.findOne({where : {id}})
+    //   //   breakDown.status = 'closed'
+    //   //   await breakDown.save()
+    //   // }
+    //   body.historyLogisticComment = this.getTime(new Date());
+    // }
 
     const res = await this.truckBreakDownRepository.update( body, {
         where: { id: id },

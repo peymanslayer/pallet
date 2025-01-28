@@ -37,6 +37,7 @@ export class TruckInfoService {
 
   async update(driverId: number, body: any) {
     try {
+      let message = "updated successfuly" ;
       const currentDriverCarNumber = await this.truckInfoRepository.findOne({where : {carNumber : body['carNumber']}})
       const oldDriverCarNumber = await this.truckInfoRepository.findOne({where : {carNumber : body['updateCarNumber']}})
       let driverName = null ;
@@ -46,6 +47,7 @@ export class TruckInfoService {
         const driver = await this.authRepository.findOne({where : {id : oldDriverCarNumber.driverId}})
         if(driver) {
           driverName = driver.name
+          message = ` پلاک با موفقیت تغییر یافت لطفا برای کاربر با نام ${driverName} تعیین پلاک کنید.`
         }
       }
       if(currentDriverCarNumber) {
@@ -59,9 +61,9 @@ export class TruckInfoService {
           driverId: driverId,
         },
       });
-console.log(infoUpdate.length);
+      console.log(infoUpdate.length);
 
-      return { status: 200, data: driverId , message: ` پلاک با موفقیت تغییر یافت لطفا برای کاربر با نام ${driverName} تعیین پلاک کنید.` };
+      return { status: 200, data: driverName , message};
     } catch (err) {
       console.log(err);
     }

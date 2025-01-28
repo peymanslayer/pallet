@@ -13,7 +13,7 @@ export class UpdateTruckBreakDownDto {
 
   historyDeliveryDriver: string;
 
-  logisticComment: string;
+  logisticConfirm: boolean;
 
   historyLogisticComment: string
 

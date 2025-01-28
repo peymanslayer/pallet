@@ -1642,14 +1642,15 @@ export class TruckBreakDownService {
       }
       notify['notifyRepairmanComment'] = true;
     }
-    // if(body.logisticComment){
-    //   // if(body.logisticComment === 'notNecessary') {
-    //   //   const breakDown = await this.truckBreakDownRepository.findOne({where : {id}})
-    //   //   breakDown.status = 'closed'
-    //   //   await breakDown.save()
-    //   // }
-    //   body.historyLogisticComment = this.getTime(new Date());
-    // }
+    
+    if(body.logisticConfirm == true || body.logisticConfirm == false){
+      if(body.logisticConfirm == false) {
+        const breakDown = await this.truckBreakDownRepository.findOne({where : {id}})
+        breakDown.status = 'closed'
+        await breakDown.save()
+      }
+      body.historyLogisticComment = this.getTime(new Date());
+    }
 
     const res = await this.truckBreakDownRepository.update( body, {
         where: { id: id },

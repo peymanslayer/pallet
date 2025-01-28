@@ -170,117 +170,133 @@ async insertTruckBreakDownItems(body: any) {
     const formattedDate = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
 
     console.log('Formatted Date:', formattedDate);
-    console.log('Body:', body);
+    console.log('Request Body:', body);
 
-    const truckInfo = await this.truckInfoRepository.findOne({where : {driverId : body['id']}});
-    console.log(truckInfo);
-    
+    // دریافت اطلاعات کامیون براساس driverId
+    const truckInfo = await this.truckInfoRepository.findOne({ where: { driverId: body['id'] } });
+    console.log('Fetching truck info for driver ID:', body['id']);
+    if (!truckInfo) {
+      console.error('Truck info not found for driver ID:', body['id']);
+      return {
+        status: 400,
+        message: 'اطلاعات کامیون برای راننده یافت نشد',
+      };
+    }
+    console.log('Truck Info:', truckInfo);
 
+    // بررسی وجود چک لیست برای امروز
     const todayCheckList = await this.checkListRepository.findOne({
-      where: { history: formattedDate, userId: truckInfo.driverId , truckId : truckInfo.id},
+      where: { history: formattedDate, userId: truckInfo.driverId, truckId: truckInfo.id },
     });
-    console.log('Today Checklist:', todayCheckList);
-
+    console.log('Checking today checklist for driver ID:', truckInfo.driverId, 'and truck ID:', truckInfo.id);
     if (!todayCheckList) {
+      console.warn('No checklist found for today:', formattedDate);
       return {
         status: 400,
         message: 'شما هنوز چک لیستی ثبت نکردید',
       };
-    };
+    }
+    console.log('Today Checklist:', todayCheckList);
 
-    // if (activeBreakdowns !== 0) {
-      //   console.log('Active Breakdowns Count:', activeBreakdowns);
-      //   return {
-        //     status: 200,
-        //     message: MESSAGE_ALERT.truckBreakDown_limit_register,
-        //   };
-        // }
-        
-        
+    // بررسی تعداد خرابی‌های فعال
     const activeBreakdowns = await this.checkActiveTruckBreakDown(truckInfo.carNumber);
-    console.log(activeBreakdowns);
-    
-    if(activeBreakdowns.count!=0){
+    console.log('Checking active breakdowns for car number:', truckInfo.carNumber);
+    if (activeBreakdowns.count !== 0) {
+      console.warn('Active breakdowns exist for this truck.');
       return {
-            status: 400,
-            message: MESSAGE_ALERT.truckBreakDown_limit_register,
-          };
+        status: 400,
+        message: MESSAGE_ALERT.truckBreakDown_limit_register,
+      };
     }
 
-    const existingBreakdown = await this.checkInsertedBreakdownOnceADay(truckInfo.carNumber)
+    // بررسی ثبت خرابی در همان روز
+    const existingBreakdown = await this.checkInsertedBreakdownOnceADay(truckInfo.carNumber);
     if (existingBreakdown) {
+      console.warn('Breakdown already registered for today:', truckInfo.carNumber);
       return {
         status: 400,
         message: 'شما قبلاً یک خرابی در امروز ثبت کرده‌اید.',
       };
     }
-    
+
+    // دریافت آخرین چک لیست
     const lastCheckList = await this.checkListRepository.findOne({
-      where: { truckId : truckInfo.id },
+      where: { truckId: truckInfo.id },
       order: [['createdAt', 'DESC']],
     });
-    console.log(lastCheckList.answer_0);
-    
 
-    // اعتبارسنجی مقادیر مورد نیاز
-    if (!truckInfo) {
-      console.warn('Truck information not found for driver:', body['id']);
-    }
-
+    // مقداردهی اطلاعات خرابی
     breakDown['hoursDriverRegister'] = body['hours'];
     breakDown['historyDriverRegister'] = formattedDate;
     breakDown['driverName'] = body['name'];
     breakDown['driverId'] = body['id'];
     breakDown['carLife'] = lastCheckList ? lastCheckList.answer_0 : null;
-    breakDown['carNumber'] = truckInfo ? truckInfo.carNumber : 'نامشخص';
+    breakDown['carNumber'] = truckInfo.carNumber || 'نامشخص';
     breakDown['driverMobile'] = body['mobile'];
     breakDown['numberOfBreakDown'] = (await this.lastNumberOfBreakDown()) + 1;
 
     console.log('Breakdown Data Before Validation:', breakDown);
 
-    // اعتبارسنجی داده‌های Breakdown
-    if (!breakDown['carNumber']) {
-      breakDown['carNumber'] = 'نامشخص';
-      console.warn('Car number is missing, setting to default value.');
-    }
-
+    // اعتبارسنجی داده‌های answers
     for (let item of answers) {
       console.log('Processing item:', item);
-    
+
       if (!item['number'] || !item['comment'] || !item['type']) {
-        console.warn('Invalid answer item:', item);
+        console.warn('Invalid answer item detected:', item);
         continue;
       }
-    
+
       breakDownItems['answer_' + item['number']] = item['comment'];
       breakDownItems['type_' + item['number']] = item['type'];
-      breakDownItems['number_' + item['number']] = item['number']; 
+      breakDownItems['number_' + item['number']] = item['number'];
     }
-    
 
     // ذخیره اطلاعات Breakdown Items
-    const insertItems = await this.truckBreakDownItemsRepository.create<TruckBreakDownItems>(
-      breakDownItems, { isNewRecord: true }
-    );
-
-    if (insertItems) {
+    try {
+      const insertItems = await this.truckBreakDownItemsRepository.create<TruckBreakDownItems>(
+        breakDownItems,
+        { isNewRecord: true }
+      );
+      if (!insertItems) {
+        console.error('Failed to insert breakdown items.');
+        throw new Error('Breakdown items insertion failed.');
+      }
       breakDown['truckBreakDownItemsId'] = insertItems.id;
-      insertBreakDown = await this.truckBreakDownRepository.create<TruckBreakDown>(breakDown , { isNewRecord: true });
-      console.log('Insert Breakdown Result:', insertBreakDown);
+    } catch (error) {
+      console.error('Error while inserting breakdown items:', error.message);
+      throw error;
     }
 
+    // ذخیره اطلاعات Breakdown
+    try {
+      insertBreakDown = await this.truckBreakDownRepository.create<TruckBreakDown>(
+        breakDown,
+        { isNewRecord: true }
+      );
+      if (!insertBreakDown) {
+        console.error('Failed to insert truck breakdown.');
+        throw new Error('Breakdown insertion failed.');
+      }
+    } catch (error) {
+      console.error('Error while inserting truck breakdown:', error.message);
+      throw error;
+    }
+
+    console.log('Breakdown successfully registered:', insertBreakDown);
     return {
       status: 201,
       message: [insertBreakDown],
     };
   } catch (error) {
-    console.error('Error inserting truck breakdown:', error);
+    console.error('Error inserting truck breakdown:', error.message, error.stack);
     return {
       status: 500,
       message: 'خطایی در ثبت خرابی رخ داده است.',
     };
   }
 }
+
+
 // async insertTruckBreakDownItems(body: any) {
 //   try {
 //     let insertBreakDown;

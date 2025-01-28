@@ -4,15 +4,15 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.addColumn('TruckBreakDowns', 'hoursLogisticComment', {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: true,
     });
     await queryInterface.addColumn('TruckBreakDowns', 'historyLogisticComment', {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: true,
     });
     await queryInterface.addColumn('TruckBreakDowns', 'hoursTransportComment', {
       type: Sequelize.STRING,
-      allowNull: false, 
+      allowNull: true, 
     });
   },
 

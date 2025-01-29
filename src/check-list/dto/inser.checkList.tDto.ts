@@ -26,3 +26,42 @@
 //   answer_20: string;
 //   answer_21: string;
 // }
+
+
+import { IsArray, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+
+export class CreateCheckListDto {
+  @IsNumber()
+  @IsNotEmpty()
+  id: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  truckId: number;
+
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  hours: string;
+
+  @IsArray()
+  @IsNotEmpty()
+  answers: string[];
+}
+
+export class CheckKilometerDto {
+    @IsNotEmpty()
+    @IsNumber()
+    kilometer: number;
+  
+    @IsNotEmpty()
+    @IsNumber()
+    userId: number;
+  
+    @IsNotEmpty()
+    @IsNumber()
+    truckId: number;
+  }
